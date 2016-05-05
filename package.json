@@ -1,0 +1,37 @@
+{
+  "name": "ask-a-question",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "webpack",
+    "start": "webpack-dev-server"
+  },
+  "dependencies": {
+    "angular2": "^2.0.0-beta.7",
+    "angular2-jwt": "^0.1.8",
+    "body-parser": "~1.13.2",
+    "bootstrap": "^3.3.6",
+    "debug": "~2.2.0",
+    "es6-promise": "^3.0.2",
+    "es6-shim": "^0.33.3",
+    "express": "~4.13.1",
+    "express-jwt": "^3.3.0",
+    "jade": "~1.11.0",
+    "jsonwebtoken": "^5.7.0",
+    "method-override": "^2.3.5",
+    "mongoose": "^4.4.4",
+    "morgan": "~1.6.1",
+    "reflect-metadata": "0.1.2",
+    "rxjs": "5.0.0-beta.2",
+    "serve-favicon": "~2.3.0",
+    "systemjs": "0.19.22",
+    "zone.js": "0.5.15"
+  },
+  "devDependencies": {
+    "ts-loader": "latest",
+    "tsd": "latest",
+    "typescript": "latest",
+    "webpack": "latest",
+    "webpack-dev-server": "latest"
+  }
+}
