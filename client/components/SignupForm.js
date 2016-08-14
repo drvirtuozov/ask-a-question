@@ -1,13 +1,16 @@
 import React from 'react';
+import classnames from 'classnames';
 
-export default class SignUpForm extends React.Component {
+export default class SignupForm extends React.Component {
   constructor(props) {
     super(props);
     
     this.state = {
       username: '',
       email: '',
-      password: ''
+      password: '',
+      errors: {},
+      isLoading: false
     };
   }
   
@@ -17,15 +20,24 @@ export default class SignUpForm extends React.Component {
   
   onSubmit(e) {
     e.preventDefault();
-    this.props.userSignupRequest(this.state);
+    this.setState({ errors: {}, isLoading: true });
+    this.props.userSignupRequest(this.state)
+      .catch(res => {
+        this.setState({
+          errors: res,
+          isLoading: false
+        });
+      });
   }
   
   render() {
+    const { errors } = this.state;
+    
     return (
       <form onSubmit={this.onSubmit.bind(this)}>
         <h1>Join our community!</h1>
         
-        <div className="form-group">
+        <div className={classnames("form-group", { "has-error": errors.username })}>
           <label className="control-label">Username</label>
           <input
             onChange={this.onChange.bind(this)}
@@ -34,9 +46,10 @@ export default class SignUpForm extends React.Component {
             name="username" 
             className="form-control">
           </input>
+          {errors.username && <span className="help-block">{ errors.username }</span>}
         </div>
         
-        <div className="form-group">
+        <div className={classnames("form-group", { "has-error": errors.email })}>
           <label className="control-label">Email</label>
           <input
             onChange={this.onChange.bind(this)}
@@ -47,7 +60,7 @@ export default class SignUpForm extends React.Component {
           </input>
         </div>
         
-        <div className="form-group">
+        <div className={classnames("form-group", { "has-error": errors.password })}>
           <label className="control-label">Password</label>
           <input
             onChange={this.onChange.bind(this)}
@@ -59,13 +72,13 @@ export default class SignUpForm extends React.Component {
         </div>
         
         <div className="form-group">
-          <button className="btn btn-primary btn-lg">Sign Up</button>
+          <button disabled={this.state.isLoading} className="btn btn-primary btn-lg">Sign Up</button>
         </div>
       </form>
     );
   }
 }
 
-SignUpForm.propTypes = {
+SignupForm.propTypes = {
   userSignupRequest: React.PropTypes.func.isRequired
 };

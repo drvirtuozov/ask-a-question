@@ -1,9 +1,9 @@
-"use strict";
+import express from 'express';
+import Validator from 'validator';
+import User from '../../models/User';
 
-const express = require('express');
+
 const router = express.Router();
-const User = require("../../models/User");
-
 
 router.get("/", (req, res) => {
   User.find({}, "username")
@@ -30,16 +30,44 @@ router.get("/:username", (req, res) => {
 });
 
 router.post('/', (req, res) => {
-  let username = req.body.username,
-    password = req.body.password;
+  let { errors, isValid } = validateInput(req.body);
   
-  User.create({ username, password })
-    .then(user => {
-      res.json({ ok: true, token: user.tokens[0] });
-    })
-    .catch(err => {
-      res.status(500).json({ ok: false, description: err.message });
-    });
+  if (isValid) {
+    User.create(req.body)
+      .then(user => {
+        res.json({ ok: true, token: user.tokens[0] });
+      })
+      .catch(err => {
+        res.status(500).json({ ok: false, description: err.message });
+      });
+  } else {
+    return res.status(400).json(errors);
+  }
 });
 
-module.exports = router;
+function validateInput(data) {
+  let errors = {};
+  
+  if(Validator.isNull(data.username)) {
+    errors.username = "This field is required";
+  }
+  
+  if(Validator.isNull(data.email)) {
+    errors.email = "This field is required";
+  }
+  
+  if(!Validator.isEmail(data.email)) {
+    errors.email = "Email is invalid";
+  }
+  
+  if(Validator.isNull(data.password)) {
+    errors.password = "This field is required";
+  }
+  
+  return {
+    errors,
+    isValid: Object.keys(errors).length ? false : true 
+  };
+}
+
+export default router;
