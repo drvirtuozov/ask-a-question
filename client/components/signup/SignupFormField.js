@@ -1,0 +1,33 @@
+import React from 'react';
+import classnames from 'classnames';
+
+const SignupFormField = ({ field, value, label, error, type, onChange }) => {
+  return (
+    <div className={classnames("form-group", { "has-error": error })}>
+      <label className="control-label">Username</label>
+      <input
+        onChange={ onChange }
+        value={ value } 
+        type={ type } 
+        name={ field } 
+        className="form-control">
+      </input>
+      {error && <span className="help-block">{ error }</span>}
+    </div>  
+  );
+};
+
+SignupFormField.propTypes = {
+  field: React.PropTypes.string.isRequired,
+  value: React.PropTypes.string.isRequired,
+  label: React.PropTypes.string.isRequired,
+  error: React.PropTypes.string,
+  type: React.PropTypes.string.isRequired,
+  onChange: React.PropTypes.func.isRequired
+};
+
+SignupFormField.defaultProps = {
+  type: 'text'
+};
+
+export default SignupFormField;

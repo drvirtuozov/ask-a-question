@@ -8,7 +8,7 @@ import webpackMiddleware from 'webpack-dev-middleware';
 import webpackHotMiddleware from 'webpack-hot-middleware';
 import webpackConfig from '../webpack.config.dev';
 import users from './routes/api/users';
-import db from './db';
+import './db';
 
 const compiler = webpack(webpackConfig); 
 const app = express();
