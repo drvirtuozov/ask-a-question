@@ -1,22 +1,59 @@
-"use strict";
-
-const mongoose = require("mongoose");
-const crypto = require("crypto");
-const Counter = require("./Counter");
-const jwt = require("jsonwebtoken");
-const HttpError = require("../error/http");
-const Token = require("./Token");
+import mongoose from 'mongoose';
+import beautifyUnique from 'mongoose-beautiful-unique-validation';
+import crypto from 'crypto';
+import { isAlphanumeric, isEmail } from 'validator';
+import Counter from './Counter';
+import jwt from 'jsonwebtoken';
+import Token from './Token';
+import HttpError from '../errors/http';
 
 
 const userSchema = mongoose.Schema({
-  _id: { type: Number, index: true, min: 1 },
-  username: { type: String, match: /[(._\-)a-z]/ig, unique: true, required: true },
+  _id: { 
+    type: Number,
+    min: 1 
+  },
+  username: { 
+    type: String, 
+    unique: "Username already taken",
+    index: true,
+    required: [true, "This field is required"],
+    validate: {
+      validator: isAlphanumeric,
+      message: "[A-Z], [0-9] symbols only"
+    }
+  },
   firstname: { type: String },
   lastname: { type: String },
-  email: { type: String },
-  password: { type: String, required: true, set: function(password) { return this.encryptPassword(password) } },
-  salt: { type: String, default: crypto.randomBytes(16).toString("base64") },
-  tokens: { type: Array, default: jwt.sign({ username: this.username }, "az7321epta") },
+  email: { 
+    type: String,
+    unique: "Account with this email already registered",
+    index: true,
+    required: [true, "This field is required"], 
+    validate: {
+      validator: isEmail,
+      message: "Enter valid email"
+    }
+  },
+  password: { 
+    type: String, 
+    required: [true, "This field is required"],
+    validate: {
+      validator: function(password) {
+        return password;
+      },
+      message: "Enter a password"
+    },
+    set: function(password) {
+      password = password.replace(/ /g, s => "");
+      return password ? this.encryptPassword(password) : password;
+    }
+  },
+  salt: { 
+    type: String, 
+    default: crypto.randomBytes(16).toString("base64") 
+  },
+  tokens: [String],
   timestamp: { type: Number, default: Date.now() },
   questions: [{
     text: { type: String, required: true },
@@ -37,6 +74,8 @@ const userSchema = mongoose.Schema({
   }]
 });
 
+userSchema.plugin(beautifyUnique);
+
 userSchema.methods.encryptPassword = function(password) {
   return crypto.createHmac("sha1", this.salt).update(password).digest("hex");
 };
@@ -50,6 +89,15 @@ userSchema.pre("save", function(next) {
   
   Counter.findByIdAndUpdate("users", { $inc: { count: 1 } }, { new: true })
     .then(counter => {
+      if (!counter) return Counter.create({
+        _id: "users",
+        count: 1
+      });
+      
+      return counter;
+    })
+    .then(counter => {
+      user.tokens = [jwt.sign({ username: user.username }, "az7321epta")];
       user._id = counter.count;
       next();
     })
@@ -87,7 +135,7 @@ userSchema.statics.logout = function(token, callback) {
     .then(res => {
       return User.findByIdAndUpdate(res.user, { $pull: { tokens: token } }, { new: true });
     })
-    .then((user) => {
+    .then(user => {
       return Token.remove({ _id: token });
     })
     .then(() => {
@@ -112,4 +160,4 @@ userSchema.statics.checkToken = function(token) {
   });
 };
 
-module.exports = mongoose.model("User", userSchema);
+export default mongoose.model("User", userSchema);

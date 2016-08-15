@@ -1,6 +1,6 @@
 import express from 'express';
-import Validator from 'validator';
 import User from '../../models/User';
+import HttpError from '../../errors/http';
 
 
 const router = express.Router();
@@ -30,44 +30,22 @@ router.get("/:username", (req, res) => {
 });
 
 router.post('/', (req, res) => {
-  let { errors, isValid } = validateInput(req.body);
-  
-  if (isValid) {
-    User.create(req.body)
-      .then(user => {
-        res.json({ ok: true, token: user.tokens[0] });
-      })
-      .catch(err => {
-        res.status(500).json({ ok: false, description: err.message });
-      });
-  } else {
-    return res.status(400).json(errors);
-  }
+  User.create(req.body)
+    .then(user => {
+      res.json({ ok: true, token: user.tokens[0] });
+    })
+    .catch(err => {
+      let result = {
+        errors: {}
+      },
+        description = new HttpError(400, err.message).message;
+      
+      for (let error in err.errors) {
+        result.errors[error] = err.errors[error].message;
+      }
+      
+      res.status(400).json({ ok: false, description, result });
+    });
 });
-
-function validateInput(data) {
-  let errors = {};
-  
-  if(Validator.isNull(data.username)) {
-    errors.username = "This field is required";
-  }
-  
-  if(Validator.isNull(data.email)) {
-    errors.email = "This field is required";
-  }
-  
-  if(!Validator.isEmail(data.email)) {
-    errors.email = "Email is invalid";
-  }
-  
-  if(Validator.isNull(data.password)) {
-    errors.password = "This field is required";
-  }
-  
-  return {
-    errors,
-    isValid: Object.keys(errors).length ? false : true 
-  };
-}
 
 export default router;

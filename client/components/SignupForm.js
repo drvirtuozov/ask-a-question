@@ -22,9 +22,10 @@ export default class SignupForm extends React.Component {
     e.preventDefault();
     this.setState({ errors: {}, isLoading: true });
     this.props.userSignupRequest(this.state)
-      .catch(res => {
+      .catch(err => {
+        console.log(err.data)
         this.setState({
-          errors: res,
+          errors: err.data.result.errors,
           isLoading: false
         });
       });
@@ -58,6 +59,7 @@ export default class SignupForm extends React.Component {
             name="email" 
             className="form-control">
           </input>
+          {errors.email && <span className="help-block">{ errors.email }</span>}
         </div>
         
         <div className={classnames("form-group", { "has-error": errors.password })}>
@@ -69,6 +71,7 @@ export default class SignupForm extends React.Component {
             name="password" 
             className="form-control">
           </input>
+          {errors.password && <span className="help-block">{ errors.password }</span>}
         </div>
         
         <div className="form-group">

@@ -1,10 +1,8 @@
-"use strict";
-
-const mongoose = require("mongoose");
+import mongoose from 'mongoose';
 
 const counterSchema = mongoose.Schema({
   _id: String,
-  count: Number
+  count: { type: Number, default: 0, min: 0 }
 });
 
-module.exports = mongoose.model("Counter", counterSchema);
+export default mongoose.model("Counter", counterSchema);
