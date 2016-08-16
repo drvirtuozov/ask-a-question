@@ -27,6 +27,13 @@ export default class SignupForm extends React.Component {
     if (isValid) {
       this.setState({ errors: {}, isLoading: true });
       this.props.userSignupRequest(this.state)
+        .then(() => {
+          this.props.addFlashMessage({
+            type: 'success',
+            text: 'You signed up successfully. Welcome!'
+          });
+          this.context.router.push('/');
+        })
         .catch(err => {
           this.setState({
             errors: err.data.result.errors,
@@ -78,7 +85,7 @@ export default class SignupForm extends React.Component {
         <SignupFormField 
           error={errors.username}
           label="Username"
-          onChange={this.onChange}
+          onChange={this.onChange.bind(this)}
           value={this.state.username}
           field="username"
         />
@@ -86,7 +93,7 @@ export default class SignupForm extends React.Component {
         <SignupFormField 
           error={errors.email}
           label="Email"
-          onChange={this.onChange}
+          onChange={this.onChange.bind(this)}
           value={this.state.email}
           field="email"
         />
@@ -94,7 +101,7 @@ export default class SignupForm extends React.Component {
         <SignupFormField 
           error={errors.password}
           label="Password"
-          onChange={this.onChange}
+          onChange={this.onChange.bind(this)}
           value={this.state.password}
           field="password"
         />
@@ -108,5 +115,10 @@ export default class SignupForm extends React.Component {
 }
 
 SignupForm.propTypes = {
-  userSignupRequest: React.PropTypes.func.isRequired
+  userSignupRequest: React.PropTypes.func.isRequired,
+  addFlashMessage: React.PropTypes.func.isRequired
+};
+
+SignupForm.contextTypes = {
+  router: React.PropTypes.object.isRequired
 };

@@ -4,7 +4,7 @@ import classnames from 'classnames';
 const SignupFormField = ({ field, value, label, error, type, onChange }) => {
   return (
     <div className={classnames("form-group", { "has-error": error })}>
-      <label className="control-label">Username</label>
+      <label className="control-label">{ label }</label>
       <input
         onChange={ onChange }
         value={ value } 
