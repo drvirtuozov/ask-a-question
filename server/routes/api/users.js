@@ -20,7 +20,7 @@ router.get("/:username", (req, res) => {
   
   User.findOne({ $or: [ { username }, { email: username } ] }, { firstname: true, lastname: true, email: true })
     .then(data => {
-      if (!data) return res.status(404).json({ ok: false, description: "There's no that user." });
+      if (!data) return res.status(400).json({ ok: false, description: "There's no such user." });
       
       res.json({ ok: true, user: data });
     })

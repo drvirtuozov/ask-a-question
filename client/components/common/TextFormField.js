@@ -1,7 +1,7 @@
 import React from 'react';
 import classnames from 'classnames';
 
-const SignupFormField = ({ field, value, label, error, type, onChange, checkUserExists }) => {
+const TextFormField = ({ field, value, label, error, type, onChange, checkUserExists }) => {
   return (
     <div className={classnames("form-group", { "has-error": error })}>
       <label className="control-label">{ label }</label>
@@ -18,7 +18,7 @@ const SignupFormField = ({ field, value, label, error, type, onChange, checkUser
   );
 };
 
-SignupFormField.propTypes = {
+TextFormField.propTypes = {
   field: React.PropTypes.string.isRequired,
   value: React.PropTypes.string.isRequired,
   label: React.PropTypes.string.isRequired,
@@ -28,8 +28,8 @@ SignupFormField.propTypes = {
   checkUserExists: React.PropTypes.func
 };
 
-SignupFormField.defaultProps = {
+TextFormField.defaultProps = {
   type: 'text'
 };
 
-export default SignupFormField;
+export default TextFormField;

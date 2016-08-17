@@ -1,6 +1,6 @@
 import React from 'react';
 import { isNull, isEmail, isAlphanumeric } from 'validator';
-import SignupFormField from './SignupFormField';
+import TextFormField from '../common/TextFormField';
 import { USERNAME_TAKEN, EMAIL_TAKEN, FIELD_REQUIRED, WRONG_SYMBOLS } from '../../../server/shared/formErrors';
 
 export default class SignupForm extends React.Component {
@@ -106,7 +106,7 @@ export default class SignupForm extends React.Component {
       <form onSubmit={this.onSubmit.bind(this)}>
         <h1>Join our community!</h1>
         
-        <SignupFormField 
+        <TextFormField 
           error={errors.username}
           label="Username"
           onChange={this.onChange.bind(this)}
@@ -115,7 +115,7 @@ export default class SignupForm extends React.Component {
           field="username"
         />
         
-        <SignupFormField 
+        <TextFormField 
           error={errors.email}
           label="Email"
           onChange={this.onChange.bind(this)}
@@ -124,7 +124,7 @@ export default class SignupForm extends React.Component {
           field="email"
         />
         
-        <SignupFormField
+        <TextFormField
           type="password"
           error={errors.password}
           label="Password"

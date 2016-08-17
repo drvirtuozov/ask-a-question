@@ -1,18 +1,23 @@
-"use strict";
+import express from 'express';
+import User from '../../models/User';
+import HttpError from '../../errors/http';
+import { FIELD_REQUIRED } from '../../shared/formErrors';
 
-const express = require("express");
+
 const router = express.Router();
-const User = require("../../models/User");
-const HttpError = require("../../error/http");
-
 
 router.post("/", (req, res) => {
-  let username = req.body.username,
-    password = req.body.password;
+  let { username, password } = req.body,
+    result = {
+      errors: {}
+    };
   
   if (!(username && password)) {
-    let err = new HttpError(400, "Not enough params.");
-    return res.status(err.status).json({ ok: false, description: err.message });
+    let err = new HttpError(400, "Not enough parameters");
+    if (!username) result.errors.username = FIELD_REQUIRED;
+    if (!password) result.errors.password = FIELD_REQUIRED;
+    
+    return res.status(err.status).json({ ok: false, description: err.message, result });
   }
 
   User.authorize(username, password)
@@ -20,8 +25,10 @@ router.post("/", (req, res) => {
       res.status(200).json({ ok: true, token });
     })
     .catch(err => {
-      res.status(err.status || 500).json({ ok: false, description: err.message });
+      let result = err.params.result;
+      
+      res.status(err.status || 500).json({ ok: false, description: err.message, result });
     });
 });
 
-module.exports = router;
+export default router;

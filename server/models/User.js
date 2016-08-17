@@ -110,19 +110,21 @@ userSchema.pre("save", function(next) {
 userSchema.statics.authorize = function(username, password) {
   let User = this;
   
-  return User.findOne({ username })
+  return User.findOne({ $or: [ { username }, { email: username } ] })
     .then(user => {
-      if (!user) throw new HttpError(400, formErrors.WRONG_USER);
+      if (!user) 
+        throw new HttpError(400, "Wrong parameter", { result: { errors: { username: formErrors.WRONG_USER }}});
       
       return user.checkPassword(password);
     })
     .then(isMatch => {
-      if (!isMatch) throw new HttpError(401, formErrors.WRONG_PASSWORD);
+      if (!isMatch) 
+        throw new HttpError(401, "Wrong parameter", { result: { errors: { password: formErrors.WRONG_PASSWORD }}});
         
       return jwt.sign({ username }, "az7321epta");
     })
     .then(token => {
-      return User.findOneAndUpdate({ username }, {$push: { tokens: token }}, { new: true });
+      return User.findOneAndUpdate({ $or: [ { username }, { email: username } ] }, {$push: { tokens: token }}, { new: true });
     })
     .then(user => {
       return user.tokens[user.tokens.length - 1];
