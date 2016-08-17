@@ -18,7 +18,7 @@ router.get("/", (req, res) => {
 router.get("/:username", (req, res) => {
   let username = req.params.username;
   
-  User.findOne({ username }, { firstname: true, lastname: true, email: true })
+  User.findOne({ $or: [ { username }, { email: username } ] }, { firstname: true, lastname: true, email: true })
     .then(data => {
       if (!data) return res.status(404).json({ ok: false, description: "There's no that user." });
       

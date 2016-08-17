@@ -1,6 +1,7 @@
 import React from 'react';
 import { isNull, isEmail, isAlphanumeric } from 'validator';
 import SignupFormField from './SignupFormField';
+import { USERNAME_TAKEN, EMAIL_TAKEN, FIELD_REQUIRED, WRONG_SYMBOLS } from '../../../server/shared/formErrors';
 
 export default class SignupForm extends React.Component {
   constructor(props) {
@@ -17,6 +18,29 @@ export default class SignupForm extends React.Component {
   
   onChange(e) {
     this.setState({ [e.target.name]: e.target.value });
+  }
+  
+  checkUserExists(e) {
+    let field = e.target.name,
+      value = e.target.value;
+      
+    if (value !== '') {
+      this.props.isUserExists(value)
+        .then(res => {
+          if (res.data.user) {
+            let state = this.state;
+            state.errors[field] = (field === "username" ? USERNAME_TAKEN : EMAIL_TAKEN);
+            
+            this.setState(state);
+          }
+        })
+        .catch(() => {
+          let state = this.state;
+          state.errors[field] = '';
+          
+          this.setState(state);
+        });
+    }
   }
   
   onSubmit(e) {
@@ -46,27 +70,27 @@ export default class SignupForm extends React.Component {
   }
   
   validateInput() {
-    let errors = {},
-      data = this.state;
+    let data = this.state,
+      errors = data.errors;
     
     if (!isAlphanumeric(data.username)) {
-      errors.username = '[A-Z], [0-9] symbols only';
+      errors.username = WRONG_SYMBOLS;
     }
     
     if (isNull(data.username)) {
-      errors.username = 'This field is required';
+      errors.username = FIELD_REQUIRED;
     }
     
     if (!isEmail(data.email)) {
-      errors.email = 'Email is invalid';
+      errors.email = FIELD_REQUIRED;
     }
     
     if (isNull(data.email)) {
-      errors.email = 'This field is required';
+      errors.email = FIELD_REQUIRED;
     }
     
     if (isNull(data.password)) {
-      errors.password = 'This field is required';
+      errors.password = FIELD_REQUIRED;
     }
   
     return {
@@ -86,6 +110,7 @@ export default class SignupForm extends React.Component {
           error={errors.username}
           label="Username"
           onChange={this.onChange.bind(this)}
+          checkUserExists={this.checkUserExists.bind(this)}
           value={this.state.username}
           field="username"
         />
@@ -94,11 +119,13 @@ export default class SignupForm extends React.Component {
           error={errors.email}
           label="Email"
           onChange={this.onChange.bind(this)}
+          checkUserExists={this.checkUserExists.bind(this)}
           value={this.state.email}
           field="email"
         />
         
-        <SignupFormField 
+        <SignupFormField
+          type="password"
           error={errors.password}
           label="Password"
           onChange={this.onChange.bind(this)}
@@ -116,7 +143,8 @@ export default class SignupForm extends React.Component {
 
 SignupForm.propTypes = {
   userSignupRequest: React.PropTypes.func.isRequired,
-  addFlashMessage: React.PropTypes.func.isRequired
+  addFlashMessage: React.PropTypes.func.isRequired,
+  isUserExists: React.PropTypes.func.isRequired
 };
 
 SignupForm.contextTypes = {

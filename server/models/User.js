@@ -6,6 +6,7 @@ import Counter from './Counter';
 import jwt from 'jsonwebtoken';
 import Token from './Token';
 import HttpError from '../errors/http';
+import formErrors from '../shared/formErrors';
 
 
 const userSchema = mongoose.Schema({
@@ -15,34 +16,34 @@ const userSchema = mongoose.Schema({
   },
   username: { 
     type: String, 
-    unique: "Username already taken",
+    unique: formErrors.USERNAME_TAKEN,
     index: true,
-    required: [true, "This field is required"],
+    required: [true, formErrors.FIELD_REQUIRED],
     validate: {
       validator: isAlphanumeric,
-      message: "[A-Z], [0-9] symbols only"
+      message: formErrors.WRONG_SYMBOLS
     }
   },
   firstname: { type: String },
   lastname: { type: String },
   email: { 
     type: String,
-    unique: "Account with this email already registered",
+    unique: formErrors.EMAIL_TAKEN,
     index: true,
-    required: [true, "This field is required"], 
+    required: [true, formErrors.FIELD_REQUIRED], 
     validate: {
       validator: isEmail,
-      message: "Enter valid email"
+      message: formErrors.EMAIL_INVALID
     }
   },
   password: { 
     type: String, 
-    required: [true, "This field is required"],
+    required: [true, formErrors.FIELD_REQUIRED],
     validate: {
       validator: function(password) {
         return password;
       },
-      message: "Enter a password"
+      message: formErrors.PASSWORD_REQUIRED
     },
     set: function(password) {
       password = password.replace(/ /g, s => "");
@@ -111,12 +112,12 @@ userSchema.statics.authorize = function(username, password) {
   
   return User.findOne({ username })
     .then(user => {
-      if (!user) throw new HttpError(400, "There is no such user.");
+      if (!user) throw new HttpError(400, formErrors.WRONG_USER);
       
       return user.checkPassword(password);
     })
     .then(isMatch => {
-      if (!isMatch) throw new HttpError(401, "Wrong password.");
+      if (!isMatch) throw new HttpError(401, formErrors.WRONG_PASSWORD);
         
       return jwt.sign({ username }, "az7321epta");
     })
