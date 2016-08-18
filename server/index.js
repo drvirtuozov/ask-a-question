@@ -8,7 +8,7 @@ import webpackMiddleware from 'webpack-dev-middleware';
 import webpackHotMiddleware from 'webpack-hot-middleware';
 import webpackConfig from '../webpack.config.dev';
 import users from './routes/api/users';
-import login from './routes/api/login';
+import auth from './routes/api/auth';
 import './db';
 
 const compiler = webpack(webpackConfig); 
@@ -26,7 +26,7 @@ app.use(webpackMiddleware(compiler, {
 app.use(webpackHotMiddleware(compiler));
 
 app.use('/api/users', users);
-app.use('/api/login', login);
+app.use('/api/auth', auth);
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));

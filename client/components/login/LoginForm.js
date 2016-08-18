@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import TextFormField from '../common/TextFormField';
 import { WRONG_SYMBOLS, FIELD_REQUIRED } from '../../../server/shared/formErrors';
-import { login } from '../../actions/login';
+import { login } from '../../actions/authActions';
 
 
 class LoginForm extends React.Component {

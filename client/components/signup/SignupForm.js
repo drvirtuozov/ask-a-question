@@ -104,7 +104,8 @@ export default class SignupForm extends React.Component {
     
     return (
       <form onSubmit={this.onSubmit.bind(this)}>
-        <h1>Join our community!</h1>
+        <h2>Don't have an account?</h2>
+        <h3>Let's create one!</h3>
         
         <TextFormField 
           error={errors.username}

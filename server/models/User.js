@@ -7,6 +7,7 @@ import jwt from 'jsonwebtoken';
 import Token from './Token';
 import HttpError from '../errors/http';
 import formErrors from '../shared/formErrors';
+import config from '../config';
 
 
 const userSchema = mongoose.Schema({
@@ -121,10 +122,10 @@ userSchema.statics.authorize = function(username, password) {
       if (!isMatch) 
         throw new HttpError(401, "Wrong parameter", { result: { errors: { password: formErrors.WRONG_PASSWORD }}});
         
-      return jwt.sign({ username }, "az7321epta");
+      return jwt.sign({ username }, config.jwtSecret);
     })
     .then(token => {
-      return User.findOneAndUpdate({ $or: [ { username }, { email: username } ] }, {$push: { tokens: token }}, { new: true });
+      return User.findOneAndUpdate({ $or: [{ username }, { email: username }]}, {$push: { tokens: token }}, { new: true });
     })
     .then(user => {
       return user.tokens[user.tokens.length - 1];
@@ -136,7 +137,7 @@ userSchema.statics.logout = function(token, callback) {
   
   Token.findById(token)
     .then(res => {
-      return User.findByIdAndUpdate(res.user, { $pull: { tokens: token } }, { new: true });
+      return User.findByIdAndUpdate(res.user, { $pull: { tokens: token }}, { new: true });
     })
     .then(user => {
       return Token.remove({ _id: token });
@@ -152,7 +153,7 @@ userSchema.statics.logout = function(token, callback) {
 userSchema.statics.checkToken = function(token) {
   return new Promise((resolve, reject) => {
     if (token) {
-      jwt.verify(token, "az7321epta", (err, data) => {
+      jwt.verify(token, config.jwtSecret, (err, data) => {
         if (err) return reject(err);
         
         resolve(data);
