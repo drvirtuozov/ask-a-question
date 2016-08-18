@@ -10,7 +10,7 @@ import formErrors from '../shared/formErrors';
 import config from '../config';
 
 
-const userSchema = mongoose.Schema({
+const userSchema = new mongoose.Schema({
   _id: { 
     type: Number,
     min: 1 
@@ -59,18 +59,18 @@ const userSchema = mongoose.Schema({
   timestamp: { type: Number, default: Date.now() },
   questions: [{
     text: { type: String, required: true },
-    from: { type: String},
-    timestamp: { type: Number, required: true }
+    from: { type: String },
+    timestamp: { type: Number, default: Date.now() }
   }],
   answers: [{
     question: { type: String, required: true },
     text: { type: String, required: true },
     to: { type: String},
-    timestamp: { type: Number, required: true },
+    timestamp: { type: Number, default: Date.now() },
     comments: [{
       from: { type: String },
       text: { type: String, required: true },
-      timestamp: { type: Number, required: true }
+      timestamp: { type: Number, default: Date.now() }
     }],
     likes: [String]
   }]
@@ -148,20 +148,6 @@ userSchema.statics.logout = function(token, callback) {
     .catch(err => {
       callback(err);
     });
-};
-
-userSchema.statics.checkToken = function(token) {
-  return new Promise((resolve, reject) => {
-    if (token) {
-      jwt.verify(token, config.jwtSecret, (err, data) => {
-        if (err) return reject(err);
-        
-        resolve(data);
-      });
-    } else {
-      resolve();
-    }
-  });
 };
 
 export default mongoose.model("User", userSchema);

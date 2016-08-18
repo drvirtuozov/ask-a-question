@@ -9,6 +9,9 @@ import webpackHotMiddleware from 'webpack-hot-middleware';
 import webpackConfig from '../webpack.config.dev';
 import users from './routes/api/users';
 import auth from './routes/api/auth';
+import questions from './routes/api/questions';
+import likes from './routes/api/likes';
+import HttpError from './errors/http';
 import './db';
 
 const compiler = webpack(webpackConfig); 
@@ -25,8 +28,16 @@ app.use(webpackMiddleware(compiler, {
 }));
 app.use(webpackHotMiddleware(compiler));
 
-app.use('/api/users', users);
 app.use('/api/auth', auth);
+app.use('/api/users', users);
+app.use('/api/questions', questions);
+app.use('/api/likes', likes);
+app.use((err, req, res, next) => {
+  if (err.name === 'UnauthorizedError') {
+    let err = new HttpError(401, 'Invalid token');
+    res.status(err.status).json(err.json);
+  }
+});
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));

@@ -1,55 +1,41 @@
-"use strict";
+import express from 'express';
+import User from '../../models/User';
+import { auth, optionalAuth } from '../../middlewares/auth';
+import HttpError from '../../errors/http';
 
-const express = require('express');
+
 const router = express.Router();
-const User = require("../../models/User");
 
-
-router.get("/", (req, res) => {
-  let token = req.body.token || req.query.token || req.headers["x-access-token"] || req.headers["authorization"].split(" ")[1];
+router.get("/", auth, (req, res) => {
+  let { username } = req.user;
   
-  User.checkToken(token)
+  User.findOne({ username }, 'questions')
     .then(data => {
-      return User.findOne({username: data.username}, "questions");
+      res.json({ ok: true, questions: data.questions });
     })
-    .then(data => {
-      res.json({ok: true, questions: data.questions});
-    })
-    .catch(err => {
-      return res.status(500).json({ok: false, error: err.message});
+    .catch(error => {
+      let err = new HttpError(500, error.message);
+      res.status(err.status).json(err.json);
     });
 });
 
-router.post('/', (req, res) => {
-  let username = req.body.username;
-  let text = req.body.text;
+router.post('/', optionalAuth, (req, res) => {
+  let { username, text } = req.body,
+    question = req.user ? { text, from: req.user.username } : { text };
   
   if (!(username && text)) {
-      return res.status(400).json({ok: false, error: "Not enough params."});
+    let err = new HttpError(400, 'Not enough params');  
+    return res.status(err.status).json(err.json);
   }
   
-  let token = req.body.token || req.query.token || req.headers["x-access-token"] || req.headers["authorization"].split(" ")[1];
-  let question = {
-    text: text,
-    timestamp: Date.now()
-  };
-  
-  User.checkToken(token)
-    .then(data => {
-      if (data) question.from = data.username;
-      
-      return User.findOneAndUpdate({username: username}, {$push: {"questions": question}});
-    }, err => {
-      res.status(403).json({ok: false, error: err.message});
-    })
+  User.findOneAndUpdate({ username }, {$push: {'questions': question}})
     .then(() => {
-      res.json({ok: true});
+      res.json({ ok: true });
     })
-    .catch(err => {
-      if (err) return res.status(500).json({ok: false, error: err.message});
-      
-      res.json({ok: true});
+    .catch(error => {
+      let err = new HttpError(500, error.message);
+      res.status(err.status).json(err.json);
     });
 });
 
-module.exports = router;
+export default router;

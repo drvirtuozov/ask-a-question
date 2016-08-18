@@ -5,27 +5,30 @@ import HttpError from '../../errors/http';
 
 const router = express.Router();
 
-router.get("/", (req, res) => {
-  User.find({}, "username")
+router.get('/', (req, res) => {
+  User.find({}, 'username')
     .then(data => {
-      res.json({ok: true, users: data});
+      res.json({ ok: true, users: data });
     })
-    .catch(err => {
-      res.status(500).json({ok: false, error: err.message});
+    .catch(error => {
+      let err = new HttpError(500, error.message);
+      res.status(err.status).json(err.json);
     });
 });
 
-router.get("/:username", (req, res) => {
+router.get('/:username', (req, res) => {
   let username = req.params.username;
   
-  User.findOne({ $or: [ { username }, { email: username } ] }, { firstname: true, lastname: true, email: true })
+  User.findOne({$or: [{ username }, { email: username }]}, { firstname: true, lastname: true, email: true })
     .then(data => {
-      if (!data) return res.status(400).json({ ok: false, description: "There's no such user." });
+      if (!data) 
+        return res.status(400).json({ ok: false, description: 'There\'s no such user.' });
       
       res.json({ ok: true, user: data });
     })
-    .catch(err => {
-      res.status(500).json({ ok: false, description: err.message });
+    .catch(error => {
+      let err = new HttpError(500, error.message);
+      res.status(err.status).json(err.json);
     });
 });
 
@@ -34,17 +37,17 @@ router.post('/', (req, res) => {
     .then(user => {
       res.json({ ok: true, token: user.tokens[0] });
     })
-    .catch(err => {
+    .catch(error => {
       let result = {
         errors: {}
-      },
-        description = new HttpError(400, err.message).message;
+      };
       
-      for (let error in err.errors) {
-        result.errors[error] = err.errors[error].message;
+      for (let err in error.errors) {
+        result.errors[err] = error.errors[err].message;
       }
       
-      res.status(400).json({ ok: false, description, result });
+      let err = new HttpError(400, error.message, result);
+      res.status(err.status).json(err.json);
     });
 });
 
