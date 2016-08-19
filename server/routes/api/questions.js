@@ -28,7 +28,7 @@ router.post('/', optionalAuth, (req, res) => {
     return res.status(err.status).json(err.json);
   }
   
-  User.findOneAndUpdate({ username }, {$push: {'questions': question}})
+  User.findOneAndUpdate({ username }, {$push: { 'questions': question }})
     .then(() => {
       res.json({ ok: true });
     })
