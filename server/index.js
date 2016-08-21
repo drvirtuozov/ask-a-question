@@ -10,6 +10,7 @@ import webpackConfig from '../webpack.config.dev';
 import users from './routes/api/users';
 import auth from './routes/api/auth';
 import questions from './routes/api/questions';
+import answers from './routes/api/answers';
 import likes from './routes/api/likes';
 import HttpError from './errors/http';
 import './db';
@@ -31,6 +32,7 @@ app.use(webpackHotMiddleware(compiler));
 app.use('/api/auth', auth);
 app.use('/api/users', users);
 app.use('/api/questions', questions);
+app.use('/api/answers', answers);
 app.use('/api/likes', likes);
 app.use((err, req, res, next) => {
   if (err.name === 'UnauthorizedError') {

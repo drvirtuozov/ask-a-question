@@ -1,64 +1,65 @@
-"use strict";
+import express from 'express';
+import User from '../../models/User';
+import HttpError from '../../errors/http';
+import auth from '../../middlewares/auth';
 
-const express = require("express");
+
 const router = express.Router();
-const User = require("../../models/User");
 
-
-router.get("/:username", (req, res) => {
+router.get('/:username', (req, res) => {
   let username = req.params.username;
 
-  User.findOne({ username }, "answers")
+  User.findOne({ username }, 'answers')
     .then(data => {
-      if (!data) res.status(404).json({ ok: false, error: "User not found." });
+      if (!data) {
+        let err = new HttpError(404, 'User not found');
+        return res.status(err.status).json(err.json);
+      }
       
       res.json({ ok: true, answers: data.answers });
     })
-    .catch(err => {
-      res.status(500).json({ ok: false, error: err.message });
+    .catch(e => {
+      let err = new HttpError(500, e.message);
+      res.status(err.status).json(err.json);
     });
 });
 
-router.post('/', (req, res) => {
-  let text = req.body.text;
-  let id = req.body.id;
-  let username = "";
-  let token = req.body.token || req.query.token || req.headers["x-access-token"] || req.headers["authorization"].split(" ")[1];
+router.post('/', auth, (req, res) => {
+  let { text, _id } = req.body,
+    { username } = req.user;
   
-  if (!(text && id && token)) {
-    return res.status(400).json({ ok: false, error: "Not enough params." });
+  if (!(text && _id)) {
+    let err = new HttpError(400, 'Not enough params');
+    return res.status(err.status).json(err.json);
   }
   
-  User.checkToken(token)
-    .then(data => {
-      username = data.username;
-      return User.findOne({ username, "questions._id": id }, "questions.$");
-    })
+  User.findOne({ username, 'questions._id': _id }, 'questions.$')
     .then(data => {
       let question = data.questions[0];
       
-      return question;
-    })
-    .then(question => {
+      if (!question) {
+        let err = new HttpError(404, 'Question not found');
+        return res.status(err.status).json(err.json);
+      }
+      
       let answer = {
         question: question.text,
         text: text,
-        to: question.from,
-        timestamp: Date.now(),
-        comments: []
+        to: question.from
       };
       
       return User.findOneAndUpdate({ username }, {$push: { answers: answer }});
     })
     .then(() => {
-      return User.findOneAndUpdate({ username }, {$pull: { questions: { _id: id } }});
+      return User.findOneAndUpdate({ username }, {$pull: { questions: { _id }}});
     })
     .then(() => {
       res.json({ ok: true });
     })
-    .catch(err => {
-      res.status(500).json({ ok: false, error: err.message });
+    .catch(e => {
+      let err = new HttpError(500, e.message);
+      res.status(err.status).json(err.json);
     });
 });
 
-module.exports = router;
+export default router;

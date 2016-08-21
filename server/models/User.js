@@ -56,21 +56,21 @@ const userSchema = new mongoose.Schema({
     default: crypto.randomBytes(16).toString("base64") 
   },
   tokens: [String],
-  timestamp: { type: Number, default: Date.now() },
+  timestamp: { type: Number, default: Date.now },
   questions: [{
     text: { type: String, required: true },
     from: { type: String },
-    timestamp: { type: Number, default: Date.now() }
+    timestamp: { type: Number, default: Date.now }
   }],
   answers: [{
     question: { type: String, required: true },
     text: { type: String, required: true },
-    to: { type: String},
-    timestamp: { type: Number, default: Date.now() },
+    to: { type: String },
+    timestamp: { type: Number, default: Date.now },
     comments: [{
       from: { type: String },
       text: { type: String, required: true },
-      timestamp: { type: Number, default: Date.now() }
+      timestamp: { type: Number, default: Date.now }
     }],
     likes: [String]
   }]

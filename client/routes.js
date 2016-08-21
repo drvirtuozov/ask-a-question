@@ -4,7 +4,8 @@ import App from './components/App';
 import Index from './components/Index';
 import Signup from './components/signup/Signup';
 import Login from './components/login/Login';
-import Questions from './components/Questions';
+import Questions from './components/inbox/Questions';
+import Profile from './components/profile/Profile';
 import requireAuth from './utils/requireAuth';
 
 export default (
@@ -13,5 +14,6 @@ export default (
     <Route path="signup" component={Signup} />
     <Route path="login" component={Login} />
     <Route path="inbox" component={requireAuth(Questions)} />
+    <Route path="*" component={Profile} />
   </Route>  
 );

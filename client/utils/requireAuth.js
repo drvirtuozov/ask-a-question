@@ -5,15 +5,13 @@ export default function(ComposedComponent) {
   class Authenticate extends React.Component {
     componentWillMount() {
       if (!this.props.isAuthenticated) {
-        //this.context.router.push('/'); there's no context
-        this.props.history.push('/'); // temporary fix
+        this.context.router.push('/');
       }
     }
     
     componentWillUpdate(nextProps) {
       if (!nextProps.isAuthenticated) {
-        //this.context.router.push('/');
-        this.props.history.push('/'); // temporary fix
+        this.context.router.push('/');
       }
     }
     
@@ -24,11 +22,11 @@ export default function(ComposedComponent) {
     }
   }
   
-  Authenticate.propsType = {
+  Authenticate.propTypes = {
     isAuthenticated: React.PropTypes.bool.isRequired
   };
   
-  Authenticate.contextType = {
+  Authenticate.contextTypes = {
     router: React.PropTypes.object.isRequired
   };
   

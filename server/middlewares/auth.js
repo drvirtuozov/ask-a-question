@@ -15,9 +15,12 @@ export const optionalAuth = expressJwt({
 function getToken(req) {
   if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
     let token = req.headers.authorization.split(' ')[1];
+    req.user = req.user || {};
     req.user.token = token;
     return token;
   }
+  
+  return null;
 }
 
 export default auth;

@@ -11,6 +11,9 @@ router.get("/", auth, (req, res) => {
   
   User.findOne({ username }, 'questions')
     .then(data => {
+      data.questions.sort((a, b) => {
+        return b.timestamp - a.timestamp;
+      });
       res.json({ ok: true, questions: data.questions });
     })
     .catch(error => {
@@ -28,7 +31,7 @@ router.post('/', optionalAuth, (req, res) => {
     return res.status(err.status).json(err.json);
   }
   
-  User.findOneAndUpdate({ username }, {$push: { 'questions': question }})
+  User.findOneAndUpdate({ username }, {$push: { questions: question }})
     .then(() => {
       res.json({ ok: true });
     })
