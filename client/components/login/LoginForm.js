@@ -64,7 +64,7 @@ class LoginForm extends React.Component {
     
     return (
       <form onSubmit={this.onSubmit.bind(this)}>
-        <h1>Login</h1>
+        <h1>Enter the Site</h1>
         
         <TextFormField 
           field="username"
@@ -84,7 +84,7 @@ class LoginForm extends React.Component {
         />
         
         <div className="form-group">
-          <button className="btn btn-primary btn-lg" disabled={isLoading}>Login</button>
+          <button className="btn btn-primary btn-lg" disabled={isLoading}>Log In</button>
         </div>
       </form>  
     );

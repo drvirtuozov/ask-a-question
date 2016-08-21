@@ -28,14 +28,14 @@ class Answers extends React.Component {
       <div>
         { answers.length ?
         <div className="container-fluid">
-          <h3>{ myProfile ? 'You have' : username} {answers.length} answers:</h3>
+          <h3>{ myProfile ? 'You have' : `${username} has`} {answers.length} answers:</h3>
           <hr />
           {answers.map(answer => {
             return <Answer question={answer.question} text={answer.text} to={answer.to} key={answer._id} />;
           })}
         </div>
         :
-        <h3>{myProfile ? 'You haven\'t' : username + ' hasn\'t'} answered a single question yet</h3>}
+        <h3>{myProfile ? 'You haven\'t' : `${username} hasn\'t`} answered a single question yet</h3>}
       </div>
     );
   }

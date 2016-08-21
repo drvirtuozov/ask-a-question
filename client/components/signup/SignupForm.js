@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router';
 import { isNull, isEmail, isAlphanumeric } from 'validator';
 import TextFormField from '../common/TextFormField';
 import { USERNAME_TAKEN, EMAIL_TAKEN, FIELD_REQUIRED, WRONG_SYMBOLS } from '../../../server/shared/formErrors';
@@ -136,6 +137,7 @@ export default class SignupForm extends React.Component {
         
         <div className="form-group">
           <button disabled={this.state.isLoading} className="btn btn-primary btn-lg">Sign Up</button>
+          <small>Already have an account? <Link to="/login">Log In</Link></small>
         </div>
       </form>
     );

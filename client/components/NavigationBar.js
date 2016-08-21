@@ -1,26 +1,73 @@
 import React from 'react';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
-import { logout } from '../actions/authActions';
+import { logout, login } from '../actions/authActions';
+import classnames from 'classnames';
 
 class NavigationBar extends React.Component {
+  constructor(props) {
+    super(props);
+    
+    this.state = {
+      username: '',
+      password: '',
+      errors: {},
+      isLoading: false
+    };
+  }
+  
+  onChange(e) {
+    this.setState({
+      [e.target.name]: e.target.value
+    });
+  }
+  
   logout(e) {
     e.preventDefault();
     this.props.logout();
   }
   
+  login() {
+    this.setState({ errors: {}, isLoading: true });
+    this.props.login(this.state.username, this.state.password)
+      .then(() => {
+        this.context.router.push('/');
+      })
+      .catch(err => {
+        this.setState({ errors: err.data.result.errors, isLoading: false });
+      });
+  }
+  
   render() {
-    let { isAuthenticated } = this.props.auth,
-      userLinks = (
+    let { errors, isLoading } = this.state, 
+      { isAuthenticated } = this.props.auth,
+      userMenu = (
         <ul className="nav navbar-nav navbar-right">
           <li><a href="#" onClick={this.logout.bind(this)}>Log Out</a></li>
         </ul>
       ),
-      guestLinks = (
-        <ul className="nav navbar-nav navbar-right">
-          <li><Link to="/signup">Sign Up</Link></li>
-          <li><Link to="/login">Log In</Link></li>
-        </ul>
+      guestMenu = (
+        <form className="navbar-form navbar-right">
+          <div className={classnames("form-group", { "has-error": errors.username })}>
+            <input 
+              onChange={this.onChange.bind(this)} 
+              type="text" 
+              name="username" 
+              placeholder="Username" 
+              className="form-control"
+            />
+          </div>
+          <div className={classnames("form-group", { "has-error": errors.password })}>
+            <input 
+              onChange={this.onChange.bind(this)} 
+              type="password" 
+              name="password" 
+              placeholder="Password" 
+              className="form-control"
+            />
+          </div>
+          <button onClick={this.login.bind(this)} className="btn btn-default" disabled={isLoading}>Log In</button>
+        </form>
       );
     
     return (
@@ -31,7 +78,7 @@ class NavigationBar extends React.Component {
           </div>
           
           <div className="collapse navbar-collapse">
-            { isAuthenticated ? userLinks : guestLinks }
+            { isAuthenticated ? userMenu : guestMenu }
           </div>
         </div>
       </nav>
@@ -41,7 +88,12 @@ class NavigationBar extends React.Component {
 
 NavigationBar.propTypes = {
   auth: React.PropTypes.object.isRequired,
-  logout: React.PropTypes.func.isRequired
+  logout: React.PropTypes.func.isRequired,
+  login: React.PropTypes.func.isRequired
+};
+
+NavigationBar.contextTypes = {
+  router: React.PropTypes.object.isRequired
 };
 
 function mapStateToProps(state) {
@@ -50,4 +102,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, { logout })(NavigationBar);
+export default connect(mapStateToProps, { logout, login })(NavigationBar);
