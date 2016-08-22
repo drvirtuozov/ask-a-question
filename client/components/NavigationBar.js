@@ -2,7 +2,10 @@ import React from 'react';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import { logout, login } from '../actions/authActions';
-import classnames from 'classnames';
+import { 
+  Nav, NavItem, MenuItem, NavDropdown, Navbar, 
+  Form, FormGroup, FormControl, Button, Label 
+} from 'react-bootstrap';
 
 class NavigationBar extends React.Component {
   constructor(props) {
@@ -22,8 +25,7 @@ class NavigationBar extends React.Component {
     });
   }
   
-  logout(e) {
-    e.preventDefault();
+  logout() {
     this.props.logout();
   }
   
@@ -32,56 +34,68 @@ class NavigationBar extends React.Component {
     this.props.login(this.state.username, this.state.password)
       .then(() => {
         this.context.router.push('/');
+        this.setState({ isLoading: false });
       })
       .catch(err => {
         this.setState({ errors: err.data.result.errors, isLoading: false });
       });
   }
   
+  getValidationState() {
+    let errors = this.state.errors;
+    
+    if (Object.keys(errors).length) {
+      return {
+        username: errors.username ? "error" : "success",
+        password: errors.password ? "error" : "success"
+      };
+    }
+    
+    return {};
+  }
+  
   render() {
-    let { errors, isLoading } = this.state, 
-      { isAuthenticated } = this.props.auth,
+    let { isLoading } = this.state, 
+      { isAuthenticated, user } = this.props.auth,
       userMenu = (
-        <ul className="nav navbar-nav navbar-right">
-          <li><a href="#" onClick={this.logout.bind(this)}>Log Out</a></li>
-        </ul>
+        <Nav pullRight>
+          <NavItem eventKey={1}><Label>143</Label></NavItem>
+          <NavDropdown eventKey={3} title={user.username} id="basic-nav-dropdown">
+            <MenuItem eventKey={3.1}>Action</MenuItem>
+            <MenuItem eventKey={3.2}>Another action</MenuItem>
+            <MenuItem eventKey={3.3}>Something else here</MenuItem>
+            <MenuItem divider />
+            <MenuItem onClick={this.logout.bind(this)} eventKey={3.3}>Log Out</MenuItem>
+          </NavDropdown>
+        </Nav>
       ),
       guestMenu = (
-        <form className="navbar-form navbar-right">
-          <div className={classnames("form-group", { "has-error": errors.username })}>
-            <input 
-              onChange={this.onChange.bind(this)} 
-              type="text" 
-              name="username" 
-              placeholder="Username" 
-              className="form-control"
-            />
-          </div>
-          <div className={classnames("form-group", { "has-error": errors.password })}>
-            <input 
-              onChange={this.onChange.bind(this)} 
-              type="password" 
-              name="password" 
-              placeholder="Password" 
-              className="form-control"
-            />
-          </div>
-          <button onClick={this.login.bind(this)} className="btn btn-default" disabled={isLoading}>Log In</button>
-        </form>
+        <Navbar.Form pullRight>
+          <FormGroup validationState={this.getValidationState().username}>
+            <FormControl onChange={this.onChange.bind(this)} name="username" type="text" placeholder="Username" />
+          </FormGroup>
+          {' '}
+          <FormGroup validationState={this.getValidationState().password}>
+            <FormControl onChange={this.onChange.bind(this)} name="password" type="password" placeholder="Password" />
+          </FormGroup>
+          {' '}
+          <Button onClick={this.login.bind(this)} disabled={isLoading}>Log In</Button>
+        </Navbar.Form>
       );
     
     return (
-      <nav className="navbar navbar-default">
-        <div className="container-fluid">
-          <div className="navbar-header">
+      <Navbar>
+        <Navbar.Header>
+          <Navbar.Brand>
             <Link to="/" className="navbar-brand">Ask a Question</Link>
-          </div>
-          
-          <div className="collapse navbar-collapse">
+          </Navbar.Brand>
+        </Navbar.Header>
+        <Navbar.Collapse>
+          <div className="container-fluid">
             { isAuthenticated ? userMenu : guestMenu }
           </div>
-        </div>
-      </nav>
+        </Navbar.Collapse>
+      </Navbar>
     );
   }
 }

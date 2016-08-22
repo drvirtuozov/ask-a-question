@@ -9,6 +9,7 @@ import rootReducer from './rootReducer';
 import setAuthorizationToken from './utils/setAuthorizationToken';
 import jwt from 'jsonwebtoken';
 import { setCurrentUser } from './actions/authActions';
+import Bootstrap from 'bootstrap/dist/css/bootstrap.css';
 
 const store = createStore(
   rootReducer, 
