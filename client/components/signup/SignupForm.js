@@ -1,8 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router';
 import { isNull, isEmail, isAlphanumeric } from 'validator';
-import TextFormField from '../common/TextFormField';
 import { USERNAME_TAKEN, EMAIL_TAKEN, FIELD_REQUIRED, WRONG_SYMBOLS } from '../../../server/shared/formErrors';
+import { FormControl, FormGroup, ControlLabel, HelpBlock, InputGroup, Button } from 'react-bootstrap';
 
 export default class SignupForm extends React.Component {
   constructor(props) {
@@ -12,7 +12,11 @@ export default class SignupForm extends React.Component {
       username: '',
       email: '',
       password: '',
-      errors: {},
+      errors: {
+        username: null,
+        email: null,
+        password: null
+      },
       isLoading: false
     };
   }
@@ -37,7 +41,7 @@ export default class SignupForm extends React.Component {
         })
         .catch(() => {
           let state = this.state;
-          state.errors[field] = '';
+          state.errors[field] = undefined;
           
           this.setState(state);
         });
@@ -100,6 +104,22 @@ export default class SignupForm extends React.Component {
     };
   }
   
+  setValidationState(e) {
+    
+  }
+  
+  getValidationState(field) {
+    let errors = this.state.errors;
+    
+    if (errors[field]) {
+      return 'error';
+    } else if (errors[field] === undefined) {
+      return 'success';
+    } else if (errors[field] === null) {
+      return;
+    }
+  }
+  
   render() {
     const { errors } = this.state;
     
@@ -108,37 +128,59 @@ export default class SignupForm extends React.Component {
         <h2>Don't have an account?</h2>
         <h3>Let's create one!</h3>
         
-        <TextFormField 
-          error={errors.username}
-          label="Username"
-          onChange={this.onChange.bind(this)}
-          checkUserExists={this.checkUserExists.bind(this)}
-          value={this.state.username}
-          field="username"
-        />
+        <FormGroup validationState={this.getValidationState('username')}>
+          <ControlLabel>Username</ControlLabel>
+          <InputGroup>
+            <InputGroup.Addon><i className="fa fa-user" aria-hidden="true"></i></InputGroup.Addon>
+            <FormControl
+              name="username"
+              type="text"
+              onChange={this.onChange.bind(this)}
+              onBlur={this.checkUserExists.bind(this)}
+            />
+            <FormControl.Feedback />
+          </InputGroup>
+          {errors.username && <HelpBlock>{errors.username}</HelpBlock>}
+        </FormGroup>
         
-        <TextFormField 
-          error={errors.email}
-          label="Email"
-          onChange={this.onChange.bind(this)}
-          checkUserExists={this.checkUserExists.bind(this)}
-          value={this.state.email}
-          field="email"
-        />
+        <FormGroup validationState={this.getValidationState('email')}>
+          <ControlLabel>Email</ControlLabel>
+          <InputGroup>
+            <InputGroup.Addon><i className="fa fa-at" aria-hidden="true"></i></InputGroup.Addon>
+            <FormControl
+              name="email"
+              type="text"
+              onChange={this.onChange.bind(this)}
+              onBlur={this.checkUserExists.bind(this)}
+            />
+            <FormControl.Feedback />
+          </InputGroup>
+          {errors.email && <HelpBlock>{errors.email}</HelpBlock>}
+        </FormGroup>
         
-        <TextFormField
-          type="password"
-          error={errors.password}
-          label="Password"
-          onChange={this.onChange.bind(this)}
-          value={this.state.password}
-          field="password"
-        />
+        <FormGroup validationState={this.getValidationState('password')}>
+          <ControlLabel>Password</ControlLabel>
+          <InputGroup>
+            <InputGroup.Addon><i className="fa fa-lock" aria-hidden="true"></i></InputGroup.Addon>
+            <FormControl
+              name="password"
+              type="password"
+              onChange={this.onChange.bind(this)}
+            />
+            <FormControl.Feedback />
+          </InputGroup>
+          {errors.password && <HelpBlock>{errors.password}</HelpBlock>}
+        </FormGroup>
         
-        <div className="form-group">
-          <button disabled={this.state.isLoading} className="btn btn-primary btn-lg">Sign Up</button>
+        <FormGroup>
+          <Button 
+            type="submit" 
+            bsSize="large" 
+            bsStyle="success" 
+            disabled={this.state.isLoading}
+          >Sign Up</Button>
           <small>Already have an account? <Link to="/login">Log In</Link></small>
-        </div>
+        </FormGroup>
       </form>
     );
   }
