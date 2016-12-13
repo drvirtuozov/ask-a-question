@@ -61,9 +61,7 @@ class NavigationBar extends React.Component {
         <Nav pullRight>
           <NavItem eventKey={1}><Label>143</Label></NavItem>
           <NavDropdown eventKey={3} title={user.username} id="basic-nav-dropdown">
-            <MenuItem eventKey={3.1}>Action</MenuItem>
-            <MenuItem eventKey={3.2}>Another action</MenuItem>
-            <MenuItem eventKey={3.3}>Something else here</MenuItem>
+            <MenuItem eventKey={3.1}>Your page</MenuItem>
             <MenuItem divider />
             <MenuItem onClick={this.logout.bind(this)} eventKey={3.3}>Log Out</MenuItem>
           </NavDropdown>

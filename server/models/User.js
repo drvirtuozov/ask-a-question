@@ -114,13 +114,13 @@ userSchema.statics.authorize = function(username, password) {
   return User.findOne({ $or: [ { username }, { email: username } ] })
     .then(user => {
       if (!user) 
-        throw new HttpError(400, "Wrong parameter", { result: { errors: { username: formErrors.WRONG_USER }}});
+        throw new HttpError(400, "Wrong parameter", { errors: { username: formErrors.WRONG_USER }});
       
       return user.checkPassword(password);
     })
     .then(isMatch => {
       if (!isMatch) 
-        throw new HttpError(401, "Wrong parameter", { result: { errors: { password: formErrors.WRONG_PASSWORD }}});
+        throw new HttpError(401, "Wrong parameter", { errors: { password: formErrors.WRONG_PASSWORD }});
         
       return jwt.sign({ username }, config.jwtSecret);
     })

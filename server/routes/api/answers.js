@@ -16,6 +16,10 @@ router.get('/:username', (req, res) => {
         return res.status(err.status).json(err.json);
       }
       
+      data.answers.sort((a, b) => {
+        return b.timestamp - a.timestamp;
+      });
+      
       res.json({ ok: true, answers: data.answers });
     })
     .catch(e => {

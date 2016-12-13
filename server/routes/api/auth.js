@@ -25,9 +25,9 @@ router.post("/", (req, res) => {
       res.status(200).json({ ok: true, token });
     })
     .catch(err => {
-      let result = err.params.result;
+      let { status, message, result } = err;
       
-      res.status(err.status || 500).json({ ok: false, description: err.message, result });
+      res.status(status || 500).json({ ok: false, description: message, result });
     });
 });
 

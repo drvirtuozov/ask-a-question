@@ -14,6 +14,7 @@ router.get("/", auth, (req, res) => {
       data.questions.sort((a, b) => {
         return b.timestamp - a.timestamp;
       });
+      
       res.json({ ok: true, questions: data.questions });
     })
     .catch(error => {
