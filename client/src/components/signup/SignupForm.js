@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router';
 import { isNull, isEmail, isAlphanumeric } from 'validator';
-import { USERNAME_TAKEN, EMAIL_TAKEN, FIELD_REQUIRED, WRONG_SYMBOLS } from '../../../server/shared/formErrors';
+import { USERNAME_TAKEN, EMAIL_TAKEN, FIELD_REQUIRED, WRONG_SYMBOLS } from '../../shared/formErrors';
 import { FormControl, FormGroup, ControlLabel, HelpBlock, InputGroup, Button } from 'react-bootstrap';
 
 export default class SignupForm extends React.Component {
