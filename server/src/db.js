@@ -1,15 +1,6 @@
-import mongoose from "mongoose";
+import Sequelize from 'sequelize';
 
-const db = mongoose.connection;
 
-mongoose.connect("mongodb://admin:admin@ds011168.mongolab.com:11168/ask-a-question");
-
-db.on("error", err => {
-  console.log("Connection error:", err);
-});
-
-db.once("open", () => {
-  console.log("We're connected!");
-});
+const db = new Sequelize('postgres://rvuzfjit:SFyVOqvQA7ih4ey00VhPpsuVuVAo0G7G@horton.elephantsql.com:5432/rvuzfjit');
 
 export default db;
