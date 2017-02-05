@@ -1,16 +1,18 @@
-import path from 'path';
 import express from 'express';
 import logger from 'morgan';
 import bodyParser from 'body-parser';
 import HttpError from './errors/http';
 import db from './db';
 import { findUserById } from './helpers/dbmanager';
+import graphql from './middlewares/graphql';
+import config from './config';
 
-const PORT = process.env.PORT || 3001;
+
 const app = express();
 
 app.use(logger('dev'));
 app.use(bodyParser.json());
+app.use('/graphql', graphql);
 
 app.use((err, req, res, next) => {
   if (err.name === 'UnauthorizedError') {
@@ -19,6 +21,6 @@ app.use((err, req, res, next) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log('Server listening on localhost:' + PORT);
+app.listen(config.PORT, () => {
+  console.log('Server listening on localhost:' + config.PORT);
 });

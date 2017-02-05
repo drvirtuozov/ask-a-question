@@ -6,9 +6,26 @@ import UserQuestion from '../models/user_question';
 User.Question = User.hasMany(UserQuestion, { as: 'questions' });
 UserQuestion.belongsTo(User);
 
-export async function findUserById(id) {
-  let Instance = await User.findById(id);
-  return Instance.dataValues;
+export async function createUser(args) {
+  let Instance = await User.create(args);
+
+  return Instance.toJSON();
+}
+
+export async function findAllUsers(args) {
+  let instancesArray = await User.findAll({ where: args }),
+    resultsArray = instancesArray.map(Instance => Instance.toJSON());
+
+  return resultsArray;
+}
+
+export async function findQuestionsByUsername(username) {
+  let Instance = await User.findOne({ 
+    where: { username } ,
+    include: [{ model: UserQuestion, as: 'questions' }]
+  });
+
+  return Instance.toJSON().questions;
 }
 
 export async function findUserByIdAndSetTrack(id, track) {
