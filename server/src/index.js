@@ -3,7 +3,6 @@ import logger from 'morgan';
 import bodyParser from 'body-parser';
 import HttpError from './errors/http';
 import db from './db';
-import { findUserById } from './helpers/dbmanager';
 import graphql from './middlewares/graphql';
 import config from './config';
 

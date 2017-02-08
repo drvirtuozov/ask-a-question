@@ -4,7 +4,11 @@ import {
 } from 'graphql';
 import User from './user';
 import Question from './question';
-import { createUser, findAllUsers, findQuestionsByUsername } from '../helpers/dbmanager';
+import Answer from './answer';
+import { 
+  createUser, findAllUsers, findQuestionsByUsername, 
+  findAnswersByUsername, addQuestion 
+} from '../helpers/dbmanager';
 
 
 const Query = new GraphQLObjectType({
@@ -32,6 +36,17 @@ const Query = new GraphQLObjectType({
         },
         resolve(root, args) {
           return findQuestionsByUsername(args.username);
+        }
+      },
+      answers: {
+        type: new GraphQLList(Answer),
+        args: {
+          username: {
+            type: new GraphQLNonNull(GraphQLString)
+          }
+        },
+        resolve(root, args) {
+          return findAnswersByUsername(args.username);
         }
       }
     };
@@ -64,6 +79,20 @@ const Mutation = new GraphQLObjectType({
         },
         resolve(root, args) {
           return createUser(args);
+        }
+      },
+      addQuestion: {
+        type: Question,
+        args: {
+          username: {
+            type: new GraphQLNonNull(GraphQLString)
+          },
+          text: {
+            type: new GraphQLNonNull(GraphQLString)
+          }
+        },
+        resolve(root, args) {
+          return addQuestion(args);
         }
       }
     };

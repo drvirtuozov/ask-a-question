@@ -1,10 +1,14 @@
 import db from '../db';
 import User from '../models/user';
 import UserQuestion from '../models/user_question';
+import UserAnswer from '../models/user_answer';
 
 
 User.Question = User.hasMany(UserQuestion, { as: 'questions' });
+User.Answer = User.hasMany(UserAnswer, { as: 'answers' });
 UserQuestion.belongsTo(User);
+UserAnswer.belongsTo(User);
+UserAnswer.Question = UserAnswer.hasOne(UserQuestion, { as: 'question' });
 
 export async function createUser(args) {
   let Instance = await User.create(args);
@@ -28,7 +32,22 @@ export async function findQuestionsByUsername(username) {
   return Instance.toJSON().questions;
 }
 
-export async function findUserByIdAndSetTrack(id, track) {
+export async function findAnswersByUsername(username) {
+  let Instance = await User.findOne({ 
+    where: { username } ,
+    include: [{ model: UserAnswer, as: 'answers' }]
+  });
+
+  return Instance.toJSON().answers;
+}
+
+export async function addQuestion(args) {
+  let Instance = await User.findOne({ where: { username: args.username }});
+
+  return Instance.createQuestion(args)
+}
+
+/*export async function findUserByIdAndSetTrack(id, track) {
   let Instance = await User.findById(id, { include: [{ model: UserTrack, as: 'track' }] }),
     TrackInstance = await Instance.track.updateAttributes(track),
     user = Instance.dataValues;
@@ -49,7 +68,7 @@ export async function findUserByIdAndIncrement(id, query) {
    UpdatedInstance = await Instance.increment(query);
 
   return UpdatedInstance.dataValues;
-}
+}*/
 
 db.sync({ force: true })
   .then(() => {
@@ -58,11 +77,16 @@ db.sync({ force: true })
       password: '7321',
       email: 'dr.virtuozov@ya.ru',
       first_name: 'Vlad',
-      questions: [{ text: 'first question'}, { text: 'second question'}]
+      questions: [{ text: 'second question'}, { text: 'third question'}],
+      answers: [{ text: 'An answer to first question', question: { text: 'First question' } }]
     }, {
       include: [
         {
           association: User.Question
+        },
+        { 
+          association: User.Answer,
+          include: [{ association: UserAnswer.Question }]
         }
       ]
     });
