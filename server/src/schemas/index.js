@@ -2,9 +2,10 @@ import {
   GraphQLObjectType, GraphQLSchema, GraphQLList, 
   GraphQLString, GraphQLNonNull 
 } from 'graphql';
-import User from './user';
-import Question from './question';
-import Answer from './answer';
+import User from '../models/user';
+import UserSchema from './user';
+import QuestionSchema from './question';
+import AnswerSchema from './answer';
 import { 
   createUser, findAllUsers, findQuestionsByUsername, 
   findAnswersByUsername, addQuestion 
@@ -17,36 +18,40 @@ const Query = new GraphQLObjectType({
   fields() {
     return {
       users: {
-        type: new GraphQLList(User),
+        type: new GraphQLList(UserSchema),
         args: {
           username: {
             type: GraphQLString
           }
         },
         resolve(root, args) {
-          return findAllUsers(args);
+          return User.findAll({ where: args });
         }
       },
       questions: {
-        type: new GraphQLList(Question),
+        type: new GraphQLList(QuestionSchema),
         args: {
           username: {
             type: new GraphQLNonNull(GraphQLString)
           }
         },
-        resolve(root, args) {
-          return findQuestionsByUsername(args.username);
+        async resolve(root, args) {
+          let Instance = await User.findOne({ where: args });
+
+          return Instance.getQuestions();
         }
       },
       answers: {
-        type: new GraphQLList(Answer),
+        type: new GraphQLList(AnswerSchema),
         args: {
           username: {
             type: new GraphQLNonNull(GraphQLString)
           }
         },
-        resolve(root, args) {
-          return findAnswersByUsername(args.username);
+        async resolve(root, args) {
+          let Instance = await User.findOne({ where: args });
+
+          return Instance.getAnswers();
         }
       }
     };
@@ -59,7 +64,7 @@ const Mutation = new GraphQLObjectType({
   fields() {
     return {
       addUser: {
-        type: User,
+        type: UserSchema,
         args: {
           username: {
             type: new GraphQLNonNull(GraphQLString)
@@ -78,11 +83,11 @@ const Mutation = new GraphQLObjectType({
           }
         },
         resolve(root, args) {
-          return createUser(args);
+          return User.create(args);
         }
       },
       addQuestion: {
-        type: Question,
+        type: QuestionSchema,
         args: {
           username: {
             type: new GraphQLNonNull(GraphQLString)
@@ -91,8 +96,11 @@ const Mutation = new GraphQLObjectType({
             type: new GraphQLNonNull(GraphQLString)
           }
         },
-        resolve(root, args) {
-          return addQuestion(args);
+        async resolve(root, args) {
+          let { username } = args,
+            Instance = await User.findOne({ where: { username }});
+
+          return Instance.createQuestion(args);
         }
       }
     };

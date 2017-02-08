@@ -1,7 +1,7 @@
 import { GraphQLObjectType, GraphQLString } from 'graphql';
 
 
-const Question = new GraphQLObjectType({
+const QuestionSchema = new GraphQLObjectType({
   name: 'Question',
   description: 'This represents a Question',
   fields: () => {
@@ -16,4 +16,4 @@ const Question = new GraphQLObjectType({
   }
 });
 
-export default Question;
+export default QuestionSchema;
