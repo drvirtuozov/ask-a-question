@@ -17,7 +17,7 @@ const Query = new GraphQLObjectType({
   description: 'This is a root query',
   fields() {
     return {
-      users: {
+      getUsers: {
         type: new GraphQLList(UserSchema),
         args: {
           username: {
@@ -28,7 +28,7 @@ const Query = new GraphQLObjectType({
           return User.findAll({ where: args });
         }
       },
-      questions: {
+      getQuestions: {
         type: new GraphQLList(QuestionSchema),
         args: {
           username: {
@@ -41,7 +41,7 @@ const Query = new GraphQLObjectType({
           return Instance.getQuestions();
         }
       },
-      answers: {
+      getAnswers: {
         type: new GraphQLList(AnswerSchema),
         args: {
           username: {
@@ -63,7 +63,7 @@ const Mutation = new GraphQLObjectType({
   description: 'Functions to create stuff',
   fields() {
     return {
-      addUser: {
+      createUser: {
         type: UserSchema,
         args: {
           username: {
@@ -86,7 +86,7 @@ const Mutation = new GraphQLObjectType({
           return User.create(args);
         }
       },
-      addQuestion: {
+      createQuestion: {
         type: QuestionSchema,
         args: {
           username: {
@@ -96,11 +96,24 @@ const Mutation = new GraphQLObjectType({
             type: new GraphQLNonNull(GraphQLString)
           }
         },
-        async resolve(root, args) {
-          let { username } = args,
-            Instance = await User.findOne({ where: { username }});
-
-          return Instance.createQuestion(args);
+        async resolve(root, { username, text }) {
+          let Instance = await User.findOne({ where: { username }});
+          return Instance.createQuestion({ text });
+        }
+      },
+      createAnswer: {
+        type: AnswerSchema,
+        args: {
+          question_id: {
+            type: new GraphQLNonNull(GraphQLString)
+          },
+          text: {
+            type: new GraphQLNonNull(GraphQLString)
+          }
+        },
+        async resolve(root, { username, text }, ctx) {
+          let Instance = await User.findOne({ where: { username: ctx.user.username }});
+          return Instance.createQuestion({ text });
         }
       }
     };

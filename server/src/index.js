@@ -4,6 +4,7 @@ import bodyParser from 'body-parser';
 import HttpError from './errors/http';
 import db from './db';
 import graphql from './middlewares/graphql';
+import { optionalAuth } from './middlewares/auth';
 import config from './config';
 
 
