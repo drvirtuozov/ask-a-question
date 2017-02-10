@@ -1,6 +1,5 @@
 import express from 'express';
 import logger from 'morgan';
-import bodyParser from 'body-parser';
 import HttpError from './errors/http';
 import db from './db';
 import graphql from './middlewares/graphql';
@@ -11,8 +10,7 @@ import config from './config';
 const app = express();
 
 app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use('/graphql', graphql);
+app.use('/graphql', optionalAuth, graphql);
 
 app.use((err, req, res, next) => {
   if (err.name === 'UnauthorizedError') {

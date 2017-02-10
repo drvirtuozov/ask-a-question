@@ -1,10 +1,10 @@
 import { GraphQLObjectType, GraphQLString } from 'graphql';
 
 
-const UserSchema = new GraphQLObjectType({
+const GraphQLUser = new GraphQLObjectType({
   name: 'User',
   description: 'This represents a User',
-  fields: () => {
+  fields() {
     return {
       username: {
         type: GraphQLString,
@@ -28,4 +28,4 @@ const UserSchema = new GraphQLObjectType({
   }
 });
 
-export default UserSchema;
+export default GraphQLUser;

@@ -1,9 +1,9 @@
 import GraphHTTP from 'express-graphql';
-import Schema from '../schemas';
+import Schema from '../api';
 
 export default GraphHTTP(req => ({
   schema: Schema,
   pretty: true,
   graphiql: true,
-  rootValue: { token: req.token }
+  rootValue: { user: req.user }
 }));

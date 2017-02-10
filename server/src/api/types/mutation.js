@@ -1,63 +1,40 @@
-import { 
-  GraphQLObjectType, GraphQLSchema, GraphQLList, 
-  GraphQLString, GraphQLNonNull, GraphQLInt
-} from 'graphql';
-import User from '../models/user';
-import UserQuestion from '../models/user_question';
-import UserSchema from './user';
-import QuestionSchema from './question';
-import AnswerSchema from './answer';
-import '../helpers/dbmanager';
+import { GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLNonNull } from 'graphql';
+import GraphQLToken from './token';
+import GraphQLUser from './user';
+import GraphQLQuestion from './question';
+import GraphQLAnswer from './answer';
+import jwt from 'jsonwebtoken';
+import config from '../../config';
+import { tokenNotProvided, wrongPassword } from '../../errors/api';
 
 
-const Query = new GraphQLObjectType({
-  name: 'Query',
-  description: 'This is a root query',
-  fields() {
-    return {
-      users: {
-        type: new GraphQLList(UserSchema),
-        args: {
-          username: {
-            type: GraphQLString
-          }
-        },
-        resolve(root, args) {
-          return User.findAll({ where: args });
-        }
-      },
-      questions: {
-        type: new GraphQLList(QuestionSchema),
-        async resolve(root, args, ctx) {
-          let Instance = await User.findOne({ where: { username: ctx.user.username} });
-
-          return Instance.getQuestions();
-        }
-      },
-      answers: {
-        type: new GraphQLList(AnswerSchema),
-        args: {
-          username: {
-            type: new GraphQLNonNull(GraphQLString)
-          }
-        },
-        async resolve(root, args) {
-          let Instance = await User.findOne({ where: args });
-
-          return Instance.getAnswers();
-        }
-      }
-    };
-  }
-});
-
-const Mutation = new GraphQLObjectType({
+const GraphQLMutation = new GraphQLObjectType({
   name: 'Mutation',
   description: 'Functions to create stuff',
   fields() {
     return {
+      token: {
+        type: GraphQLToken,
+        args: {
+          username: {
+            type: new GraphQLNonNull(GraphQLString)
+          },
+          password: {
+            type: new GraphQLNonNull(GraphQLString)
+          }
+        },
+        async resolve(root, { username, password }) {
+          let Instance = await User.findOne({ where: { username }});
+
+          if (Instance.password === password) {
+            return jwt.sign({ username }, config.jwtSecret);
+          } else {
+            throw wrongPassword;
+          }
+        }
+      },
       user: {
-        type: UserSchema,
+        type: GraphQLUser,
         args: {
           username: {
             type: new GraphQLNonNull(GraphQLString)
@@ -80,7 +57,7 @@ const Mutation = new GraphQLObjectType({
         }
       },
       question: {
-        type: QuestionSchema,
+        type: GraphQLQuestion,
         args: {
           username: {
             type: new GraphQLNonNull(GraphQLString)
@@ -95,7 +72,7 @@ const Mutation = new GraphQLObjectType({
         }
       },
       answer: {
-        type: AnswerSchema,
+        type: GraphQLAnswer,
         args: {
           question_id: {
             type: new GraphQLNonNull(GraphQLInt)
@@ -105,6 +82,8 @@ const Mutation = new GraphQLObjectType({
           }
         },
         async resolve(root, { question_id, text }, ctx) {
+          if (!ctx.user) throw tokenNotProvided;
+
           let UserInstance = await User.findOne({ where: { username: ctx.user.username }}),
             QuestionInstance = await UserQuestion.findById(question_id),
             AnswerInstance = await QuestionInstance.createAnswer({ text, user_id: UserInstance.id });
@@ -117,9 +96,4 @@ const Mutation = new GraphQLObjectType({
   }
 });
 
-const Schema = new GraphQLSchema({
-  query: Query,
-  mutation: Mutation
-});
-
-export default Schema;
+export default GraphQLMutation;
