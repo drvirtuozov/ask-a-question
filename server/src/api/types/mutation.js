@@ -6,6 +6,7 @@ import GraphQLAnswer from './answer';
 import jwt from 'jsonwebtoken';
 import config from '../../config';
 import { tokenNotProvided, wrongPassword } from '../../errors/api';
+import User from '../../models/user';
 
 
 const GraphQLMutation = new GraphQLObjectType({
@@ -66,9 +67,15 @@ const GraphQLMutation = new GraphQLObjectType({
             type: new GraphQLNonNull(GraphQLString)
           }
         },
-        async resolve(root, { username, text }) {
+        async resolve(root, { username, text }, ctx) {
           let Instance = await User.findOne({ where: { username }});
-          return Instance.createQuestion({ text });
+
+          if (ctx.user) {
+            let FromInstance = await User.findOne({ where: { username: ctx.user.username }});
+            return Instance.createQuestion({ text, from: FromInstance.id });            
+          } else {
+            return Instance.createQuestion({ text });
+          }
         }
       },
       answer: {
