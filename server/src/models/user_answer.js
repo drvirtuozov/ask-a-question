@@ -2,7 +2,7 @@ import db from '../db';
 
 
 const UserAnswer = db.import('user_answer', (db, DataTypes) => {
-  const { STRING } = DataTypes;
+  const { INTEGER, STRING } = DataTypes;
   
   return db.define('user_answer', {
     text: {

@@ -1,4 +1,4 @@
-import { GraphQLObjectType, GraphQLString } from 'graphql';
+import { GraphQLObjectType, GraphQLInt, GraphQLString } from 'graphql';
 import QuestionSchema from './question';
 
 
@@ -7,6 +7,12 @@ const AnswerSchema = new GraphQLObjectType({
   description: 'This represents an Answer',
   fields: () => {
     return {
+      id: {
+        type: GraphQLInt,
+        resolve(answer) {
+          return answer.id;
+        }
+      },
       text: {
         type: GraphQLString,
         resolve(answer) {
