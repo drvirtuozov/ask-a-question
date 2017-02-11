@@ -1,4 +1,5 @@
-import { GraphQLObjectType, GraphQLInt, GraphQLString } from 'graphql';
+import { GraphQLObjectType, GraphQLInt, GraphQLString, GraphQLFloat } from 'graphql';
+import GraphQLUser from './user';
 
 
 const GraphQLQuestion = new GraphQLObjectType({
@@ -19,9 +20,15 @@ const GraphQLQuestion = new GraphQLObjectType({
         }
       },
       from: {
-        type: GraphQLInt,
+        type: GraphQLUser,
         resolve(question) {
-          return question.from;
+          return question.getFrom();
+        }
+      },
+      timestamp: {
+        type: GraphQLFloat,
+        resolve(question) {
+          return new Date(question.created_at).getTime();
         }
       }
     };

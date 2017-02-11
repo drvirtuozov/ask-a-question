@@ -10,6 +10,8 @@ UserQuestion.belongsTo(User);
 UserAnswer.belongsTo(User);
 UserAnswer.hasOne(UserQuestion, { as: 'question', constraints: false });
 UserQuestion.hasOne(UserAnswer, { as: 'answer', constraints: false });
+UserQuestion.belongsTo(User, { as: 'from', constraints: false });
+
 
 db.sync({ force: true })
   .then(() => {

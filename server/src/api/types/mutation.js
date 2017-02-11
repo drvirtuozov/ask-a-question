@@ -75,8 +75,9 @@ const GraphQLMutation = new GraphQLObjectType({
           if (!user) throw userNotFound;
 
           if (ctx.user) {
-            let askingUser = await User.findOne({ where: { username: ctx.user.username }});
-            return user.createQuestion({ text, from: askingUser.id });            
+            let askingUser = await User.findOne({ where: { username: ctx.user.username }}),
+              question = await user.createQuestion({ text }); 
+            return question.setFrom(askingUser);             
           } else {
             return user.createQuestion({ text });
           }

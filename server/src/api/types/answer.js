@@ -1,4 +1,4 @@
-import { GraphQLObjectType, GraphQLInt, GraphQLString } from 'graphql';
+import { GraphQLObjectType, GraphQLInt, GraphQLString, GraphQLFloat } from 'graphql';
 import GraphQLQuestion from './question';
 
 
@@ -23,6 +23,12 @@ const GraphQLAnswer = new GraphQLObjectType({
         type: GraphQLQuestion,
         resolve(answer) {
           return answer.getQuestion();
+        }
+      },
+      timestamp: {
+        type: GraphQLFloat,
+        resolve(answer) {
+          return new Date(answer.created_at).getTime();
         }
       }
     };
