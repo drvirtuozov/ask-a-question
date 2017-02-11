@@ -27,8 +27,8 @@ const GraphQLQuery = new GraphQLObjectType({
         async resolve(root, args, ctx) {
           if (!ctx.user) throw tokenNotProvided;
 
-          let Instance = await User.findOne({ where: { username: ctx.user.username} });
-          return Instance.getQuestions();
+          let user = await User.findOne({ where: { username: ctx.user.username} });
+          return user.getQuestions();
         }
       },
       answers: {
@@ -39,8 +39,8 @@ const GraphQLQuery = new GraphQLObjectType({
           }
         },
         async resolve(root, args) {
-          let Instance = await User.findOne({ where: args });
-          return Instance.getAnswers();
+          let user = await User.findOne({ where: args });
+          return user.getAnswers();
         }
       }
     };

@@ -5,7 +5,7 @@ import GraphQLQuestion from './question';
 import GraphQLAnswer from './answer';
 import jwt from 'jsonwebtoken';
 import config from '../../config';
-import { tokenNotProvided, wrongPassword } from '../../errors/api';
+import { tokenNotProvided, wrongPassword, userNotFound, wrongQuestionId } from '../../errors/api';
 import User from '../../models/user';
 
 
@@ -25,9 +25,11 @@ const GraphQLMutation = new GraphQLObjectType({
           }
         },
         async resolve(root, { username, password }) {
-          let Instance = await User.findOne({ where: { username }});
+          let user = await User.findOne({ where: { username }});
 
-          if (Instance.password === password) {
+          if (!user) throw userNotFound;
+
+          if (user.password === password) {
             return jwt.sign({ username }, config.jwtSecret);
           } else {
             throw wrongPassword;
@@ -68,13 +70,15 @@ const GraphQLMutation = new GraphQLObjectType({
           }
         },
         async resolve(root, { username, text }, ctx) {
-          let Instance = await User.findOne({ where: { username }});
+          let user = await User.findOne({ where: { username }});
+
+          if (!user) throw userNotFound;
 
           if (ctx.user) {
-            let FromInstance = await User.findOne({ where: { username: ctx.user.username }});
-            return Instance.createQuestion({ text, from: FromInstance.id });            
+            let askingUser = await User.findOne({ where: { username: ctx.user.username }});
+            return user.createQuestion({ text, from: askingUser.id });            
           } else {
-            return Instance.createQuestion({ text });
+            return user.createQuestion({ text });
           }
         }
       },
@@ -91,12 +95,14 @@ const GraphQLMutation = new GraphQLObjectType({
         async resolve(root, { question_id, text }, ctx) {
           if (!ctx.user) throw tokenNotProvided;
 
-          let UserInstance = await User.findOne({ where: { username: ctx.user.username }}),
-            QuestionInstance = await UserQuestion.findById(question_id),
-            AnswerInstance = await QuestionInstance.createAnswer({ text, user_id: UserInstance.id });
+          let user = await User.findOne({ where: { username: ctx.user.username }}),
+            question = await UserQuestion.findById(question_id);
 
-          AnswerInstance.setQuestion(QuestionInstance);
-          return AnswerInstance;
+          if (!question) throw wrongQuestionId; 
+
+          let answer = await question.createAnswer({ text, user_id: user.id });
+          answer.setQuestion(question);
+          return answer;
         }
       }
     };
