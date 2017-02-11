@@ -1,5 +1,9 @@
-import { GraphQLObjectType, GraphQLInt, GraphQLString, GraphQLFloat } from 'graphql';
+import { 
+  GraphQLObjectType, GraphQLInt, GraphQLString, 
+  GraphQLFloat, GraphQLList
+} from 'graphql';
 import GraphQLQuestion from './question';
+import GraphQLComment from './comment';
 
 
 const GraphQLAnswer = new GraphQLObjectType({
@@ -23,6 +27,12 @@ const GraphQLAnswer = new GraphQLObjectType({
         type: GraphQLQuestion,
         resolve(answer) {
           return answer.getQuestion();
+        }
+      },
+      comments: {
+        type: new GraphQLList(GraphQLComment),
+        resolve(answer) {
+          return answer.getComments();
         }
       },
       timestamp: {

@@ -2,8 +2,10 @@ import { GraphQLObjectType, GraphQLString, GraphQLList, GraphQLNonNull, GraphQLI
 import GraphQLUser from './user';
 import GraphQLQuestion from './question';
 import GraphQLAnswer from './answer';
+import GraphQLComment from './comment';
 import { tokenNotProvided } from '../../errors/api';
 import User from '../../models/user';
+import UserAnswer from '../../models/user_answer';
 
 
 const GraphQLQuery = new GraphQLObjectType({
@@ -41,6 +43,18 @@ const GraphQLQuery = new GraphQLObjectType({
         async resolve(root, { user_id }) {
           let user = await User.findById(user_id);
           return user.getAnswers();
+        }
+      },
+      comments: {
+        type: new GraphQLList(GraphQLComment),
+        args: {
+          answer_id: {
+            type: new GraphQLNonNull(GraphQLInt)
+          }
+        },
+        async resolve(root, { answer_id }) {
+          let answer = await UserAnswer.findById(answer_id);
+          return answer.getComments();
         }
       }
     };

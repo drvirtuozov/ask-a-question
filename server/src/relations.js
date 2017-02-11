@@ -2,6 +2,7 @@ import db from './db';
 import User from './models/user';
 import UserQuestion from './models/user_question';
 import UserAnswer from './models/user_answer';
+import AnswerComment from './models/answer_comment';
 
 
 User.Questions = User.hasMany(UserQuestion, { as: 'questions' });
@@ -11,6 +12,8 @@ UserAnswer.belongsTo(User);
 UserAnswer.hasOne(UserQuestion, { as: 'question', constraints: false });
 UserQuestion.hasOne(UserAnswer, { as: 'answer', constraints: false });
 UserQuestion.belongsTo(User, { as: 'from', constraints: false });
+UserAnswer.hasMany(AnswerComment, { as: 'comments' });
+AnswerComment.belongsTo(User);
 
 
 db.sync({ force: true })

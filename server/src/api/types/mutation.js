@@ -3,10 +3,13 @@ import GraphQLToken from './token';
 import GraphQLUser from './user';
 import GraphQLQuestion from './question';
 import GraphQLAnswer from './answer';
+import GraphQLComment from './comment';
 import jwt from 'jsonwebtoken';
 import config from '../../config';
-import { tokenNotProvided, wrongPassword, userNotFound, wrongQuestionId } from '../../errors/api';
+import { tokenNotProvided, wrongPassword, userNotFound, wrongQuestionId, answerNotFound } from '../../errors/api';
 import User from '../../models/user';
+import UserQuestion from '../../models/user_question';
+import UserAnswer from '../../models/user_answer';
 
 
 const GraphQLMutation = new GraphQLObjectType({
@@ -95,7 +98,7 @@ const GraphQLMutation = new GraphQLObjectType({
         },
         async resolve(root, { question_id, text }, ctx) {
           if (!ctx.user) throw tokenNotProvided;
-
+          
           let user = await User.findById(ctx.user.id),
             question = await UserQuestion.findById(question_id);
 
@@ -104,6 +107,31 @@ const GraphQLMutation = new GraphQLObjectType({
           let answer = await question.createAnswer({ text, user_id: user.id });
           answer.setQuestion(question);
           return answer;
+        }
+      },
+      comment: {
+        type: GraphQLComment,
+        args: {
+          answer_id: {
+            type: new GraphQLNonNull(GraphQLInt)
+          },
+          text: {
+            type: new GraphQLNonNull(GraphQLString)
+          }
+        },
+        async resolve(root, { answer_id, text }, ctx) {
+          let answer = await UserAnswer.findById(answer_id);
+
+          if (!answer) throw answerNotFound;
+
+          if (ctx.user) {
+            let user = await User.findById(ctx.user.id),
+              comment = await answer.createComment({ text });
+
+            return comment.setUser(user);
+          } else {
+            return answer.createComment({ text });
+          }
         }
       }
     };

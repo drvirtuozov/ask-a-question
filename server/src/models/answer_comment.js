@@ -1,10 +1,10 @@
 import db from '../db';
 
 
-const UserAnswer = db.import('user_answer', (db, DataTypes) => {
+const AnswerComment = db.import('answer_comment', (db, DataTypes) => {
   const { STRING } = DataTypes;
   
-  return db.define('user_answer', {
+  return db.define('answer_comment', {
     text: {
       type: STRING,
       allowNull: false
@@ -12,4 +12,4 @@ const UserAnswer = db.import('user_answer', (db, DataTypes) => {
   }, { underscored: true });
 });
 
-export default UserAnswer;
+export default AnswerComment;
