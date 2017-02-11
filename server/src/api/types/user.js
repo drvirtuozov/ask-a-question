@@ -1,4 +1,4 @@
-import { GraphQLObjectType, GraphQLString } from 'graphql';
+import { GraphQLObjectType, GraphQLString, GraphQLInt } from 'graphql';
 
 
 const GraphQLUser = new GraphQLObjectType({
@@ -6,6 +6,12 @@ const GraphQLUser = new GraphQLObjectType({
   description: 'This represents a User',
   fields() {
     return {
+      id: {
+        type: GraphQLInt,
+        resolve(user) {
+          return user.id;
+        }
+      },
       username: {
         type: GraphQLString,
         resolve(user) {

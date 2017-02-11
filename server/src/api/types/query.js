@@ -1,4 +1,4 @@
-import { GraphQLObjectType, GraphQLString, GraphQLList, GraphQLNonNull } from 'graphql';
+import { GraphQLObjectType, GraphQLString, GraphQLList, GraphQLNonNull, GraphQLInt } from 'graphql';
 import GraphQLUser from './user';
 import GraphQLQuestion from './question';
 import GraphQLAnswer from './answer';
@@ -27,19 +27,19 @@ const GraphQLQuery = new GraphQLObjectType({
         async resolve(root, args, ctx) {
           if (!ctx.user) throw tokenNotProvided;
 
-          let user = await User.findOne({ where: { username: ctx.user.username} });
+          let user = await User.findById(ctx.user.id);
           return user.getQuestions();
         }
       },
       answers: {
         type: new GraphQLList(GraphQLAnswer),
         args: {
-          username: {
-            type: new GraphQLNonNull(GraphQLString)
+          user_id: {
+            type: new GraphQLNonNull(GraphQLInt)
           }
         },
-        async resolve(root, args) {
-          let user = await User.findOne({ where: args });
+        async resolve(root, { user_id }) {
+          let user = await User.findById(user_id);
           return user.getAnswers();
         }
       }

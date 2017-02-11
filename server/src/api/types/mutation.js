@@ -30,7 +30,7 @@ const GraphQLMutation = new GraphQLObjectType({
           if (!user) throw userNotFound;
 
           if (user.password === password) {
-            return jwt.sign({ username }, config.jwtSecret);
+            return jwt.sign({ id: user.id }, config.jwtSecret);
           } else {
             throw wrongPassword;
           }
@@ -62,20 +62,20 @@ const GraphQLMutation = new GraphQLObjectType({
       question: {
         type: GraphQLQuestion,
         args: {
-          username: {
-            type: new GraphQLNonNull(GraphQLString)
+          user_id: {
+            type: new GraphQLNonNull(GraphQLInt)
           },
           text: {
             type: new GraphQLNonNull(GraphQLString)
           }
         },
-        async resolve(root, { username, text }, ctx) {
-          let user = await User.findOne({ where: { username }});
+        async resolve(root, { user_id, text }, ctx) {
+          let user = await User.findById(user_id);
 
           if (!user) throw userNotFound;
 
           if (ctx.user) {
-            let askingUser = await User.findOne({ where: { username: ctx.user.username }}),
+            let askingUser = await User.findById(ctx.user.id),
               question = await user.createQuestion({ text }); 
             return question.setFrom(askingUser);             
           } else {
@@ -96,7 +96,7 @@ const GraphQLMutation = new GraphQLObjectType({
         async resolve(root, { question_id, text }, ctx) {
           if (!ctx.user) throw tokenNotProvided;
 
-          let user = await User.findOne({ where: { username: ctx.user.username }}),
+          let user = await User.findById(ctx.user.id),
             question = await UserQuestion.findById(question_id);
 
           if (!question) throw wrongQuestionId; 
