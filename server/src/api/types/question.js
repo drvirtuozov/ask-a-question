@@ -17,6 +17,12 @@ const GraphQLQuestion = new GraphQLObjectType({
         resolve(question) {
           return question.text;
         }
+      },
+      from: {
+        type: GraphQLInt,
+        resolve(question) {
+          return question.from;
+        }
       }
     };
   }
