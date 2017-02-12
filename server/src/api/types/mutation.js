@@ -133,6 +133,26 @@ const GraphQLMutation = new GraphQLObjectType({
             return answer.createComment({ text });
           }
         }
+      },
+      like : {
+        type: GraphQLAnswer,
+        args: {
+          answer_id: {
+            type: new GraphQLNonNull(GraphQLInt)
+          }
+        },
+        async resolve(root, { answer_id }, ctx) {
+          if (!ctx.user) throw tokenNotProvided;
+
+          let user = await User.findById(ctx.user.id),
+            answer = await UserAnswer.findById(answer_id);
+
+          if (!answer) throw answerNotFound;
+
+          let like = await answer.createLike();
+          like.setUser(user);
+          return answer;
+        }
       }
     };
   }

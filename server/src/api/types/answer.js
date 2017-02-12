@@ -4,6 +4,8 @@ import {
 } from 'graphql';
 import GraphQLQuestion from './question';
 import GraphQLComment from './comment';
+import GraphQLUser from './user';
+import User from '../../models/user';
 
 
 const GraphQLAnswer = new GraphQLObjectType({
@@ -33,6 +35,14 @@ const GraphQLAnswer = new GraphQLObjectType({
         type: new GraphQLList(GraphQLComment),
         resolve(answer) {
           return answer.getComments();
+        }
+      },
+      likes: {
+        type: new GraphQLList(GraphQLUser),
+        async resolve(answer) {
+          let likes = await answer.getLikes(),
+            ids = likes.map(like => ({ id: like.user_id }));
+          return User.findAll({ where: { $or: ids } });
         }
       },
       timestamp: {
