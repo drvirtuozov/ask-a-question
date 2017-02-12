@@ -6,7 +6,9 @@ import GraphQLComment from './comment';
 import { tokenNotProvided } from '../../errors/api';
 import User from '../../models/user';
 import UserAnswer from '../../models/user_answer';
+import UserQuestion from '../../models/user_question';
 import AnswerLike from '../../models/answer_like';
+import AnswerComment from '../../models/answer_comment';
 
 
 const GraphQLQuery = new GraphQLObjectType({
@@ -30,8 +32,7 @@ const GraphQLQuery = new GraphQLObjectType({
         async resolve(root, args, ctx) {
           if (!ctx.user) throw tokenNotProvided;
 
-          let user = await User.findById(ctx.user.id);
-          return user.getQuestions();
+          return UserQuestion.findAll({ where: { user_id: ctx.user.id }});
         }
       },
       answers: {
@@ -42,8 +43,7 @@ const GraphQLQuery = new GraphQLObjectType({
           }
         },
         async resolve(root, { user_id }) {
-          let user = await User.findById(user_id);
-          return user.getAnswers();
+          return UserAnswer.findAll({ where: { user_id } });
         }
       },
       comments: {
@@ -54,8 +54,7 @@ const GraphQLQuery = new GraphQLObjectType({
           }
         },
         async resolve(root, { answer_id }) {
-          let answer = await UserAnswer.findById(answer_id);
-          return answer.getComments();
+          return AnswerComment.findAll({ where: { user_answer_id: answer_id } });
         }
       },
       likes: {
