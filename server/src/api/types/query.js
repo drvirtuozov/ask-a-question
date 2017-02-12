@@ -6,6 +6,7 @@ import GraphQLComment from './comment';
 import { tokenNotProvided } from '../../errors/api';
 import User from '../../models/user';
 import UserAnswer from '../../models/user_answer';
+import AnswerLike from '../../models/answer_like';
 
 
 const GraphQLQuery = new GraphQLObjectType({
@@ -55,6 +56,20 @@ const GraphQLQuery = new GraphQLObjectType({
         async resolve(root, { answer_id }) {
           let answer = await UserAnswer.findById(answer_id);
           return answer.getComments();
+        }
+      },
+      likes: {
+        type: new GraphQLList(GraphQLUser),
+        args: {
+          answer_id: {
+            type: new GraphQLNonNull(GraphQLInt)
+          }
+        },
+        async resolve(root, { answer_id }) {
+          let likes = await AnswerLike.findAll({ where: { user_answer_id: answer_id }}),
+            ids = likes.map(like => ({ id: like.user_id }));
+
+          return User.findAll({ where: { $or: ids } });
         }
       }
     };
