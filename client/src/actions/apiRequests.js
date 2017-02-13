@@ -1,8 +1,14 @@
 import axios from 'axios';
 
-export function userSignupRequest(userData) {
+export function createUser(user) {
   return dispatch => {
-    return axios.post('/api/users', userData);
+    return axios.post('/api', {
+      query: `{ mutation users(
+        username: "${user.username}",
+        password: "${user.password}",
+        email: "${user.email}"
+      ) { username } }`
+    });
   };
 }
 

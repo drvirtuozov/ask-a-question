@@ -56,7 +56,7 @@ export default class SignupForm extends React.Component {
     
     if (isValid) {
       this.setState({ errors: {}, isLoading: true });
-      this.props.userSignupRequest(this.state)
+      this.props.createUser(this.state)
         .then(() => {
           this.props.addFlashMessage({
             type: 'success',
@@ -188,7 +188,7 @@ export default class SignupForm extends React.Component {
 }
 
 SignupForm.propTypes = {
-  userSignupRequest: React.PropTypes.func.isRequired,
+  createUser: React.PropTypes.func.isRequired,
   addFlashMessage: React.PropTypes.func.isRequired,
   isUserExists: React.PropTypes.func.isRequired
 };
