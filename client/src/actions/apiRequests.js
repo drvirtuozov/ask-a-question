@@ -7,7 +7,8 @@ export function userSignupRequest(userData) {
 }
 
 export function isUserExists(username) {
-  return dispatch => {
-    return axios.get(`/api/users/${username}`);
+  return async dispatch => {
+    let res = await axios.post('/api', { query: `{ users(username:"${username}") { username } }` });
+    return res.data.data.users.length ? true : false;
   };
 }

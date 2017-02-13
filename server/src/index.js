@@ -10,7 +10,7 @@ import './relations';
 const app = express();
 
 app.use(logger('dev'));
-app.use('/graphql', optionalAuth, graphql);
+app.use('/api', optionalAuth, graphql);
 
 app.use((err, req, res, next) => {
   let e = new HttpError(500);

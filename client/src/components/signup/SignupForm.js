@@ -25,26 +25,27 @@ export default class SignupForm extends React.Component {
     this.setState({ [e.target.name]: e.target.value });
   }
   
-  checkUserExists(e) {
+  async checkUserExists(e) {
     let field = e.target.name,
       value = e.target.value;
-      
+    
     if (value !== '') {
-      this.props.isUserExists(value)
-        .then(res => {
-          if (res.data.user) {
-            let state = this.state;
-            state.errors[field] = (field === "username" ? USERNAME_TAKEN : EMAIL_TAKEN);
-            
-            this.setState(state);
-          }
-        })
-        .catch(() => {
+      try {
+        let yes = await this.props.isUserExists(value);
+        
+        if (yes) {
           let state = this.state;
-          state.errors[field] = undefined;
+          state.errors[field] = (field === 'username' ? USERNAME_TAKEN : EMAIL_TAKEN);
           
           this.setState(state);
-        });
+        }
+      } catch(e) {
+        let state = this.state;
+        state.errors[field] = undefined;
+        
+        this.setState(state);
+      }
+      
     }
   }
   

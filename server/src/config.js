@@ -1,4 +1,4 @@
 export default {
-  PORT: 3000,
+  PORT: 3001,
   jwtSecret: 'somesecretkeyforjsonwebtoken'
 };
