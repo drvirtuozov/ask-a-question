@@ -20,8 +20,7 @@ const User = db.import('user', (db, DataTypes) => {
       }
     },
     first_name: {
-      type: STRING,
-      allowNull: false
+      type: STRING
     },
     last_name: {
       type: STRING

@@ -40,7 +40,7 @@ const GraphQLMutation = new GraphQLObjectType({
         }
       },
       user: {
-        type: GraphQLUser,
+        type: GraphQLToken,
         args: {
           username: {
             type: new GraphQLNonNull(GraphQLString)
@@ -50,16 +50,11 @@ const GraphQLMutation = new GraphQLObjectType({
           },
           password: {
             type: new GraphQLNonNull(GraphQLString)
-          },
-          first_name: {
-            type: new GraphQLNonNull(GraphQLString)
-          },
-          last_name: {
-            type: GraphQLString
           }
         },
-        resolve(root, args) {
-          return User.create(args);
+        async resolve(root, args) {
+          let user = await User.create(args);
+          return jwt.sign({ id: user.id }, config.jwtSecret);
         }
       },
       question: {
