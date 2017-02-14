@@ -10,6 +10,7 @@ import { tokenNotProvided, wrongPassword, userNotFound, wrongQuestionId, answerN
 import User from '../../models/user';
 import UserQuestion from '../../models/user_question';
 import UserAnswer from '../../models/user_answer';
+import bcrypt from 'bcryptjs';
 
 
 const GraphQLMutation = new GraphQLObjectType({
@@ -32,7 +33,7 @@ const GraphQLMutation = new GraphQLObjectType({
 
           if (!user) throw userNotFound;
 
-          if (user.password === password) {
+          if (bcrypt.compareSync(password, user.password)) {
             return jwt.sign({ id: user.id }, config.jwtSecret);
           } else {
             throw wrongPassword;

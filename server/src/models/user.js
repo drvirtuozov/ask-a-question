@@ -1,4 +1,5 @@
 import db from '../db';
+import bcrypt from 'bcryptjs';
 
 const User = db.import('user', (db, DataTypes) => {
   const { STRING } = DataTypes;
@@ -11,6 +12,9 @@ const User = db.import('user', (db, DataTypes) => {
     password: {
       type: STRING,
       allowNull: false,
+      set(password) {
+        return this.setDataValue('password', bcrypt.hashSync(password, 8));
+      }
     },
     email: {
       type: STRING,
