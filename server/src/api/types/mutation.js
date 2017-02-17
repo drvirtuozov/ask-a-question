@@ -1,16 +1,15 @@
 import { GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLNonNull } from 'graphql';
-import GraphQLToken from './token';
-import GraphQLUser from './user';
-import GraphQLQuestion from './question';
-import GraphQLAnswer from './answer';
-import GraphQLComment from './comment';
 import jwt from 'jsonwebtoken';
 import config from '../../config';
-import { tokenNotProvided, wrongPassword, userNotFound, wrongQuestionId, answerNotFound } from '../../errors/api';
+import { tokenNotProvided, wrongPassword, userNotFound, questionNotFound, answerNotFound } from '../../errors/api';
 import User from '../../models/user';
 import UserQuestion from '../../models/user_question';
 import UserAnswer from '../../models/user_answer';
 import bcrypt from 'bcryptjs';
+import GraphQLTokenResult from './results/token';
+import GraphQLQuestionResult from './results/question';
+import GraphQLAnswerResult from './results/answer';
+import GraphQLCommentResult from './results/comment';
 
 
 const GraphQLMutation = new GraphQLObjectType({
@@ -19,7 +18,7 @@ const GraphQLMutation = new GraphQLObjectType({
   fields() {
     return {
       token: {
-        type: GraphQLToken,
+        type: GraphQLTokenResult,
         args: {
           username: {
             type: new GraphQLNonNull(GraphQLString)
@@ -29,19 +28,28 @@ const GraphQLMutation = new GraphQLObjectType({
           }
         },
         async resolve(root, { username, password }) {
-          let user = await User.findOne({ where: { username }});
+          let user = await User.findOne({ where: { username }}),
+            token = null,
+            errors = [];
 
-          if (!user) throw userNotFound;
-
-          if (bcrypt.compareSync(password, user.password)) {
-            return jwt.sign({ id: user.id }, config.jwtSecret);
+          if (user) {
+            if (bcrypt.compareSync(password, user.password)) {
+              token = jwt.sign({ id: user.id }, config.jwtSecret);
+            } else {
+              errors.push(wrongPassword({ field: 'password' }));
+            }
           } else {
-            throw wrongPassword;
+            errors.push(userNotFound({ field: 'username' }));
           }
+
+          return {
+            token,
+            errors: errors.length ? errors : null
+          };
         }
       },
       user: {
-        type: GraphQLToken,
+        type: GraphQLTokenResult,
         args: {
           username: {
             type: new GraphQLNonNull(GraphQLString)
@@ -54,12 +62,33 @@ const GraphQLMutation = new GraphQLObjectType({
           }
         },
         async resolve(root, args) {
-          let user = await User.create(args);
-          return jwt.sign({ id: user.id }, config.jwtSecret);
+          let token = null,
+            errors = [];  
+
+          try {
+            let user = await User.create(args);              
+            token = jwt.sign({ id: user.id }, config.jwtSecret);
+          } catch (e) {
+            if (e.errors) {
+              e.errors.forEach(err => {
+                errors.push({
+                  field: err.path,
+                  status: 400,
+                  title: 'Bad Request',
+                  detail: err.message
+                });
+              });
+            }
+          }
+
+          return {
+            token,
+            errors: errors.length ? errors : null
+          };
         }
       },
       question: {
-        type: GraphQLQuestion,
+        type: GraphQLQuestionResult,
         args: {
           user_id: {
             type: new GraphQLNonNull(GraphQLInt)
@@ -69,21 +98,30 @@ const GraphQLMutation = new GraphQLObjectType({
           }
         },
         async resolve(root, { user_id, text }, ctx) {
-          let user = await User.findById(user_id);
+          let user = await User.findById(user_id),
+            question = null,
+            errors = [];
 
-          if (!user) throw userNotFound;
-
-          if (ctx.user) {
-            let askingUser = await User.findById(ctx.user.id),
+          if (user) {
+            if (ctx.user) {
+              let askingUser = await User.findById(ctx.user.id);
               question = await user.createQuestion({ text }); 
-            return question.setFrom(askingUser);             
+              await question.setFrom(askingUser);             
+            } else {
+              question = await user.createQuestion({ text });
+            }
           } else {
-            return user.createQuestion({ text });
+            errors.push(userNotFound({ field: 'user_id' }));
           }
+
+          return {
+            question,
+            errors: errors.length ? errors : null
+          };
         }
       },
       answer: {
-        type: GraphQLAnswer,
+        type: GraphQLAnswerResult,
         args: {
           question_id: {
             type: new GraphQLNonNull(GraphQLInt)
@@ -93,20 +131,31 @@ const GraphQLMutation = new GraphQLObjectType({
           }
         },
         async resolve(root, { question_id, text }, ctx) {
-          if (!ctx.user) throw tokenNotProvided;
-          
-          let user = await User.findById(ctx.user.id),
-            question = await UserQuestion.findById(question_id);
+          let answer = null,
+            errors = [];
 
-          if (!question) throw wrongQuestionId; 
+          if (ctx.user) {
+            let user = await User.findById(ctx.user.id),
+              question = await UserQuestion.findById(question_id);
 
-          let answer = await question.createAnswer({ text, user_id: user.id });
-          answer.setQuestion(question);
-          return answer;
+            if (question) {
+              answer = await question.createAnswer({ text, user_id: user.id });
+              await answer.setQuestion(question);
+            } else {
+              errors.push(questionNotFound({ field: 'question_id' })); 
+            }
+          } else {
+            errors.push(tokenNotProvided());
+          }
+
+          return {
+            answer,
+            errors: errors.length ? errors : null
+          };
         }
       },
       comment: {
-        type: GraphQLComment,
+        type: GraphQLCommentResult,
         args: {
           answer_id: {
             type: new GraphQLNonNull(GraphQLInt)
@@ -116,38 +165,55 @@ const GraphQLMutation = new GraphQLObjectType({
           }
         },
         async resolve(root, { answer_id, text }, ctx) {
-          let answer = await UserAnswer.findById(answer_id);
+          let answer = await UserAnswer.findById(answer_id),
+            comment = null,
+            errors = [];
 
-          if (!answer) throw answerNotFound;
-
-          if (ctx.user) {
-            let user = await User.findById(ctx.user.id),
+          if (answer) {
+            if (ctx.user) {
+              let user = await User.findById(ctx.user.id);
               comment = await answer.createComment({ text });
-
-            return comment.setUser(user);
+              await comment.setUser(user);
+            } else {
+              comment = await answer.createComment({ text });
+            }
           } else {
-            return answer.createComment({ text });
+            errors.push(answerNotFound({ field: 'answer_id' }));
           }
+
+          return {
+            comment,
+            errors: errors.length ? errors : null
+          };
         }
       },
-      like : {
-        type: GraphQLAnswer,
+      like: {
+        type: GraphQLAnswerResult,
         args: {
           answer_id: {
             type: new GraphQLNonNull(GraphQLInt)
           }
         },
         async resolve(root, { answer_id }, ctx) {
-          if (!ctx.user) throw tokenNotProvided;
+          if (ctx.user) {
+            var user = await User.findById(ctx.user.id),
+              answer = await UserAnswer.findById(answer_id),
+              errors = [];
 
-          let user = await User.findById(ctx.user.id),
-            answer = await UserAnswer.findById(answer_id);
+            if (answer) {
+              let like = await answer.createLike();
+              await like.setUser(user);
+            } else {
+              errors.push(answerNotFound({ field: 'answer_id' }));
+            }
+          } else {
+            errors.push(tokenNotProvided());
+          }
 
-          if (!answer) throw answerNotFound;
-
-          let like = await answer.createLike();
-          like.setUser(user);
-          return answer;
+          return {
+            answer,
+            errors: errors.length ? errors : null
+          };
         }
       }
     };

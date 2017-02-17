@@ -23,7 +23,7 @@ db.sync({ force: true })
   .then(() => {
     return User.create({
       username: 'drvirtuozov',
-      password: '7321',
+      password: '73217321',
       email: 'dr.virtuozov@ya.ru',
       first_name: 'Vlad',
       questions: [{ text: 'first question' }, { text: 'second question' }, { text: 'third question' }]
@@ -34,7 +34,7 @@ db.sync({ force: true })
   .then(() => {
     return User.create({
       username: 'boratische',
-      password: '7321',
+      password: '73217321',
       email: 'boratische@yandex.ru',
       first_name: 'Borat',
       last_name: 'Sagdiyev',
