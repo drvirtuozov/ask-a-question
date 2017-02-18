@@ -10,16 +10,20 @@ const GraphQLMutation = new GraphQLObjectType({
   description: 'Mutation types',
   fields: {
     token: {
-      type: GraphQLTokenMutations
+      type: GraphQLTokenMutations,
+      resolve: () => GraphQLTokenMutations
     },
     user: {
-      type: GraphQLUserMutations
+      type: GraphQLUserMutations,
+      resolve: () => GraphQLUserMutations
     },
     question: {
-      type: GraphQLQuestionMutations
+      type: GraphQLQuestionMutations,
+      resolve: () => GraphQLQuestionMutations
     },
     answer: {
-      type: GraphQLAnswerMutations
+      type: GraphQLAnswerMutations,
+      resolve: () => GraphQLAnswerMutations
     }
   }
 });

@@ -3,6 +3,8 @@ import GraphQLTokenResult from '../results/token';
 import User from '../../../models/user';
 import bcrypt from 'bcryptjs';
 import { wrongPassword, userNotFound } from '../../../errors/api';
+import jwt from 'jsonwebtoken';
+import config from '../../../config';
 
 
 const GraphQLTokenMutations = new GraphQLObjectType({
