@@ -1,10 +1,7 @@
 import { GraphQLObjectType, GraphQLString, GraphQLNonNull } from 'graphql';
 import GraphQLTokenResult from '../results/token';
 import User from '../../../models/user';
-import bcrypt from 'bcryptjs';
 import { wrongPassword, userNotFound } from '../../../errors/api';
-import jwt from 'jsonwebtoken';
-import config from '../../../config';
 
 
 const GraphQLTokenMutations = new GraphQLObjectType({
@@ -28,8 +25,8 @@ const GraphQLTokenMutations = new GraphQLObjectType({
           errors = [];
 
         if (user) {
-          if (bcrypt.compareSync(password, user.password)) {
-            token = jwt.sign({ id: user.id }, config.jwtSecret);
+          if (User.comparePasswords(password, user.password)) {
+            token = User.sign(user);
           } else {
             errors.push(wrongPassword({ field: 'password' }));
           }

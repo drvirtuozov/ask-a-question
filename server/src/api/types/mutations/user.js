@@ -1,8 +1,6 @@
 import { GraphQLObjectType, GraphQLString, GraphQLNonNull } from 'graphql';
 import GraphQLTokenResult from '../results/token';
-import jwt from 'jsonwebtoken';
 import User from '../../../models/user';
-import config from '../../../config';
 
 
 const GraphQLUserMutations = new GraphQLObjectType({
@@ -29,7 +27,7 @@ const GraphQLUserMutations = new GraphQLObjectType({
 
         try {
           let user = await User.create(args);              
-          token = jwt.sign({ id: user.id }, config.jwtSecret);
+          token = User.sign(user);
         } catch (e) {
           if (e.errors) {
             e.errors.forEach(err => {

@@ -1,5 +1,8 @@
 import db from '../db';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import config from '../config';
+
 
 const User = db.import('user', (db, DataTypes) => {
   const { STRING } = DataTypes;
@@ -56,5 +59,13 @@ const User = db.import('user', (db, DataTypes) => {
     }
   }, { underscored: true });
 });
+
+User.comparePasswords = (password, hash) => {
+  return bcrypt.compareSync(password, hash);
+};
+
+User.sign = user => {
+  return jwt.sign({ id: user.id }, config.jwtSecret);
+};
 
 export default User;
