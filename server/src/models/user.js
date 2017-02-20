@@ -2,6 +2,10 @@ import db from '../db';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import config from '../config';
+import { 
+  USERNAME_TAKEN, INVALID_USERNAME, INVALID_PASSWORD, 
+  EMAIL_TAKEN, INVALID_EMAIL 
+} from '../shared/formErrors';
 
 
 const User = db.import('user', (db, DataTypes) => {
@@ -12,16 +16,16 @@ const User = db.import('user', (db, DataTypes) => {
       type: STRING,
       allowNull: false,
       unique: {
-        msg: 'There\'s already a user with this username'
+        msg: USERNAME_TAKEN
       },
       validate: {
         is: {
           args: /^[a-z]+$/i,
-          msg: 'Username must only be with letters and not shorter than 5 symbols'
+          msg: INVALID_USERNAME
         },
         len: {
           args: [5, 50],
-          msg: 'Username must only be with letters and not shorter than 5 symbols'
+          msg: INVALID_USERNAME
         }
       }
     },
@@ -31,7 +35,7 @@ const User = db.import('user', (db, DataTypes) => {
       validate: {
         len: {
           args: [8, 80],
-          msg: 'Password must not be shorter than 8 symbols'
+          msg: INVALID_PASSWORD
         }
       },
       set(password) {
@@ -43,11 +47,11 @@ const User = db.import('user', (db, DataTypes) => {
       type: STRING,
       allowNull: false,
       unique: {
-        msg: 'There\'s already a user with this email'
+        msg: EMAIL_TAKEN
       },
       validate: {
         isEmail: {
-          msg: 'Wrong email'
+          msg: INVALID_EMAIL
         }
       }
     },

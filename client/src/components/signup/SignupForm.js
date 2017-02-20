@@ -1,7 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router';
-import { isNull, isEmail, isAlphanumeric } from 'validator';
-import { USERNAME_TAKEN, EMAIL_TAKEN, FIELD_REQUIRED, WRONG_SYMBOLS } from '../../shared/formErrors';
+import { isNull, isEmail, isAlpha } from 'validator';
+import { 
+  USERNAME_TAKEN, EMAIL_TAKEN, FIELD_REQUIRED, 
+  INVALID_PASSWORD, INVALID_USERNAME, INVALID_EMAIL
+} from '../../../../server/src/shared/formErrors';
 import { FormControl, FormGroup, ControlLabel, HelpBlock, InputGroup, Button } from 'react-bootstrap';
 
 export default class SignupForm extends React.Component {
@@ -12,124 +15,134 @@ export default class SignupForm extends React.Component {
       username: '',
       email: '',
       password: '',
-      errors: {
-        username: null,
-        email: null,
-        password: null
-      },
+      errors: {},
       isLoading: false
     };
   }
   
   onChange(e) {
-    this.setState({ [e.target.name]: e.target.value });
+    let field = e.target.name,
+      value = e.target.value,
+      error = this.checkFieldError(field, value),
+      errors = this.state.errors;
+
+    if (error) {
+      errors[field] = error;
+    } else {
+      delete errors[field];
+    }
+
+    this.setState({ 
+      [field]: value,
+      errors
+    });
   }
   
   async checkUserExists(e) {
     let field = e.target.name,
-      value = e.target.value;
+      value = e.target.value,
+      errors = this.state.errors;
     
-    if (value !== '') {
-      try {
-        let yes = await this.props.isUserExists(value);
-        
-        if (yes) {
-          let state = this.state;
-          state.errors[field] = (field === 'username' ? USERNAME_TAKEN : EMAIL_TAKEN);
-          
-          this.setState(state);
-        }
-      } catch(e) {
-        let state = this.state;
-        state.errors[field] = undefined;
-        
-        this.setState(state);
+    if (value !== '' && !this.checkFieldError(field, value)) { 
+      if (await this.props.isUserExists(value)) {
+        errors[field] = (field === 'username' ? USERNAME_TAKEN : EMAIL_TAKEN);
+      } else {
+        delete errors[field];
       }
-      
+
+      this.setState({ errors }); 
     }
   }
   
-  onSubmit(e) {
+  async onSubmit(e) {
     e.preventDefault();
-    
-    let { errors, isValid } = this.validateInput();
-    
-    if (isValid) {
-      this.setState({ errors: {}, isLoading: true });
-      this.props.createUser(this.state)
-        .then(() => {
-          this.props.addFlashMessage({
-            type: 'success',
-            text: 'You signed up successfully. Welcome!'
-          });
-          this.context.router.push('/');
-        })
-        .catch(err => {
-          this.setState({
-            errors: err.data.result.errors,
-            isLoading: false
-          });
-        });
+    this.setState({ isLoading: true });
+    let res = await this.props.createUser(this.state)
+
+    if (res.token) {
+      this.props.addFlashMessage({
+        type: 'success',
+        text: 'You signed up successfully. Welcome!'
+      });
+
+      this.context.router.push('/');
     } else {
-      this.setState({ errors });
+      this.setState({
+        errors: this.apiErrorsToState(res.errors),
+        isLoading: false
+      });
     }
   }
+
+  apiErrorsToState(errors) {
+    let output = {};
+    
+    for (let e of errors) {
+      output[e.field] = e.detail;
+    }
+    
+    return output;
+  }
   
-  validateInput() {
-    let data = this.state,
-      errors = data.errors;
+  checkFieldError(field, value) {
+    let output = null,
+      validators = {
+        username() {
+          if (!isAlpha(value)) {
+            output = INVALID_USERNAME;
+          }
+          
+          if (isNull(value)) {
+            output = FIELD_REQUIRED;
+          }
+        },
+        email() {
+          if (!isEmail(value)) {
+            output = INVALID_EMAIL;
+          }
+          
+          if (isNull(value)) {
+            output = FIELD_REQUIRED;
+          }
+        },
+        password() {
+          if (value.length < 8) {
+            output = INVALID_PASSWORD;
+          }
+
+          if (isNull(value)) {
+            output = FIELD_REQUIRED;
+          }
+        }
+      };
     
-    if (!isAlphanumeric(data.username)) {
-      errors.username = WRONG_SYMBOLS;
-    }
-    
-    if (isNull(data.username)) {
-      errors.username = FIELD_REQUIRED;
-    }
-    
-    if (!isEmail(data.email)) {
-      errors.email = FIELD_REQUIRED;
-    }
-    
-    if (isNull(data.email)) {
-      errors.email = FIELD_REQUIRED;
-    }
-    
-    if (isNull(data.password)) {
-      errors.password = FIELD_REQUIRED;
-    }
-  
-    return {
-      errors,
-      isValid: Object.keys(errors).length ? false : true
-    };
+    validators[field]();
+    return output;
   }
   
   setValidationState(e) {
     
   }
   
-  getValidationState(field) {
-    let errors = this.state.errors;
-    
-    if (errors[field]) {
-      return 'error';
-    } else if (errors[field] === undefined) {
-      return 'success';
-    } else if (errors[field] === null) {
-      return;
+  getFieldValidationState(field) {
+    if (this.state[field]) {
+      if (this.state.errors[field]) {
+        return 'error';
+      } else {
+        return 'success';
+      }
     }
   }
   
   render() {
     const { errors } = this.state;
-    
+  
     return (
       <form onSubmit={this.onSubmit.bind(this)}>
         <h2>Don't have an account?</h2>
         <h3>Let's create one!</h3>
         
-        <FormGroup validationState={this.getValidationState('username')}>
+        <FormGroup validationState={this.getFieldValidationState('username')}>
           <ControlLabel>Username</ControlLabel>
           <InputGroup>
             <InputGroup.Addon><i className="fa fa-user" aria-hidden="true"></i></InputGroup.Addon>
@@ -144,7 +157,7 @@ export default class SignupForm extends React.Component {
           {errors.username && <HelpBlock>{errors.username}</HelpBlock>}
         </FormGroup>
         
-        <FormGroup validationState={this.getValidationState('email')}>
+        <FormGroup validationState={this.getFieldValidationState('email')}>
           <ControlLabel>Email</ControlLabel>
           <InputGroup>
             <InputGroup.Addon><i className="fa fa-at" aria-hidden="true"></i></InputGroup.Addon>
@@ -152,14 +165,13 @@ export default class SignupForm extends React.Component {
               name="email"
               type="text"
               onChange={this.onChange.bind(this)}
-              onBlur={this.checkUserExists.bind(this)}
             />
             <FormControl.Feedback />
           </InputGroup>
           {errors.email && <HelpBlock>{errors.email}</HelpBlock>}
         </FormGroup>
         
-        <FormGroup validationState={this.getValidationState('password')}>
+        <FormGroup validationState={this.getFieldValidationState('password')}>
           <ControlLabel>Password</ControlLabel>
           <InputGroup>
             <InputGroup.Addon><i className="fa fa-lock" aria-hidden="true"></i></InputGroup.Addon>
@@ -178,7 +190,7 @@ export default class SignupForm extends React.Component {
             type="submit" 
             bsSize="large" 
             bsStyle="success" 
-            disabled={this.state.isLoading}
+            disabled={this.state.isLoading || Object.keys(errors).length}
           >Sign Up</Button>
           <small>Already have an account? <Link to="/login">Log In</Link></small>
         </FormGroup>
