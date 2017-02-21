@@ -1,4 +1,8 @@
 import axios from 'axios';
+import setAuthorizationToken from '../utils/setAuthorizationToken';
+import jwtDecode from 'jwt-decode';
+import { SET_CURRENT_USER } from './types';
+import { setCurrentUser } from './authActions';
 
 
 export function createUser(user) {
@@ -19,9 +23,16 @@ export function createUser(user) {
           } 
         }
       }`
-    });
+    }),
+      result = res.data.data.user.create;
 
-    return res.data.data.user.create;
+    if (result.token) {
+      localStorage.setItem('token', result.token);
+      setAuthorizationToken(result.token);
+      dispatch(setCurrentUser(jwtDecode(result.token)));
+    }
+
+    return result;
   };
 }
 
