@@ -69,7 +69,8 @@ User.comparePasswords = (password, hash) => {
 };
 
 User.sign = user => {
-  return jwt.sign({ id: user.id }, config.jwtSecret);
+  let { id, username } = user; 
+  return jwt.sign({ id, username }, config.jwtSecret);
 };
 
 export default User;
