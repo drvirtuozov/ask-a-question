@@ -20,6 +20,7 @@ module.exports = {
     hot: true,
     contentBase: path.resolve(__dirname, 'dist'),
     publicPath: '/',
+    historyApiFallback: true,
     proxy: {
       '/api': 'http://localhost:3001'
     },

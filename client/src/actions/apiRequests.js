@@ -8,21 +8,23 @@ import { setCurrentUser } from './authActions';
 export function createUser(user) {
   return async dispatch => {
     let res = await axios.post('/api', {
-      query: `mutation { 
-        user {
-          create(
-            username: "${user.username}",
-            password: "${user.password}",
-            email: "${user.email}"
-          ) { 
-            token 
-            errors {
-              field
-              detail
-            }
-          } 
+      query: `
+        mutation { 
+          user {
+            create(
+              username: "${user.username}",
+              password: "${user.password}",
+              email: "${user.email}"
+            ) { 
+              token 
+              errors {
+                field
+                detail
+              }
+            } 
+          }
         }
-      }`
+      `
     }),
       result = res.data.data.user.create;
 
@@ -45,6 +47,7 @@ export function isUserExists(username) {
             username
           }
           errors {
+            field
             detail
           }
         } 
@@ -52,5 +55,34 @@ export function isUserExists(username) {
     });
 
     return res.data.data.user.user ? true : false;
+  };
+}
+
+export function createToken(username, password) {
+  return async dispatch => {
+    let res = await axios.post('/api', { 
+      query: `
+        mutation {
+          token {
+            create(username: "${username}", password: "${password}") {
+              token
+              errors {
+                field
+                detail
+              }
+            }
+          }
+        }
+      `
+    }),
+      result = res.data.data.token.create;
+    
+    if (result.token) {
+      localStorage.setItem('token', result.token);
+      setAuthorizationToken(result.token);
+      dispatch(setCurrentUser(jwtDecode(result.token)));
+    }
+
+    return result;
   };
 }

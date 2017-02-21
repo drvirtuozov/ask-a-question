@@ -120,10 +120,6 @@ export default class SignupForm extends React.Component {
     return output;
   }
   
-  setValidationState(e) {
-    
-  }
-  
   getFieldValidationState(field) {
     if (this.state[field]) {
       if (this.state.errors[field]) {
@@ -135,7 +131,7 @@ export default class SignupForm extends React.Component {
   }
   
   render() {
-    const { errors } = this.state;
+    const { errors, isLoading } = this.state;
   
     return (
       <form onSubmit={this.onSubmit.bind(this)}>
@@ -190,7 +186,7 @@ export default class SignupForm extends React.Component {
             type="submit" 
             bsSize="large" 
             bsStyle="success" 
-            disabled={this.state.isLoading || Object.keys(errors).length}
+            disabled={isLoading || Object.keys(errors).length}
           >Sign Up</Button>
           <small>Already have an account? <Link to="/login">Log In</Link></small>
         </FormGroup>
