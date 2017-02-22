@@ -1,7 +1,7 @@
 import React from 'react';
 import SignupForm from './SignupForm';
 import { connect } from 'react-redux';
-import { isUserExists } from '../../actions/apiRequests';
+import { isUserExists } from '../../requests/api';
 import { signup } from '../../actions/auth';
 import { addFlashMessage } from '../../actions/flashMessages.js';
 

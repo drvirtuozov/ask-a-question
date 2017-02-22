@@ -1,21 +1,24 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { getQuestions } from '../../actions/apiRequests';
 import { reply } from '../../actions/answerActions';
 import Question from './Question';
 import findIndex from 'lodash/findIndex';
+import { getQuestions } from '../../requests/api';
+import { addQuestion, addQuestions, setQuestions } from '../../actions/questions';
+
 
 class Questions extends React.Component {
   constructor(props) {
     super(props);
-    
-    this.state = {
-      questions: []
-    };
 
-    this.updateQuestions();
+    this.setQuestions();
   }
-  
+
+  async setQuestions() {
+    let res = await getQuestions();
+    this.props.setQuestions(res.questions);
+  }
+
   reply(answer) {
     let index = findIndex(this.state.questions, { _id: answer.id });
     
@@ -26,16 +29,10 @@ class Questions extends React.Component {
         });
       });
   }
-
-  async updateQuestions() {
-    this.setState({
-      questions: (await getQuestions()).questions
-    });
-  }
   
   render() {
-    let { questions } = this.state;
-    console.log(questions)
+    let { questions } = this.props;
+    
     return (
       <div className="container-fluid">
         {questions.length ? 
@@ -62,8 +59,17 @@ class Questions extends React.Component {
 }
 
 Questions.propTypes = {
-  getQuestions: React.PropTypes.func.isRequired,
+  questions: React.PropTypes.array.isRequired,
+  addQuestion: React.PropTypes.func.isRequired,
+  addQuestions: React.PropTypes.func.isRequired,
+  setQuestions: React.PropTypes.func.isRequired,
   reply: React.PropTypes.func.isRequired
 };
 
-export default connect(null, { getQuestions, reply })(Questions);
+function mapStateToProps(state) {
+  return {
+    questions: state.questions
+  };
+}
+
+export default connect(mapStateToProps, { reply, addQuestion, addQuestions, setQuestions })(Questions);

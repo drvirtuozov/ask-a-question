@@ -56,10 +56,11 @@ class NavigationBar extends React.Component {
   
   render() {
     let { isLoading } = this.state, 
-      { isAuthenticated, user } = this.props.auth,
+      { auth, questionsCount } = this.props,
+      { isAuthenticated, user } = auth,
       userMenu = (
         <Nav pullRight>
-          <NavItem eventKey={1}><Label>143</Label></NavItem>
+          <NavItem eventKey={1}><Label>{ questionsCount }</Label></NavItem>
           <NavDropdown eventKey={3} title={user.username} id="basic-nav-dropdown">
             <MenuItem eventKey={3.1}>Your page</MenuItem>
             <MenuItem divider />
@@ -101,7 +102,8 @@ class NavigationBar extends React.Component {
 NavigationBar.propTypes = {
   auth: React.PropTypes.object.isRequired,
   logout: React.PropTypes.func.isRequired,
-  login: React.PropTypes.func.isRequired
+  login: React.PropTypes.func.isRequired,
+  questionsCount: React.PropTypes.number.isRequired
 };
 
 NavigationBar.contextTypes = {
@@ -110,7 +112,8 @@ NavigationBar.contextTypes = {
 
 function mapStateToProps(state) {
   return {
-    auth: state.auth
+    auth: state.auth,
+    questionsCount: state.questions.length
   };
 }
 
