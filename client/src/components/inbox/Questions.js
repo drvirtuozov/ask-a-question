@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { getQuestions } from '../../actions/questionActions';
+import { getQuestions } from '../../actions/apiRequests';
 import { reply } from '../../actions/answerActions';
 import Question from './Question';
 import findIndex from 'lodash/findIndex';
@@ -12,13 +12,8 @@ class Questions extends React.Component {
     this.state = {
       questions: []
     };
-    
-    props.getQuestions()
-      .then(res => {
-        this.setState({
-          questions: res.data.questions
-        });
-      });
+
+    this.updateQuestions();
   }
   
   reply(answer) {
@@ -31,10 +26,16 @@ class Questions extends React.Component {
         });
       });
   }
+
+  async updateQuestions() {
+    this.setState({
+      questions: (await getQuestions()).questions
+    });
+  }
   
   render() {
     let { questions } = this.state;
-    
+    console.log(questions)
     return (
       <div className="container-fluid">
         {questions.length ? 
@@ -43,9 +44,9 @@ class Questions extends React.Component {
             <hr />
             {questions.map(question => {
               return <Question 
-                key={question._id}
-                id={question._id}
-                from={question.from} 
+                key={question.id}
+                id={question.id}
+                from={question.from ? question.from.username : null}
                 text={question.text} 
                 timestamp={question.timestamp} 
                 reply={this.reply.bind(this)}

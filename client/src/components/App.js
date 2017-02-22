@@ -7,7 +7,7 @@ import Routes from './Routes';
 import rootReducer from '../reducers/root';
 import setAuthorizationToken from '../utils/setAuthorizationToken';
 import jwtDecode from 'jwt-decode';
-import { setCurrentUser } from '../actions/authActions';
+import { setCurrentUser } from '../actions/auth';
 
 
 const store = createStore(

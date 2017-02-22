@@ -57,7 +57,7 @@ export default class SignupForm extends React.Component {
   async onSubmit(e) {
     e.preventDefault();
     this.setState({ isLoading: true });
-    let res = await this.props.createUser(this.state)
+    let res = await this.props.signup(this.state)
 
     if (res.token) {
       this.props.addFlashMessage({
@@ -196,7 +196,7 @@ export default class SignupForm extends React.Component {
 }
 
 SignupForm.propTypes = {
-  createUser: React.PropTypes.func.isRequired,
+  signup: React.PropTypes.func.isRequired,
   addFlashMessage: React.PropTypes.func.isRequired,
   isUserExists: React.PropTypes.func.isRequired
 };

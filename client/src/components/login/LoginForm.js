@@ -1,12 +1,10 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import { FIELD_REQUIRED } from '../../../../server/src/shared/formErrors';
-import { createToken } from '../../actions/apiRequests';
 import { FormControl, FormGroup, ControlLabel, HelpBlock, InputGroup, Button } from 'react-bootstrap';
 import { isNull } from 'validator';
 
 
-class LoginForm extends React.Component {
+export default class LoginForm extends React.Component {
   constructor(props) {
     super(props);
     
@@ -20,12 +18,13 @@ class LoginForm extends React.Component {
   
   async onSubmit(e) {
     e.preventDefault();
+    let { username, password } = this.state;
     let { errors, isValid } = this.validateInput();
 
     if (isValid) {
       this.setState({ errors: {}, isLoading: true });
-      let res = await this.props.createToken(this.state.username, this.state.password);
-
+      let res = await this.props.login(username, password);
+      
       if (res.token) {
         this.context.router.push('/');
       } else {
@@ -126,11 +125,9 @@ class LoginForm extends React.Component {
 }
 
 LoginForm.propTypes = {
-  createToken: React.PropTypes.func.isRequired
+  login: React.PropTypes.func.isRequired
 };
 
 LoginForm.contextTypes = {
   router: React.PropTypes.object.isRequired
 };
-
-export default connect(null, { createToken })(LoginForm);

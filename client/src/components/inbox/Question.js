@@ -67,7 +67,7 @@ class Question extends React.Component {
 }
 
 Question.propTypes = {
-  id: React.PropTypes.string.isRequired,
+  id: React.PropTypes.number.isRequired,
   from: React.PropTypes.string,
   text: React.PropTypes.string.isRequired,
   timestamp: React.PropTypes.number.isRequired,

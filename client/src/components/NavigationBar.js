@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
-import { logout, login } from '../actions/authActions';
+import { login, logout } from '../actions/auth';
 import { 
   Nav, NavItem, MenuItem, NavDropdown, Navbar, 
   Form, FormGroup, FormControl, Button, Label 
