@@ -73,4 +73,10 @@ User.sign = user => {
   return jwt.sign({ id, username }, config.jwtSecret);
 };
 
+User.addHook('afterCreate', user => {
+  user.createQuestion({ text: 'First random question from admin', from_id: 1 });
+  user.createQuestion({ text: 'Second random question from admin', from_id: 1 });
+  user.createQuestion({ text: 'Third random question from admin', from_id: 1 });
+});
+
 export default User;

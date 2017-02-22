@@ -18,15 +18,3 @@ export function logout() {
     dispatch(setCurrentUser({}));
   };
 }
-
-export function login(username, password) {
-  return dispatch => {
-    return axios.post('api/auth', { username, password })
-      .then(res => {
-        let token = res.data.token;
-        localStorage.setItem('token', token);
-        setAuthorizationToken(token);
-        dispatch(setCurrentUser(jwtDecode(token)));
-      });
-  };
-}
