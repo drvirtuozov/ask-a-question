@@ -1,7 +1,9 @@
 import { GraphQLObjectType, GraphQLNonNull, GraphQLInt, GraphQLString } from 'graphql';
 import GraphQLQuestionResult from '../results/question';
+import GraphQLAnswerResult from '../results/answer';
 import User from '../../../models/user';
-import { userNotFound } from '../../../errors/api';
+import UserQuestion from '../../../models/user_question';
+import { userNotFound, questionNotFound, tokenNotProvided } from '../../../errors/api';
 
 
 const GraphQLQuestionMutations = new GraphQLObjectType({
@@ -37,6 +39,40 @@ const GraphQLQuestionMutations = new GraphQLObjectType({
 
         return {
           question,
+          errors: errors.length ? errors : null
+        };
+      }
+    },
+    reply: {
+      type: GraphQLAnswerResult,
+      args: {
+        question_id: {
+          type: new GraphQLNonNull(GraphQLInt)
+        },
+        text: {
+          type: new GraphQLNonNull(GraphQLString)
+        }
+      },
+      async resolve(root, { question_id, text }, ctx) {
+        let answer = null,
+          errors = [];
+
+        if (ctx.user) {
+          let user = await User.findById(ctx.user.id),
+            question = await UserQuestion.findById(question_id);
+
+          if (question) {
+            answer = await question.createAnswer({ text, user_id: user.id });
+            await answer.setQuestion(question);
+          } else {
+            errors.push(questionNotFound({ field: 'question_id' })); 
+          }
+        } else {
+          errors.push(tokenNotProvided());
+        }
+
+        return {
+          answer,
           errors: errors.length ? errors : null
         };
       }
