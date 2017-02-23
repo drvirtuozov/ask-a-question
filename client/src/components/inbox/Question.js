@@ -37,6 +37,7 @@ export default class Question extends React.Component {
       { answer } = this.state,
       res = await replyQuestion(id, answer);
     this.setState({ isAnswered: true });
+    this.props.decrementQuestionsCount();
   }
   
   onChange(e) {
@@ -83,7 +84,8 @@ Question.propTypes = {
   id: React.PropTypes.number.isRequired,
   from: React.PropTypes.string,
   text: React.PropTypes.string.isRequired,
-  timestamp: React.PropTypes.number.isRequired
+  timestamp: React.PropTypes.number.isRequired,
+  decrementQuestionsCount: React.PropTypes.func.isRequired
 };
 
 Question.contextTypes = {

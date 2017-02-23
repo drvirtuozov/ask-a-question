@@ -4,6 +4,10 @@ import Question from './Question';
 import findIndex from 'lodash/findIndex';
 import { getQuestions } from '../../requests/api';
 import { addQuestion, addQuestions, setQuestions } from '../../actions/questions';
+import { 
+  incrementQuestionsCount, decrementQuestionsCount, 
+  setQuestionsCount 
+} from '../../actions/questionsCount';
 
 
 class Questions extends React.Component {
@@ -16,16 +20,21 @@ class Questions extends React.Component {
   async setQuestions() {
     let res = await getQuestions();
     this.props.setQuestions(res.questions);
+    this.props.setQuestionsCount(res.questions.length);
   }
   
   render() {
-    let { questions } = this.props;
+    let { questions, questionsCount, decrementQuestionsCount } = this.props;
     
     return (
       <div className="container-fluid">
-        {questions.length ? 
+        {questionsCount ? 
           <div>
-            <h3>There are {questions.length} questions especially for you:</h3>
+            {questionsCount === 1 ?
+              <h3>There's a question especially for you:</h3>
+              :
+              <h3>There are {questionsCount} questions especially for you:</h3>
+            }
             <hr />
             {questions.map(question => {
               return <Question 
@@ -33,12 +42,13 @@ class Questions extends React.Component {
                 id={question.id}
                 from={question.from ? question.from.username : null}
                 text={question.text} 
-                timestamp={question.timestamp} 
+                timestamp={question.timestamp}
+                decrementQuestionsCount={decrementQuestionsCount}
               />;
             })}
           </div> 
           : 
-          <h3>You haven't received a single question yet.</h3>
+          <h3><center>You haven't received a single question yet.</center></h3>
         }
       </div>  
     );
@@ -47,18 +57,23 @@ class Questions extends React.Component {
 
 Questions.propTypes = {
   questions: React.PropTypes.array.isRequired,
+  questionsCount: React.PropTypes.number.isRequired,
   addQuestion: React.PropTypes.func.isRequired,
   addQuestions: React.PropTypes.func.isRequired,
   setQuestions: React.PropTypes.func.isRequired,
-  replyQuestion: React.PropTypes.func.isRequired,
+  incrementQuestionsCount: React.PropTypes.func.isRequired,
+  decrementQuestionsCount: React.PropTypes.func.isRequired,
+  setQuestionsCount: React.PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {
   return {
-    questions: state.questions
+    questions: state.questions,
+    questionsCount: state.questionsCount
   };
 }
 
 export default connect(mapStateToProps, { 
-  addQuestion, addQuestions, setQuestions
+  addQuestion, addQuestions, setQuestions, incrementQuestionsCount, 
+  decrementQuestionsCount, setQuestionsCount
 })(Questions);

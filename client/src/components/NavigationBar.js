@@ -113,7 +113,7 @@ NavigationBar.contextTypes = {
 function mapStateToProps(state) {
   return {
     auth: state.auth,
-    questionsCount: state.questions.length
+    questionsCount: state.questionsCount
   };
 }
 
