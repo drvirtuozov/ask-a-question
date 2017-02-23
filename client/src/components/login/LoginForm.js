@@ -2,6 +2,7 @@ import React from 'react';
 import { FIELD_REQUIRED } from '../../../../server/src/shared/formErrors';
 import { FormControl, FormGroup, ControlLabel, HelpBlock, InputGroup, Button } from 'react-bootstrap';
 import { isNull } from 'validator';
+import apiErrorsToState from '../../utils/apiErrorsToState';
 
 
 export default class LoginForm extends React.Component {
@@ -40,16 +41,6 @@ export default class LoginForm extends React.Component {
   
   onChange(e) {
     this.setState({ [e.target.name]: e.target.value });
-  }
-
-  apiErrorsToState(errors) {
-    let output = {};
-    
-    for (let e of errors) {
-      output[e.field] = e.detail;
-    }
-    
-    return output;
   }
 
   validateInput() {

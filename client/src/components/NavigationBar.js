@@ -6,14 +6,16 @@ import {
   Nav, NavItem, MenuItem, NavDropdown, Navbar, 
   Form, FormGroup, FormControl, Button, Label 
 } from 'react-bootstrap';
+import apiErrorsToState from '../utils/apiErrorsToState';
+
 
 class NavigationBar extends React.Component {
   constructor(props) {
     super(props);
     
     this.state = {
-      username: '',
-      password: '',
+      username: null,
+      password: null,
       errors: {},
       isLoading: false
     };
@@ -29,25 +31,33 @@ class NavigationBar extends React.Component {
     this.props.logout();
   }
   
-  login() {
+  async login() {
     this.setState({ errors: {}, isLoading: true });
-    this.props.login(this.state.username, this.state.password)
-      .then(() => {
-        this.context.router.push('/');
-        this.setState({ isLoading: false });
-      })
-      .catch(err => {
-        this.setState({ errors: err.data.result.errors, isLoading: false });
+    let { username, password } = this.state,
+      res = await this.props.login(username, password);
+
+    if (res.token) {
+      this.context.router.push('/');
+      this.setState({
+        username: null,
+        password: null, 
+        isLoading: false
       });
+    } else {
+      this.setState({ 
+        errors: apiErrorsToState(res.errors), 
+        isLoading: false 
+      });
+    }
   }
   
   getValidationState() {
-    let errors = this.state.errors;
+    let { errors } = this.state;
     
     if (Object.keys(errors).length) {
       return {
-        username: errors.username ? "error" : "success",
-        password: errors.password ? "error" : "success"
+        username: errors.username ? 'error' : null,
+        password: errors.password ? 'error' : null
       };
     }
     
@@ -55,12 +65,14 @@ class NavigationBar extends React.Component {
   }
   
   render() {
-    let { isLoading } = this.state, 
+    let { username, password, isLoading } = this.state, 
       { auth, questionsCount } = this.props,
       { isAuthenticated, user } = auth,
+      validationState = this.getValidationState(),
+      isValid = username && password,
       userMenu = (
         <Nav pullRight>
-          <NavItem eventKey={1}><Label>{ questionsCount }</Label></NavItem>
+          <NavItem eventKey={1}><Label>{questionsCount}</Label></NavItem>
           <NavDropdown eventKey={3} title={user.username} id="basic-nav-dropdown">
             <MenuItem eventKey={3.1}>Your page</MenuItem>
             <MenuItem divider />
@@ -70,20 +82,20 @@ class NavigationBar extends React.Component {
       ),
       guestMenu = (
         <Navbar.Form pullRight>
-          <FormGroup validationState={this.getValidationState().username}>
+          <FormGroup validationState={validationState.username}>
             <FormControl onChange={this.onChange.bind(this)} name="username" type="text" placeholder="Username" />
           </FormGroup>
           {' '}
-          <FormGroup validationState={this.getValidationState().password}>
+          <FormGroup validationState={validationState.password}>
             <FormControl onChange={this.onChange.bind(this)} name="password" type="password" placeholder="Password" />
           </FormGroup>
           {' '}
-          <Button onClick={this.login.bind(this)} disabled={isLoading}>Log In</Button>
+          <Button onClick={this.login.bind(this)} disabled={isLoading || !isValid}>Log In</Button>
         </Navbar.Form>
       );
     
     return (
-      <Navbar>
+      <Navbar fixedTop={true} fluid={true}>
         <Navbar.Header>
           <Navbar.Brand>
             <Link to="/" className="navbar-brand">Ask a Question</Link>

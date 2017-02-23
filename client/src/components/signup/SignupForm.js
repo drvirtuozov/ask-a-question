@@ -6,6 +6,8 @@ import {
   INVALID_PASSWORD, INVALID_USERNAME, INVALID_EMAIL
 } from '../../../../server/src/shared/formErrors';
 import { FormControl, FormGroup, ControlLabel, HelpBlock, InputGroup, Button } from 'react-bootstrap';
+import apiErrorsToState from '../../utils/apiErrorsToState';
+
 
 export default class SignupForm extends React.Component {
   constructor(props) {
@@ -68,20 +70,10 @@ export default class SignupForm extends React.Component {
       this.context.router.push('/');
     } else {
       this.setState({
-        errors: this.apiErrorsToState(res.errors),
+        errors: apiErrorsToState(res.errors),
         isLoading: false
       });
     }
-  }
-
-  apiErrorsToState(errors) {
-    let output = {};
-    
-    for (let e of errors) {
-      output[e.field] = e.detail;
-    }
-    
-    return output;
   }
   
   checkFieldError(field, value) {
