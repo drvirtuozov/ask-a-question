@@ -84,3 +84,25 @@ export async function getQuestions() {
 
   return res.data.data.questions;
 }
+
+export async function replyQuestion(id, text) {
+  let res = await axios.post('/api', {
+    query: `
+      mutation {
+        question {
+          reply(question_id: ${id}, text: "${text}") {
+            answer {
+              id
+            }
+            errors {
+              field
+              detail
+            }
+          }
+        }
+      }
+    `
+  });
+
+  return res.data.data.question.reply;
+}

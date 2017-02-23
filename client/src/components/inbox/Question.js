@@ -1,14 +1,19 @@
 import React from 'react';
 import moment from 'moment';
+import { replyQuestion } from '../../requests/api';
+import { Button, Panel, FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
+import { isNull } from 'validator';
 
 
-class Question extends React.Component {
+export default class Question extends React.Component {
   constructor(props) {
     super(props);
     
     this.state = {
-      moment: "",
-      answer: ""
+      moment: '',
+      answer: '',
+      isLoading: false,
+      isAnswered: false
     };
   }
   
@@ -26,11 +31,12 @@ class Question extends React.Component {
     });
   }
   
-  reply() {
-    this.props.reply({
-      _id: this.props.id,
-      text: this.state.answer
-    });
+  async reply() {
+    this.setState({ isLoading: true });
+    let { id } = this.props,
+      { answer } = this.state,
+      res = await replyQuestion(id, answer);
+    this.setState({ isAnswered: true });
   }
   
   onChange(e) {
@@ -40,29 +46,36 @@ class Question extends React.Component {
   }
   
   render() {
-    let { from, text } = this.props;
+    const { answer, isLoading, isAnswered } = this.state,
+      { from, text } = this.props;
     
-    return (
-      <div className="panel panel-default">
-        <div className="panel-heading">
-          <span>
-            from {from ? <a onClick={this.goToProfile.bind(this)}>{this.props.from} </a> : <span>Anonymous </span>}
-            {this.state.moment} 
-          </span>
-        </div>
-        <div className="panel-body">
-          <p>{text}</p>
-          <textarea
-            name="answer"
-            onChange={this.onChange.bind(this)} 
-            rows="3" 
-            className="form-control" 
-            placeholder="Type your answer...">
-          </textarea>
-          <button className="btn btn-default navbar-btn" onClick={this.reply.bind(this)}>Reply</button>
-        </div>
-      </div>  
-    );
+    if (isAnswered) {
+      return (<Panel><center>The question has been answered</center></Panel>);
+    } else {
+      return (
+        <Panel 
+          header={
+            <span>
+              from {from ? <a onClick={this.goToProfile.bind(this)}>{this.props.from} </a> : <span>Anonymous </span>}
+              {this.state.moment} 
+            </span>
+          }
+          footer={
+            <Button onClick={this.reply.bind(this)} disabled={isLoading || isNull(answer)}>Reply</Button>
+          }
+        >
+          <FormGroup controlId="formControlsTextarea">
+            <ControlLabel>{text}</ControlLabel>
+            <FormControl 
+              name="answer" 
+              componentClass="textarea" 
+              placeholder="Type your answer..."
+              onChange={this.onChange.bind(this)}
+            />
+          </FormGroup>
+        </Panel>
+      );
+    }
   }
 }
 
@@ -70,12 +83,9 @@ Question.propTypes = {
   id: React.PropTypes.number.isRequired,
   from: React.PropTypes.string,
   text: React.PropTypes.string.isRequired,
-  timestamp: React.PropTypes.number.isRequired,
-  reply: React.PropTypes.func.isRequired
+  timestamp: React.PropTypes.number.isRequired
 };
 
 Question.contextTypes = {
   router: React.PropTypes.object.isRequired
 };
-
-export default Question;

@@ -1,6 +1,5 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { reply } from '../../actions/answerActions';
 import Question from './Question';
 import findIndex from 'lodash/findIndex';
 import { getQuestions } from '../../requests/api';
@@ -17,17 +16,6 @@ class Questions extends React.Component {
   async setQuestions() {
     let res = await getQuestions();
     this.props.setQuestions(res.questions);
-  }
-
-  reply(answer) {
-    let index = findIndex(this.state.questions, { _id: answer.id });
-    
-    this.props.reply(answer)
-      .then(res => {
-        this.setState({
-          question: this.state.questions.splice(index, 1)
-        });
-      });
   }
   
   render() {
@@ -46,7 +34,6 @@ class Questions extends React.Component {
                 from={question.from ? question.from.username : null}
                 text={question.text} 
                 timestamp={question.timestamp} 
-                reply={this.reply.bind(this)}
               />;
             })}
           </div> 
@@ -63,7 +50,7 @@ Questions.propTypes = {
   addQuestion: React.PropTypes.func.isRequired,
   addQuestions: React.PropTypes.func.isRequired,
   setQuestions: React.PropTypes.func.isRequired,
-  reply: React.PropTypes.func.isRequired
+  replyQuestion: React.PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {
@@ -72,4 +59,6 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, { reply, addQuestion, addQuestions, setQuestions })(Questions);
+export default connect(mapStateToProps, { 
+  addQuestion, addQuestions, setQuestions
+})(Questions);
