@@ -59,7 +59,7 @@ const GraphQLQuestionMutations = new GraphQLObjectType({
 
         if (ctx.user) {
           let user = await User.findById(ctx.user.id),
-            question = await UserQuestion.findById(question_id);
+            question = await UserQuestion.findOne({ where: { id: question_id, user_id: ctx.user.id }});
 
           if (question) {
             answer = await question.createAnswer({ text, user_id: user.id });
