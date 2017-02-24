@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { login, logout } from '../actions/auth';
 import { 
   Nav, NavItem, MenuItem, NavDropdown, Navbar, 
-  Form, FormGroup, FormControl, Button, Label 
+  Form, FormGroup, FormControl, Button, Label, Col
 } from 'react-bootstrap';
 import apiErrorsToState from '../utils/apiErrorsToState';
 
@@ -96,16 +96,18 @@ class NavigationBar extends React.Component {
     
     return (
       <Navbar fixedTop={true} fluid={true}>
-        <Navbar.Header>
-          <Navbar.Brand>
-            <Link to="/" className="navbar-brand">Ask a Question</Link>
-          </Navbar.Brand>
-        </Navbar.Header>
-        <Navbar.Collapse>
-          <div className="container-fluid">
-            { isAuthenticated ? userMenu : guestMenu }
-          </div>
-        </Navbar.Collapse>
+        <Col lg={8} lgOffset={2}>
+          <Navbar.Header>
+            <Navbar.Brand>
+              <Link to="/" className="navbar-brand">Ask a Question</Link>
+            </Navbar.Brand>
+          </Navbar.Header>
+          <Navbar.Collapse>
+            <div className="container-fluid">
+              { isAuthenticated ? userMenu : guestMenu }
+            </div>
+          </Navbar.Collapse>
+        </Col>
       </Navbar>
     );
   }
