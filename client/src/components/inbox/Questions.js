@@ -27,7 +27,7 @@ class Questions extends React.Component {
     let { questions, questionsCount, decrementQuestionsCount } = this.props;
     
     return (
-      <div className="container-fluid">
+      <div>
         {questionsCount ? 
           <div>
             {questionsCount === 1 ?
