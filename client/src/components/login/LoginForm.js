@@ -1,6 +1,9 @@
 import React from 'react';
 import { FIELD_REQUIRED } from '../../../../server/src/shared/formErrors';
-import { FormControl, FormGroup, ControlLabel, HelpBlock, InputGroup, Button } from 'react-bootstrap';
+import { 
+  FormControl, FormGroup, ControlLabel, 
+  HelpBlock, InputGroup, Button, Col 
+} from 'react-bootstrap';
 import { isNull } from 'validator';
 import apiErrorsToState from '../../utils/apiErrorsToState';
 
@@ -73,44 +76,44 @@ export default class LoginForm extends React.Component {
     let { errors, isLoading } = this.state;
     
     return (
-      <form onSubmit={this.onSubmit.bind(this)}>
-        <h1>Enter the Site</h1>
-        
-        <FormGroup validationState={this.getFieldValidationState('username')}>
-          <ControlLabel>Username</ControlLabel>
-          <InputGroup>
-            <FormControl
-              name="username"
-              type="text"
-              onChange={this.onChange.bind(this)}
-            />
-            <FormControl.Feedback />
-          </InputGroup>
-          {errors.username && <HelpBlock>{errors.username}</HelpBlock>}
-        </FormGroup>
-        
-        <FormGroup validationState={this.getFieldValidationState('password')}>
-          <ControlLabel>Password</ControlLabel>
-          <InputGroup>
-            <FormControl
-              name="password"
-              type="password"
-              onChange={this.onChange.bind(this)}
-            />
-            <FormControl.Feedback />
-          </InputGroup>
-          {errors.password && <HelpBlock>{errors.password}</HelpBlock>}
-        </FormGroup>
-        
-        <FormGroup>
+      <Col lg={4} lgOffset={4}>
+        <h2>Enter the Site</h2>
+        <form onSubmit={this.onSubmit.bind(this)}>          
+          <FormGroup validationState={this.getFieldValidationState('username')}>
+            <ControlLabel>Username</ControlLabel>
+            <InputGroup>
+              <FormControl
+                name="username"
+                type="text"
+                onChange={this.onChange.bind(this)}
+              />
+              <FormControl.Feedback />
+            </InputGroup>
+            {errors.username && <HelpBlock>{errors.username}</HelpBlock>}
+          </FormGroup>
+          
+          <FormGroup validationState={this.getFieldValidationState('password')}>
+            <ControlLabel>Password</ControlLabel>
+            <InputGroup>
+              <FormControl
+                name="password"
+                type="password"
+                onChange={this.onChange.bind(this)}
+              />
+              <FormControl.Feedback />
+            </InputGroup>
+            {errors.password && <HelpBlock>{errors.password}</HelpBlock>}
+          </FormGroup>
+          
           <Button 
             type="submit" 
             bsSize="large" 
             bsStyle="default" 
             disabled={isLoading}
-          >Log In</Button>
-        </FormGroup>
-      </form>  
+          >Log In
+          </Button>
+        </form> 
+      </Col> 
     );
   }
 }

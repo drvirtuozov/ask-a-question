@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 import { isUserExists } from '../../requests/api';
 import { signup } from '../../actions/auth';
 import { addFlashMessage } from '../../actions/flashMessages.js';
-import { Col } from 'react-bootstrap';
 
 
 class Signup extends React.Component {
@@ -12,13 +11,11 @@ class Signup extends React.Component {
     const { signup, addFlashMessage, isUserExists } = this.props;
     
     return (
-      <Col lg={8} lgOffset={2}>
-        <SignupForm 
-          signup={signup} 
-          addFlashMessage={addFlashMessage} 
-          isUserExists={isUserExists}
-        />
-      </Col>
+      <SignupForm 
+        signup={signup} 
+        addFlashMessage={addFlashMessage} 
+        isUserExists={isUserExists}
+      />
     );
   }
 }
