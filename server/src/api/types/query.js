@@ -41,7 +41,10 @@ const GraphQLQuery = new GraphQLObjectType({
             errors = [];
 
           if (ctx.user) {
-            questions = await UserQuestion.findAll({ where: { user_id: ctx.user.id, deleted: false }});
+            questions = await UserQuestion.findAll({ 
+              where: { user_id: ctx.user.id, deleted: false },
+              order: 'id DESC'
+            });
           } else {
             errors.push(tokenNotProvided());
           }
