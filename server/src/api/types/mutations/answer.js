@@ -20,7 +20,7 @@ const GraphQLAnswerMutations = new GraphQLObjectType({
           type: new GraphQLNonNull(GraphQLString)
         }
       },
-      async resolve(root, { answer_id, text }, ctx) {
+      async resolve(_, { answer_id, text }, ctx) {
         let answer = await UserAnswer.findById(answer_id),
           comment = null,
           errors = [];
@@ -50,7 +50,7 @@ const GraphQLAnswerMutations = new GraphQLObjectType({
           type: new GraphQLNonNull(GraphQLInt)
         }
       },
-      async resolve(root, { answer_id }, ctx) {
+      async resolve(_, { answer_id }, ctx) {
         if (ctx.user) {
           var user = await User.findById(ctx.user.id),
             answer = await UserAnswer.findById(answer_id),

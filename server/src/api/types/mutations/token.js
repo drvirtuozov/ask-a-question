@@ -19,7 +19,7 @@ const GraphQLTokenMutations = new GraphQLObjectType({
           type: new GraphQLNonNull(GraphQLString)
         }
       },
-      async resolve(root, { username, password }) {
+      async resolve(_, { username, password }) {
         let user = await User.findOne({ where: { username }}),
           token = null,
           errors = [];

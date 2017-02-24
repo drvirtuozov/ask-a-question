@@ -21,7 +21,7 @@ const GraphQLUserMutations = new GraphQLObjectType({
           type: new GraphQLNonNull(GraphQLString)
         }
       },
-      async resolve(root, args) {
+      async resolve(_, args) {
         let token = null,
           errors = [];  
 

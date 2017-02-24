@@ -21,7 +21,7 @@ const GraphQLQuestionMutations = new GraphQLObjectType({
           type: new GraphQLNonNull(GraphQLString)
         }
       },
-      async resolve(root, { user_id, text }, ctx) {
+      async resolve(_, { user_id, text }, ctx) {
         let user = await User.findById(user_id),
           question = null,
           errors = [];
@@ -54,7 +54,7 @@ const GraphQLQuestionMutations = new GraphQLObjectType({
           type: new GraphQLNonNull(GraphQLString)
         }
       },
-      async resolve(root, { question_id, text }, ctx) {
+      async resolve(_, { question_id, text }, ctx) {
         let answer = null,
           errors = [];
 
@@ -88,7 +88,7 @@ const GraphQLQuestionMutations = new GraphQLObjectType({
           type: new GraphQLNonNull(GraphQLInt)
         }
       },
-      async resolve(root, { question_id }, ctx) {
+      async resolve(_, { question_id }, ctx) {
         let ok = false,
           errors = [];
 
@@ -96,7 +96,7 @@ const GraphQLQuestionMutations = new GraphQLObjectType({
           let res = await UserQuestion.update({ deleted: true }, { 
             where: { id: question_id, user_id: ctx.user.id, deleted: false } 
           }),
-          [ affectedCount ] = res;
+            [ affectedCount ] = res;
 
           if (affectedCount) {
             ok = true;
@@ -107,6 +107,38 @@ const GraphQLQuestionMutations = new GraphQLObjectType({
           errors.push(tokenNotProvided());
         }
 
+        return {
+          ok,
+          errors: errors.length ? errors : null
+        };
+      }
+    },
+    restore: {
+      type: GraphQLBooleanResult,
+      args: {
+        question_id: {
+          type: new GraphQLNonNull(GraphQLInt)
+        }
+      },
+      async resolve(_, { question_id }, ctx) {
+        let ok = false,
+          errors = [];
+
+        if (ctx.user) {
+          let res = await UserQuestion.update({ deleted: false }, { 
+            where: { id: question_id, user_id: ctx.user.id, deleted: true } 
+          }),
+            [ affectedCount ] = res;
+
+          if (affectedCount) {
+            ok = true;
+          } else {
+            errors.push(questionNotFound({ field: 'question_id' }));
+          }
+        } else {
+          errors.push(tokenNotProvided());
+        }
+        
         return {
           ok,
           errors: errors.length ? errors : null
