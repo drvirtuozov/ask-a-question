@@ -1,6 +1,7 @@
 import { GraphQLObjectType, GraphQLNonNull, GraphQLInt, GraphQLString } from 'graphql';
 import GraphQLQuestionResult from '../results/question';
 import GraphQLAnswerResult from '../results/answer';
+import GraphQLBooleanResult from '../results/boolean';
 import User from '../../../models/user';
 import UserQuestion from '../../../models/user_question';
 import { userNotFound, questionNotFound, tokenNotProvided } from '../../../errors/api';
@@ -60,12 +61,12 @@ const GraphQLQuestionMutations = new GraphQLObjectType({
         if (ctx.user) {
           let user = await User.findById(ctx.user.id),
             question = await UserQuestion.findOne({ 
-              where: { id: question_id, user_id: ctx.user.id, answered: false }
+              where: { id: question_id, user_id: ctx.user.id, deleted: false }
             });
 
           if (question) {
             answer = await question.createAnswer({ text, user_id: user.id });
-            question.setDataValue('answered', true);
+            question.setDataValue('deleted', true);
             await answer.setQuestion(question);
           } else {
             errors.push(questionNotFound({ field: 'question_id' })); 
@@ -76,6 +77,38 @@ const GraphQLQuestionMutations = new GraphQLObjectType({
 
         return {
           answer,
+          errors: errors.length ? errors : null
+        };
+      }
+    },
+    delete: {
+      type: GraphQLBooleanResult,
+      args: {
+        question_id: {
+          type: new GraphQLNonNull(GraphQLInt)
+        }
+      },
+      async resolve(root, { question_id }, ctx) {
+        let ok = false,
+          errors = [];
+
+        if (ctx.user) {
+          let res = await UserQuestion.update({ deleted: true }, { 
+            where: { id: question_id, user_id: ctx.user.id, deleted: false } 
+          }),
+          [ affectedCount ] = res;
+
+          if (affectedCount) {
+            ok = true;
+          } else {
+            errors.push(questionNotFound({ field: 'question_id' }));
+          }
+        } else {
+          errors.push(tokenNotProvided());
+        }
+
+        return {
+          ok,
           errors: errors.length ? errors : null
         };
       }

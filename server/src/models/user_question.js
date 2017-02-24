@@ -9,7 +9,7 @@ const UserQuestion = db.import('user_question', (db, DataTypes) => {
       type: STRING,
       allowNull: false
     },
-    answered: {
+    deleted: {
       type: BOOLEAN,
       defaultValue: false
     }
