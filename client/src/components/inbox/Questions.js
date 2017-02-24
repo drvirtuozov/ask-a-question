@@ -24,7 +24,9 @@ class Questions extends React.Component {
   }
   
   render() {
-    let { questions, questionsCount, decrementQuestionsCount } = this.props;
+    let { 
+      questions, questionsCount, 
+      decrementQuestionsCount, incrementQuestionsCount } = this.props;
     
     return (
       <div>
@@ -44,6 +46,7 @@ class Questions extends React.Component {
                 text={question.text} 
                 timestamp={question.timestamp}
                 decrementQuestionsCount={decrementQuestionsCount}
+                incrementQuestionsCount={incrementQuestionsCount}
               />;
             })}
           </div> 

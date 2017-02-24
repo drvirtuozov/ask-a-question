@@ -1,6 +1,6 @@
 import React from 'react';
 import moment from 'moment';
-import { replyQuestion } from '../../requests/api';
+import { replyQuestion, deleteQuestion, restoreQuestion } from '../../requests/api';
 import { Button, Panel, FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
 import { isNull } from 'validator';
 
@@ -13,7 +13,8 @@ export default class Question extends React.Component {
       moment: '',
       answer: '',
       isLoading: false,
-      isAnswered: false
+      isAnswered: false,
+      isDeleted: false
     };
   }
   
@@ -45,24 +46,52 @@ export default class Question extends React.Component {
       [e.target.name]: e.target.value
     });
   }
+
+  async delete() {
+    let { id } = this.props;
+    this.setState({ isDeleted: true });
+    this.props.decrementQuestionsCount();
+    let res = await deleteQuestion(id);
+
+    if (res.errors) {
+      this.setState({ isDeleted: false });
+      this.props.incrementQuestionsCount();
+    }
+  }
+
+  async restore() {
+    let { id } = this.props;
+    this.setState({ isDeleted: false });
+    this.props.incrementQuestionsCount();
+    let res = await restoreQuestion(id);
+
+    if (res.errors) {
+      this.setState({ isDeleted: true });
+      this.props.decrementQuestionsCount();
+    }
+  }
   
   render() {
-    const { answer, isLoading, isAnswered } = this.state,
+    const { answer, isLoading, isAnswered, isDeleted } = this.state,
       { from, text } = this.props;
     
     if (isAnswered) {
-      return (<Panel><center>The question has been answered</center></Panel>);
+      return <Panel><center>The question has been answered</center></Panel>;
+    } else if (isDeleted) {
+      return (<Panel>
+        <center>The question has been deleted. <a onClick={this.restore.bind(this)}>Restore</a></center>
+      </Panel>);
     } else {
       return (
         <Panel 
           header={
-            <span>
-              from {from ? <a onClick={this.goToProfile.bind(this)}>{this.props.from} </a> : <span>Anonymous </span>}
-              {this.state.moment} 
-            </span>
-          }
-          footer={
-            <Button onClick={this.reply.bind(this)} disabled={isLoading || isNull(answer)}>Reply</Button>
+            <div>
+              <span>
+                from {from ? <a onClick={this.goToProfile.bind(this)}>{this.props.from} </a> : <span>Anonymous </span>}
+                {this.state.moment} 
+              </span>
+              <button onClick={this.delete.bind(this)} className="close"><span>&times;</span></button>
+            </div>
           }
         >
           <FormGroup controlId="formControlsTextarea">
@@ -74,6 +103,7 @@ export default class Question extends React.Component {
               onChange={this.onChange.bind(this)}
             />
           </FormGroup>
+          <Button onClick={this.reply.bind(this)} disabled={isLoading || isNull(answer)}>Reply</Button>
         </Panel>
       );
     }
@@ -85,7 +115,8 @@ Question.propTypes = {
   from: React.PropTypes.string,
   text: React.PropTypes.string.isRequired,
   timestamp: React.PropTypes.number.isRequired,
-  decrementQuestionsCount: React.PropTypes.func.isRequired
+  decrementQuestionsCount: React.PropTypes.func.isRequired,
+  incrementQuestionsCount: React.PropTypes.func.isRequired
 };
 
 Question.contextTypes = {

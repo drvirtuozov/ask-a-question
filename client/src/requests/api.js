@@ -106,3 +106,41 @@ export async function replyQuestion(id, text) {
 
   return res.data.data.question.reply;
 }
+
+export async function deleteQuestion(id) {
+  let res = await axios.post('/api', {
+    query: `
+      mutation {
+        question {
+          delete(question_id: ${id}) {
+            ok
+            errors {
+              detail
+            }
+          }
+        }
+      }
+    `
+  });
+
+  return res.data.data.question.delete;
+}
+
+export async function restoreQuestion(id) {
+  let res = await axios.post('/api', {
+    query: `
+      mutation {
+        question {
+          restore(question_id: ${id}) {
+            ok
+            errors {
+              detail
+            }
+          }
+        }
+      }
+    `
+  });
+
+  return res.data.data.question.restore;
+}
