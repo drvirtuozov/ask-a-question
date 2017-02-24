@@ -4,21 +4,21 @@ import { connect } from 'react-redux';
 import { isUserExists } from '../../requests/api';
 import { signup } from '../../actions/auth';
 import { addFlashMessage } from '../../actions/flashMessages.js';
+import { Col } from 'react-bootstrap';
+
 
 class Signup extends React.Component {
   render() {
     const { signup, addFlashMessage, isUserExists } = this.props;
     
     return (
-      <div className="row">
-        <div className="col-md-4 col-md-offset-4">
-          <SignupForm 
-            signup={signup} 
-            addFlashMessage={addFlashMessage} 
-            isUserExists={isUserExists}
-          />
-        </div>
-      </div>
+      <Col lg={8} lgOffset={2}>
+        <SignupForm 
+          signup={signup} 
+          addFlashMessage={addFlashMessage} 
+          isUserExists={isUserExists}
+        />
+      </Col>
     );
   }
 }

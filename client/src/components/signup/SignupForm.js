@@ -5,7 +5,10 @@ import {
   USERNAME_TAKEN, EMAIL_TAKEN, FIELD_REQUIRED, 
   INVALID_PASSWORD, INVALID_USERNAME, INVALID_EMAIL
 } from '../../../../server/src/shared/formErrors';
-import { FormControl, FormGroup, ControlLabel, HelpBlock, InputGroup, Button } from 'react-bootstrap';
+import { 
+    FormControl, FormGroup, ControlLabel, 
+    HelpBlock, InputGroup, Button, Col 
+} from 'react-bootstrap';
 import apiErrorsToState from '../../utils/apiErrorsToState';
 
 
@@ -127,61 +130,69 @@ export default class SignupForm extends React.Component {
   
     return (
       <form onSubmit={this.onSubmit.bind(this)}>
-        <h2>Don't have an account?</h2>
-        <h3>Let's create one!</h3>
+        <center>
+          <h2>Don't have an account?</h2>
+          <h3>Let's create one!</h3>
+        </center>
         
-        <FormGroup validationState={this.getFieldValidationState('username')}>
-          <ControlLabel>Username</ControlLabel>
-          <InputGroup>
-            <InputGroup.Addon><i className="fa fa-user" aria-hidden="true"></i></InputGroup.Addon>
-            <FormControl
-              name="username"
-              type="text"
-              onChange={this.onChange.bind(this)}
-              onBlur={this.checkUserExists.bind(this)}
-            />
-            <FormControl.Feedback />
-          </InputGroup>
-          {errors.username && <HelpBlock>{errors.username}</HelpBlock>}
-        </FormGroup>
-        
-        <FormGroup validationState={this.getFieldValidationState('email')}>
-          <ControlLabel>Email</ControlLabel>
-          <InputGroup>
-            <InputGroup.Addon><i className="fa fa-at" aria-hidden="true"></i></InputGroup.Addon>
-            <FormControl
-              name="email"
-              type="text"
-              onChange={this.onChange.bind(this)}
-            />
-            <FormControl.Feedback />
-          </InputGroup>
-          {errors.email && <HelpBlock>{errors.email}</HelpBlock>}
-        </FormGroup>
-        
-        <FormGroup validationState={this.getFieldValidationState('password')}>
-          <ControlLabel>Password</ControlLabel>
-          <InputGroup>
-            <InputGroup.Addon><i className="fa fa-lock" aria-hidden="true"></i></InputGroup.Addon>
-            <FormControl
-              name="password"
-              type="password"
-              onChange={this.onChange.bind(this)}
-            />
-            <FormControl.Feedback />
-          </InputGroup>
-          {errors.password && <HelpBlock>{errors.password}</HelpBlock>}
-        </FormGroup>
-        
-        <FormGroup>
-          <Button 
-            type="submit" 
-            bsSize="large" 
-            bsStyle="success" 
-            disabled={isLoading || Object.keys(errors).length}
-          >Sign Up</Button>
-          <small>Already have an account? <Link to="/login">Log In</Link></small>
-        </FormGroup>
+        <Col lg={8} lgOffset={2}>
+          <FormGroup validationState={this.getFieldValidationState('username')}>
+            <ControlLabel>Username</ControlLabel>
+            <InputGroup>
+              <InputGroup.Addon><i className="fa fa-user" aria-hidden="true"></i></InputGroup.Addon>
+              <FormControl
+                name="username"
+                type="text"
+                onChange={this.onChange.bind(this)}
+                onBlur={this.checkUserExists.bind(this)}
+              />
+              <FormControl.Feedback />
+            </InputGroup>
+            {errors.username && <HelpBlock>{errors.username}</HelpBlock>}
+          </FormGroup>
+            
+          <FormGroup validationState={this.getFieldValidationState('email')}>
+            <ControlLabel>Email</ControlLabel>
+            <InputGroup>
+              <InputGroup.Addon><i className="fa fa-at" aria-hidden="true"></i></InputGroup.Addon>
+              <FormControl
+                name="email"
+                type="text"
+                onChange={this.onChange.bind(this)}
+              />
+              <FormControl.Feedback />
+            </InputGroup>
+            {errors.email && <HelpBlock>{errors.email}</HelpBlock>}
+          </FormGroup>
+            
+          <FormGroup validationState={this.getFieldValidationState('password')}>
+            <ControlLabel>Password</ControlLabel>
+            <InputGroup>
+              <InputGroup.Addon><i className="fa fa-lock" aria-hidden="true"></i></InputGroup.Addon>
+              <FormControl
+                name="password"
+                type="password"
+                onChange={this.onChange.bind(this)}
+              />
+              <FormControl.Feedback />
+            </InputGroup>
+            {errors.password && <HelpBlock>{errors.password}</HelpBlock>}
+          </FormGroup>
+            
+          <FormGroup>
+            <center> 
+              <Button 
+                type="submit" 
+                bsSize="large" 
+                bsStyle="success" 
+                disabled={isLoading || Object.keys(errors).length}
+              >Sign Up</Button>
+              <br />
+              <hr />
+              <small>Already have an account? <Link to="/login">Log In</Link></small>
+            </center>
+          </FormGroup>
+        </Col>
       </form>
     );
   }

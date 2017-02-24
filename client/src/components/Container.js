@@ -7,7 +7,7 @@ import { Col } from 'react-bootstrap';
 export default class Container extends React.Component {
   render() {
     return (
-      <Col lg={6} lgOffset={3} style={{ marginTop: '50px' }}>
+      <Col lg={6} lgOffset={3} style={{ marginTop: '60px' }}>
         <NavigationBar />
         <FlashMessages />
         {this.props.children}
