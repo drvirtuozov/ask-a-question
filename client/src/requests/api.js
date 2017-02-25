@@ -144,3 +144,53 @@ export async function restoreQuestion(id) {
 
   return res.data.data.question.restore;
 }
+
+export async function getAnswers(id) {
+  let res = await axios.post('/api', {
+    query: `{
+      answers(user_id: ${id}) {
+        answers {
+          id
+          text
+          question {
+            text
+            from {
+              username
+            }
+          }
+          likes {
+            username
+          }
+          timestamp
+        }
+
+        errors {
+          detail
+        }
+      }
+    }`
+  });
+
+  return res.data.data.answers;
+}
+
+export async function getUser(username) {
+  let res = await axios.post('/api', {
+    query: `{
+      user(username: "${username}") {
+        user {
+          id
+          username
+          first_name
+          last_name
+        }
+
+        errors {
+          detail
+        }
+      }
+    }`
+  });
+
+  return res.data.data.user;
+}
