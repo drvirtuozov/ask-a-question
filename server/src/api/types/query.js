@@ -68,7 +68,7 @@ const GraphQLQuery = new GraphQLObjectType({
             errors = [];
 
           if (user) {
-            answers = await user.getAnswers();
+            answers = await user.getAnswers({ order: 'id DESC' });
           } else {
             errors.push(userNotFound({ field: 'user_id' }));
           }
