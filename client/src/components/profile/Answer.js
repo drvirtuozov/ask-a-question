@@ -11,8 +11,8 @@ class Answer extends React.Component {
     return (
       <div className="panel panel-default">
         <div className="panel-heading">
-          {this.props.to ? 
-            <a onClick={this.goToProfile.bind(this)}>{this.props.to}</a>
+          {this.props.from ? 
+            <a onClick={this.goToProfile.bind(this)}>{this.props.from}</a>
             :
             <span>Anonymous</span>
           }
@@ -28,9 +28,10 @@ class Answer extends React.Component {
 }
 
 Answer.propTypes = {
-  question: React.PropTypes.string.isRequired,
+  id: React.PropTypes.number.isRequired,
   text: React.PropTypes.string.isRequired,
-  to: React.PropTypes.string
+  timestamp: React.PropTypes.number.isRequired,
+  question: React.PropTypes.string.isRequired,
 };
 
 export default Answer;

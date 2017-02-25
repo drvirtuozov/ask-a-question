@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 export default function(ComposedComponent) {
-  class Authenticate extends React.Component {
+  class Guest extends React.Component {
     componentWillMount() {
       if (this.props.isAuthenticated) {
         this.context.router.push('/');
@@ -16,11 +16,11 @@ export default function(ComposedComponent) {
     }
   }
   
-  Authenticate.propTypes = {
+  Guest.propTypes = {
     isAuthenticated: React.PropTypes.bool.isRequired
   };
   
-  Authenticate.contextTypes = {
+  Guest.contextTypes = {
     router: React.PropTypes.object.isRequired
   };
   
@@ -30,5 +30,5 @@ export default function(ComposedComponent) {
     };
   }
   
-  return connect(mapStateToProps)(Authenticate);
+  return connect(mapStateToProps)(Guest);
 }
