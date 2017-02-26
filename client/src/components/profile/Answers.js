@@ -35,8 +35,15 @@ export default class Answers extends React.Component {
             <h3>{ isMyProfile ? 'You have' : `${username} has`} {answers.length} answers:</h3>
             <hr />
             {answers.map(answer => {
-              let { question, text, timestamp, id } = answer;
-              return <Answer question={question.text} text={text} timestamp={timestamp} id={id} key={id} />;
+              let { id, text, question, comments, likes, timestamp } = answer;
+              return <Answer 
+                question={question.text} 
+                from={question.from} 
+                text={text} 
+                timestamp={timestamp} 
+                comments={comments}
+                likes={likes}
+                id={id} key={id} />;
             })}
           </div>
           :
