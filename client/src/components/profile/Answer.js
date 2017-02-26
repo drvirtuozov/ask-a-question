@@ -4,6 +4,8 @@ import { connect } from 'react-redux';
 import { Panel, Button, FormGroup, FormControl } from 'react-bootstrap';
 import Comments from './Comments';
 import { commentAnswer } from '../../requests/api';
+import Moment from 'react-moment'
+import moment from 'moment';
 
 
 class Answer extends React.Component {
@@ -48,7 +50,14 @@ class Answer extends React.Component {
       { text, timestamp, question, from, isAuthenticated, likes } = this.props;
 
     return (
-      <Panel header={from ? <Link to={from}>{from}</Link> : <span>Anonymous</span>}>
+      <Panel header={
+        <div>
+          { from ? <Link to={from}>{from}</Link> : <span>Anonymous</span> }
+          <small title={moment(timestamp).calendar()} className="pull-right">
+            <span className="text-muted"><Moment fromNow>{timestamp}</Moment></span>
+          </small>
+        </div>
+      }>
         <h4>{question}</h4>
         <p>{text}</p>
         <hr />
