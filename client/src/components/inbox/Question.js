@@ -1,4 +1,6 @@
 import React from 'react';
+import { Link } from 'react-router';
+import Moment from 'react-moment';
 import moment from 'moment';
 import { replyQuestion, deleteQuestion, restoreQuestion } from '../../requests/api';
 import { Button, Panel, FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
@@ -10,26 +12,11 @@ export default class Question extends React.Component {
     super(props);
     
     this.state = {
-      moment: '',
       answer: '',
       isLoading: false,
       isAnswered: false,
       isDeleted: false
     };
-  }
-  
-  goToProfile() {
-    this.context.router.push(this.props.from);
-  }
-  
-  getMoment() {
-    let timestamp = this.props.timestamp,
-      date = new Date(timestamp).toDateString(),
-      now = new Date(Date.now()).toDateString();
-    
-    this.setState({
-      moment: date === now ? moment(timestamp).fromNow() : moment(timestamp).calendar()
-    });
   }
   
   async reply() {
@@ -73,7 +60,7 @@ export default class Question extends React.Component {
   
   render() {
     const { answer, isLoading, isAnswered, isDeleted } = this.state,
-      { from, text } = this.props;
+      { from, text, timestamp } = this.props;
     
     if (isAnswered) {
       return <Panel><center>The question has been answered</center></Panel>;
@@ -86,10 +73,10 @@ export default class Question extends React.Component {
         <Panel 
           header={
             <div>
-              <span>
-                from {from ? <a onClick={this.goToProfile.bind(this)}>{this.props.from} </a> : <span>Anonymous </span>}
-                {this.state.moment} 
-              </span>
+              {from ? <Link to={from}>{from}</Link> : <span>Anonymous</span>}
+              <small title={moment(timestamp).calendar()}>
+                <span className="text-muted">&nbsp;<Moment fromNow>{timestamp}</Moment></span>
+              </small>  
               <button onClick={this.delete.bind(this)} className="close"><span>&times;</span></button>
             </div>
           }
@@ -117,8 +104,4 @@ Question.propTypes = {
   timestamp: React.PropTypes.number.isRequired,
   decrementQuestionsCount: React.PropTypes.func.isRequired,
   incrementQuestionsCount: React.PropTypes.func.isRequired
-};
-
-Question.contextTypes = {
-  router: React.PropTypes.object.isRequired
 };
