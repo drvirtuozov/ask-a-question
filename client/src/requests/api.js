@@ -161,9 +161,16 @@ export async function getAnswers(id) {
           likes {
             username
           }
+          comments {
+            id
+            user {
+              username
+            }
+            text
+            timestamp
+          }
           timestamp
         }
-
         errors {
           detail
         }
@@ -184,7 +191,6 @@ export async function getUser(username) {
           first_name
           last_name
         }
-
         errors {
           detail
         }
@@ -193,4 +199,30 @@ export async function getUser(username) {
   });
 
   return res.data.data.user;
+}
+
+export async function commentAnswer(id, text) {
+  let res = await axios.post('/api', {
+    query: `
+      mutation {
+        answer {
+          comment(answer_id: ${id}, text: "${text}") {
+            comment {
+              id
+              text
+              user {
+                username
+              }
+              timestamp
+            }
+            errors {
+              detail
+            }
+          }
+        }
+      }
+    `
+  });
+
+  return res.data.data.answer.comment;
 }
