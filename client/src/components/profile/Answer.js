@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import { Panel, Button, FormGroup, FormControl } from 'react-bootstrap';
-import Comment from './Comment';
+import Comments from './Comments';
 import { commentAnswer } from '../../requests/api';
 
 
@@ -12,7 +12,7 @@ class Answer extends React.Component {
 
     this.state = {
       isActiveComments: false,
-      comments: props.comments || [],
+      comments: props.comments,
       commentText: ''
     };
   }
@@ -31,7 +31,7 @@ class Answer extends React.Component {
     if (res.comment) {
       comments.push(res.comment);
       this.setState({
-        comments: comments,
+        comments,
         commentText: ''
       });
     }
@@ -53,18 +53,15 @@ class Answer extends React.Component {
         <p>{text}</p>
         <hr />
         <Button bsSize="small">
-          <i className="fa fa-heart" aria-hidden="true"></i> Like {likes && likes.length}
+          <i className="fa fa-heart" aria-hidden="true"></i> Like {likes.length || ''}
         </Button>
         <Button bsStyle="link" onClick={this.activeComments.bind(this)}>
-          Comments ({comments ? comments.length : 0})
+          Comments ({comments.length})
         </Button>
         { isActiveComments &&
           <div>
             <hr />
-            {comments && comments.map(comment => {
-              let { id, user, text, timestamp } = comment;
-              return <Comment id={id} username={user.username} text={text} timestamp={timestamp} key={id} />;
-            })}
+            <Comments comments={comments} />
             { isAuthenticated ? 
               <div>
                 <FormGroup>
@@ -100,6 +97,11 @@ Answer.propTypes = {
   comments: React.PropTypes.array,
   likes: React.PropTypes.array,
   isAuthenticated: React.PropTypes.bool.isRequired
+};
+
+Answer.defaultProps = {
+  comments: [],
+  likes: []
 };
 
 function mapStateToProps(state) {
