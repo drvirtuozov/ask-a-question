@@ -55,7 +55,7 @@ class Answer extends React.Component {
         <Button bsSize="small">
           <i className="fa fa-heart" aria-hidden="true"></i> Like {likes.length || ''}
         </Button>
-        <Button bsStyle="link" onClick={this.activeComments.bind(this)}>
+        <Button bsStyle="link" onClick={this.activeComments.bind(this)} className="pull-right">
           Comments ({comments.length})
         </Button>
         { isActiveComments &&

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router';
+import { ListGroupItem } from 'react-bootstrap';
 
 
 export default class Comment extends React.Component {
@@ -7,9 +8,7 @@ export default class Comment extends React.Component {
     const { username, text } = this.props;
 
     return (
-      <div>
-        <Link to={username}>{username}</Link>: {text}
-      </div>
+      <ListGroupItem header={<Link to={username}>{username}</Link>}>{text}</ListGroupItem>
     );
   }
 }
