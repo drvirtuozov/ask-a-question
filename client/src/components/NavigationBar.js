@@ -63,6 +63,10 @@ class NavigationBar extends React.Component {
     
     return {};
   }
+
+  goToProfile() {
+    this.context.router.push(this.props.auth.user.username);
+  }
   
   render() {
     let { username, password, isLoading } = this.state, 
@@ -74,7 +78,7 @@ class NavigationBar extends React.Component {
         <Nav pullRight>
           <NavItem eventKey={1}><Label>{questionsCount}</Label></NavItem>
           <NavDropdown eventKey={3} title={user.username} id="basic-nav-dropdown">
-            <MenuItem eventKey={3.1}>Your page</MenuItem>
+            <MenuItem onClick={this.goToProfile.bind(this)} eventKey={3.1}>Your page</MenuItem>
             <MenuItem divider />
             <MenuItem onClick={this.logout.bind(this)} eventKey={3.3}>Log Out</MenuItem>
           </NavDropdown>
