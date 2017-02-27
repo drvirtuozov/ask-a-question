@@ -51,7 +51,9 @@ class Questions extends React.Component {
             })}
           </div> 
           : 
-          <h3><center>You haven't received a single question yet.</center></h3>
+          <center>
+            <h3 className="text-muted">You haven't received a single question yet.</h3>
+          </center>
         }
       </div>  
     );
