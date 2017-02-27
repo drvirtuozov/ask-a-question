@@ -227,7 +227,12 @@ export async function commentAnswer(id, text) {
   return res.data.data.answer.comment;
 }
 
-export async function createQuestion(userId, text) {
+export async function createQuestion(userId, text, params = {}) {
+  let headers = {};
+  Object.assign(headers, axios.defaults.headers);
+
+  if (params.anonymously) headers['Authorization'] = '';
+
   let res = await axios.post('/api', {
     query: `
       mutation {
@@ -243,7 +248,7 @@ export async function createQuestion(userId, text) {
         }
       }
     `
-  });
+  }, { headers });
 
   return res.data.data.question.create;
 }
