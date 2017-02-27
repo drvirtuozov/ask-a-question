@@ -81,7 +81,7 @@ export default class Question extends React.Component {
             </div>
           }
         >
-          <FormGroup controlId="formControlsTextarea">
+          <FormGroup>
             <ControlLabel>{text}</ControlLabel>
             <FormControl 
               name="answer" 

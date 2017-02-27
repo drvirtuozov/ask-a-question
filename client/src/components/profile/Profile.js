@@ -53,7 +53,7 @@ class Profile extends React.Component {
             <hr />
             <p>Some info</p>
           </Panel>
-          { !isMyProfile && <Ask /> }
+          { !isMyProfile && <Ask userId={user.id} isAuthenticated={auth.isAuthenticated} username={username} /> }
           <Answers isMyProfile={isMyProfile} username={username} userId={user.id} /> 
         </div> 
       );
