@@ -47,7 +47,11 @@ export default class Answers extends React.Component {
             })}
           </div>
           :
-          <h3>{isMyProfile ? 'You haven\'t' : `${username} hasn\'t`} answered a single question yet</h3>
+          <center>
+            <h3 className="text-muted">
+              {isMyProfile ? 'You haven\'t' : `${username} hasn\'t`} answered a single question yet
+            </h3>
+          </center>
         }
       </div>
     );
