@@ -226,3 +226,24 @@ export async function commentAnswer(id, text) {
 
   return res.data.data.answer.comment;
 }
+
+export async function createQuestion(userId, text) {
+  let res = await axios.post('/api', {
+    query: `
+      mutation {
+        question {
+          create(user_id: ${userId}, text: "${text}") {
+            question {
+              id
+            }
+            errors {
+              detail
+            }
+          }
+        }
+      }
+    `
+  });
+
+  return res.data.data.question.create;
+}
