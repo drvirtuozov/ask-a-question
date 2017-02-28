@@ -8,6 +8,12 @@ export default function(ComposedComponent) {
         this.context.router.push('/');
       }
     }
+
+    componentWillUpdate(nextProps) {
+      if (nextProps.isAuthenticated) {
+        this.context.router.push('/');
+      }
+    }
     
     render() {
       return (

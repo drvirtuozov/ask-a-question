@@ -37,7 +37,6 @@ class NavigationBar extends React.Component {
       res = await this.props.login(username, password);
 
     if (res.token) {
-      this.context.router.push('/');
       this.setState({
         username: null,
         password: null, 
