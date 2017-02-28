@@ -2,6 +2,7 @@ import axios from 'axios';
 import setAuthorizationToken from '../utils/setAuthorizationToken';
 import jwtDecode from 'jwt-decode';
 import { createUser, createToken } from '../requests/api';
+import getAndSetQuestionsToStore from '../utils/getAndSetQuestionsToStore';
 
 
 export function setCurrentUser(user) {
@@ -27,6 +28,7 @@ export function signup(user) {
       localStorage.setItem('token', res.token);
       setAuthorizationToken(res.token);
       dispatch(setCurrentUser(jwtDecode(res.token)));
+      getAndSetQuestionsToStore();
     }
 
     return res;
@@ -41,6 +43,7 @@ export function login(username, password) {
       localStorage.setItem('token', res.token);
       setAuthorizationToken(res.token);
       dispatch(setCurrentUser(jwtDecode(res.token)));
+      getAndSetQuestionsToStore();
     } 
 
     return res;
