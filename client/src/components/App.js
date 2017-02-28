@@ -8,9 +8,10 @@ import rootReducer from '../reducers';
 import setAuthorizationToken from '../utils/setAuthorizationToken';
 import jwtDecode from 'jwt-decode';
 import { setCurrentUser } from '../actions/auth';
+import getAndSetQuestionsToStore from '../utils/getAndSetQuestionsToStore';
 
 
-const store = createStore(
+export const store = createStore(
   rootReducer, 
   compose(
     applyMiddleware(thunk),
@@ -21,6 +22,7 @@ const store = createStore(
 if (localStorage.token) {
   setAuthorizationToken(localStorage.token);
   store.dispatch(setCurrentUser(jwtDecode(localStorage.token)));
+  getAndSetQuestionsToStore();
 }
 
 const App = () => (

@@ -2,27 +2,12 @@ import React from 'react';
 import { connect } from 'react-redux';
 import Question from './Question';
 import findIndex from 'lodash/findIndex';
-import { getQuestions } from '../../requests/api';
-import { addQuestion, addQuestions, setQuestions } from '../../actions/questions';
 import { 
-  incrementQuestionsCount, decrementQuestionsCount, 
-  setQuestionsCount 
+  incrementQuestionsCount, decrementQuestionsCount
 } from '../../actions/questionsCount';
 
 
-class Questions extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.setQuestions();
-  }
-
-  async setQuestions() {
-    let res = await getQuestions();
-    this.props.setQuestions(res.questions);
-    this.props.setQuestionsCount(res.questions.length);
-  }
-  
+class Questions extends React.Component {  
   render() {
     let { 
       questions, questionsCount, 
@@ -63,12 +48,8 @@ class Questions extends React.Component {
 Questions.propTypes = {
   questions: React.PropTypes.array.isRequired,
   questionsCount: React.PropTypes.number.isRequired,
-  addQuestion: React.PropTypes.func.isRequired,
-  addQuestions: React.PropTypes.func.isRequired,
-  setQuestions: React.PropTypes.func.isRequired,
   incrementQuestionsCount: React.PropTypes.func.isRequired,
   decrementQuestionsCount: React.PropTypes.func.isRequired,
-  setQuestionsCount: React.PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {
@@ -79,6 +60,5 @@ function mapStateToProps(state) {
 }
 
 export default connect(mapStateToProps, { 
-  addQuestion, addQuestions, setQuestions, incrementQuestionsCount, 
-  decrementQuestionsCount, setQuestionsCount
+  incrementQuestionsCount, decrementQuestionsCount
 })(Questions);
