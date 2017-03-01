@@ -21,6 +21,7 @@
     "pg-hstore": "^2.3.2",
     "sequelize": "^3.27.0",
     "shortid": "^2.2.6",
+    "socket.io": "^1.7.3",
     "validator": "^5.5.0"
   },
   "devDependencies": {

@@ -22,7 +22,8 @@ module.exports = {
     publicPath: '/',
     historyApiFallback: true,
     proxy: {
-      '/api': 'http://localhost:3001'
+      '/api': 'http://localhost:3001',
+      '/socket.io': 'http://localhost:3001'
     },
     port: 3000
   },
