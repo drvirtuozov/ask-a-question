@@ -6,27 +6,20 @@ import { getAnswers } from '../../requests/api';
 export default class Answers extends React.Component {
   constructor(props) {
     super(props);
-
-    this.state = {
-      answers: []
-    };
-
     this.getAnswers();
   }
 
   async getAnswers() {
-    let res = await getAnswers(this.props.userId);
+    let { userId, setAnswers } = this.props,
+      res = await getAnswers(userId);
     
     if (res.answers) {
-      this.setState({
-        answers: res.answers
-      });
+      setAnswers(res.answers);
     }
   }
 
   render() {
-    let { answers } = this.state,
-      { isMyProfile, username } = this.props;
+    let { answers, isMyProfile, username } = this.props;
     
     return (
       <div>
@@ -59,7 +52,9 @@ export default class Answers extends React.Component {
 }
 
 Answers.propTypes = {
+  answers: React.PropTypes.array.isRequired,
   isMyProfile: React.PropTypes.bool.isRequired,
   username: React.PropTypes.string.isRequired,
-  userId: React.PropTypes.number.isRequired
+  userId: React.PropTypes.number.isRequired,
+  setAnswers: React.PropTypes.func.isRequired
 };

@@ -7,7 +7,11 @@ const GraphQLAnswerResult = new GraphQLObjectType({
   name: 'AnswerResult',
   fields: {
     answer: { 
-      type: GraphQLAnswer
+      type: GraphQLAnswer,
+      resolve(answer) {
+        console.log('INTERCEPTED ANSWER!!!!!', answer);
+        return answer;
+      }
     },
     errors: { 
       type: new GraphQLList(GraphQLError) 

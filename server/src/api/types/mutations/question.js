@@ -5,6 +5,7 @@ import GraphQLBooleanResult from '../results/boolean';
 import User from '../../../models/user';
 import UserQuestion from '../../../models/user_question';
 import { userNotFound, questionNotFound, tokenNotProvided } from '../../../errors/api';
+import { io, sockets } from '../../../socket';
 
 
 const GraphQLQuestionMutations = new GraphQLObjectType({
@@ -32,7 +33,12 @@ const GraphQLQuestionMutations = new GraphQLObjectType({
             question = await user.createQuestion({ text }); 
             await question.setFrom(askingUser);             
           } else {
+            let socket = sockets.get(user_id);
             question = await user.createQuestion({ text });
+
+            if (socket) {
+              socket.emit('question', question);
+            }
           }
         } else {
           errors.push(userNotFound({ field: 'user_id' }));
@@ -68,6 +74,10 @@ const GraphQLQuestionMutations = new GraphQLObjectType({
             answer = await question.createAnswer({ text, user_id: user.id });
             question.setDataValue('deleted', true);
             await answer.setQuestion(question);
+
+            let room = answer.user_id;
+            io.sockets.in(room).emit('answer', answer);
+
           } else {
             errors.push(questionNotFound({ field: 'question_id' })); 
           }

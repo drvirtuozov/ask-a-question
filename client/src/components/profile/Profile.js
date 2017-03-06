@@ -6,6 +6,8 @@ import NotFound from '../NotFound';
 import Loading from '../Loading';
 import { Panel } from 'react-bootstrap';
 import { getUser } from '../../requests/api';
+import socket from '../../socket';
+import { setAnswers } from '../../actions/answers';
 
 
 class Profile extends React.Component {
@@ -21,10 +23,12 @@ class Profile extends React.Component {
   }
 
   async getUser() {
-    let { username } = this.props;
-    let res = await getUser(username);
+    let { username } = this.props,
+      res = await getUser(username);
 
     if (res.user) {
+      socket.emit('room', res.user.id);
+      console.log('EMITTED ROOM', res.user.id)
       this.setState({
         user: res.user,
         isUserExists: true
@@ -38,7 +42,7 @@ class Profile extends React.Component {
 
   render() {
     let { user, isUserExists } = this.state,
-      { auth, username } = this.props,
+      { auth, username, answers, setAnswers } = this.props,
       isMyProfile = auth.user.username === username;
     
     if (isUserExists === false) {
@@ -54,7 +58,13 @@ class Profile extends React.Component {
             <p>Some info</p>
           </Panel>
           { !isMyProfile && <Ask userId={user.id} isAuthenticated={auth.isAuthenticated} username={username} /> }
-          <Answers isMyProfile={isMyProfile} username={username} userId={user.id} /> 
+          <Answers 
+            isMyProfile={isMyProfile} 
+            username={username} 
+            userId={user.id}
+            answers={answers}
+            setAnswers={setAnswers} 
+          /> 
         </div> 
       );
     }
@@ -68,8 +78,9 @@ Profile.propTypes = {
 
 function mapStateToProps(state) {
   return {
-    auth: state.auth
+    auth: state.auth,
+    answers: state.answers
   };
 }
 
-export default connect(mapStateToProps)(Profile);
+export default connect(mapStateToProps, { setAnswers })(Profile);
