@@ -19,6 +19,12 @@ const GraphQLAnswer = new GraphQLObjectType({
           return answer.id;
         }
       },
+      user: {
+        type: GraphQLUser,
+        resolve(answer) {
+          return answer.getUser();
+        }
+      },
       text: {
         type: GraphQLString,
         resolve(answer) {
