@@ -71,6 +71,7 @@ const GraphQLQuestionMutations = new GraphQLObjectType({
             answer = await question.createAnswer({ text, user_id: user.id });
             question.setDataValue('deleted', true);
             await answer.setQuestion(question);
+            pubsub.publish('questionReplied', answer);
           } else {
             errors.push(questionNotFound({ field: 'question_id' })); 
           }

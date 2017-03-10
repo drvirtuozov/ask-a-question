@@ -25,6 +25,14 @@ export const subscriptionManager = new SubscriptionManager({
         transform: name => name
       },
     }),
+    questionReplied: () => ({
+      questionReplied: {
+        filter: answer => {
+          return answer.id;
+        },
+        transform: name => name
+      },
+    })
   },
 });
 

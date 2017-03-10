@@ -31,7 +31,7 @@ export default class Answers extends React.Component {
               let { id, text, question, comments, likes, timestamp } = answer;
               return <Answer 
                 question={question.text} 
-                from={question.from} 
+                from={question.from && question.from.username} 
                 text={text} 
                 timestamp={timestamp} 
                 comments={comments}

@@ -1,7 +1,7 @@
 import socketio from 'socket.io';
 import jwt from 'jsonwebtoken';
 import cfg from './config';
-import { subscriptionManager } from './api';
+import { pubsub, subscriptionManager } from './api';
 
 
 export const sockets = new Map();
@@ -36,8 +36,9 @@ export default function(app) {
           }
         `,
         callback: (err, data) => {
-          console.log('ERRROOOOOOOOOOR:', err);
-          console.log('SUBSCRIPTIOOOON:', data);
+          if (err) 
+            return console.log('questionCreated subscription error:', err);
+
           socket.emit('question', data.data.questionCreated);
         },
       });
@@ -50,5 +51,35 @@ export default function(app) {
       socket.room = room;
       socket.join(room);
     });
+  });
+
+  subscriptionManager.subscribe({
+    query: `
+      subscription questionReplied {
+        questionReplied {
+          id
+          user {
+            id
+          }
+          text
+          timestamp
+          question {
+            id
+            text
+            timestamp
+            from {
+              username
+            }
+          }
+        }
+      }
+    `,
+    callback: (err, data) => {
+      if (err) 
+        return console.log('questionReplied subscription error:', err);
+      
+      let answer = data.data.questionReplied;
+      io.sockets.in(answer.user.id).emit('answer', answer);
+    },
   });
 }

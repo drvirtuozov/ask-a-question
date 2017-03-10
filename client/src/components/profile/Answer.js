@@ -62,10 +62,10 @@ class Answer extends React.Component {
         <p>{text}</p>
         <hr />
         <Button bsSize="small">
-          <i className="fa fa-heart" aria-hidden="true"></i> Like {likes.length || ''}
+          <i className="fa fa-heart" aria-hidden="true"></i> Like {likes && likes.length}
         </Button>
         <Button bsStyle="link" onClick={this.activeComments.bind(this)} className="pull-right">
-          Comments ({comments.length})
+          Comments ({(comments && comments.length) || 0})
         </Button>
         { isActiveComments &&
           <div>
@@ -106,11 +106,6 @@ Answer.propTypes = {
   comments: React.PropTypes.array,
   likes: React.PropTypes.array,
   isAuthenticated: React.PropTypes.bool.isRequired
-};
-
-Answer.defaultProps = {
-  comments: [],
-  likes: []
 };
 
 function mapStateToProps(state) {

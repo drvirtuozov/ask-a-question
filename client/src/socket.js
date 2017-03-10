@@ -1,7 +1,7 @@
 import socketio from 'socket.io-client';
 import { store } from './components/App';
 import { addQuestion } from './actions/questions';
-import { incrementQuestionsCount } from './actions/questionsCount';
+import { incrementQuestionsCount, decrementQuestionsCount } from './actions/questionsCount';
 import { addAnswer } from './actions/answers';
 
 
@@ -15,8 +15,10 @@ socket.on('question', question => {
 });
 
 socket.on('answer', answer => {
-  console.log('ANSWER DISPATCHED', answer)
   store.dispatch(addAnswer(answer));
+
+  if (store.getState().auth.user.id == answer.user.id)
+    store.dispatch(decrementQuestionsCount());
 });
 
 export default socket;

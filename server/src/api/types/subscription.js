@@ -1,5 +1,6 @@
 import { GraphQLObjectType, GraphQLInt, GraphQLNonNull } from 'graphql';
 import GraphQLQuestion from './question';
+import GraphQLAnswer from './answer';
 
 
 const GraphQLSubscription = new GraphQLObjectType({
@@ -15,6 +16,12 @@ const GraphQLSubscription = new GraphQLObjectType({
       },
       resolve(question) {
         return question;
+      }
+    },
+    questionReplied: {
+      type: GraphQLAnswer,
+      resolve(answer) {
+        return answer;
       }
     } 
   }
