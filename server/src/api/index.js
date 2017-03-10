@@ -13,40 +13,19 @@ const Schema = new GraphQLSchema({
   subscription: GraphQLSubscription
 });
 
-const subscriptionManager = new SubscriptionManager({
+export const subscriptionManager = new SubscriptionManager({
   schema: Schema,
   pubsub,
   setupFunctions: {
     questionCreated: (options, { user_id }) => ({
-      newQuestionsChannel: {
+      questionCreated: {
         filter: question => {
           return question.user_id === user_id;
-        }
+        },
+        transform: name => name
       },
     }),
   },
 });
-
-/*subscriptionManager.subscribe({
-  query: `
-    subscription newQuestionsChannel {
-      questionCreated(user_id: 1) { 
-        id
-        text
-        from {
-          username
-        }
-      }
-    }
-  `,
-  context: {
-    user: {
-      id: 1
-    }
-  },
-  callback: (err, data) => console.log('SUBSCRIPTIOOOON:', data),
-});*/
-
-pubsub.subscribe('newQuestionsChannel', data => console.log('SUBSCRIPTIOOOON:', data));
 
 export default Schema;
