@@ -3,6 +3,7 @@ import { store } from './components/App';
 import { addQuestion } from './actions/questions';
 import { incrementQuestionsCount, decrementQuestionsCount } from './actions/questionsCount';
 import { addAnswer } from './actions/answers';
+import { addAnswerComment } from './actions/answerComments';
 
 
 const socket = socketio();
@@ -19,6 +20,10 @@ socket.on('answer', answer => {
 
   if (store.getState().auth.user.id == answer.user.id)
     store.dispatch(decrementQuestionsCount());
+});
+
+socket.on('comment', comment => {
+  store.dispatch(addAnswerComment(comment));
 });
 
 export default socket;

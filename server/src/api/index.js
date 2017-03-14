@@ -17,21 +17,25 @@ export const subscriptionManager = new SubscriptionManager({
   schema: Schema,
   pubsub,
   setupFunctions: {
-    questionCreated: (options, { user_id }) => ({
+    privateSubscriptions: (options, { user_id }) => ({
       questionCreated: {
         filter: question => {
           return question.user_id === user_id;
         },
         transform: name => name
-      },
+      }
     }),
-    questionReplied: () => ({
+    publicSubscriptions: () => ({
       questionReplied: {
         filter: answer => {
           return answer.id;
-        },
-        transform: name => name
+        }
       },
+      answerCommented: {
+        filter: comment => {
+          return comment.id;
+        }
+      }
     })
   },
 });

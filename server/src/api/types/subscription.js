@@ -1,6 +1,7 @@
 import { GraphQLObjectType, GraphQLInt, GraphQLNonNull } from 'graphql';
 import GraphQLQuestion from './question';
 import GraphQLAnswer from './answer';
+import GraphQLComment from './comment';
 
 
 const GraphQLSubscription = new GraphQLObjectType({
@@ -23,7 +24,13 @@ const GraphQLSubscription = new GraphQLObjectType({
       resolve(answer) {
         return answer;
       }
-    } 
+    },
+    answerCommented: {
+      type: GraphQLComment,
+      resolve(comment) {
+        return comment;
+      }
+    }    
   }
 });
 

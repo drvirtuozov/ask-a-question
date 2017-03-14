@@ -4,6 +4,7 @@ import auth from './auth';
 import questions from './questions';
 import questionsCount from './questionsCount';
 import answers from './answers';
+import answerComments from './answerComments';
 
 
 export default combineReducers({
@@ -11,5 +12,6 @@ export default combineReducers({
   auth,
   questions,
   questionsCount,
-  answers
+  answers,
+  answerComments
 });

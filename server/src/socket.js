@@ -20,28 +20,30 @@ export default function(app) {
 
     socket.on('subscribe', token => {
       let user = jwt.decode(token, cfg.jwtSecret);
-      sockets.set(user.id, socket);
-
-      socket.subscriptionId = subscriptionManager.subscribe({
-        query: `
-          subscription questionCreated {
-            questionCreated(user_id: ${user.id}) {
-              id
-              text
-              timestamp
-              from {
-                username
+      
+      if (user) {
+        sockets.set(user.id, socket);
+        socket.subscriptionId = subscriptionManager.subscribe({
+          query: `
+            subscription questionCreated {
+              questionCreated(user_id: ${user.id}) {
+                id
+                text
+                timestamp
+                from {
+                  username
+                }
               }
             }
-          }
-        `,
-        callback: (err, data) => {
-          if (err) 
-            return console.log('questionCreated subscription error:', err);
+          `,
+          callback: (err, data) => {
+            if (err) 
+              return console.log('questionCreated subscription error:', err);
 
-          socket.emit('question', data.data.questionCreated);
-        },
-      });
+            socket.emit('question', data.data.questionCreated);
+          },
+        });
+      }
     });
 
     socket.on('room', room => {
@@ -74,12 +76,40 @@ export default function(app) {
         }
       }
     `,
-    callback: (err, data) => {
+    callback: (err, { data }) => {
       if (err) 
         return console.log('questionReplied subscription error:', err);
       
-      let answer = data.data.questionReplied;
+      let answer = data.questionReplied;
       io.sockets.in(answer.user.id).emit('answer', answer);
+    },
+  });
+
+  subscriptionManager.subscribe({
+    query: `
+      subscription answerCommented {
+        answerCommented {
+          id
+          answer {
+            id
+            user {
+              id
+            }
+          }
+          text
+          user {
+            username
+          }
+          timestamp
+        }
+      }
+    `,
+    callback: (err, { data }) => {
+      if (err) 
+        return console.log('answerCommented subscription error:', err);
+    
+      let comment = data.answerCommented;
+      io.sockets.in(comment.answer.user.id).emit('comment', comment);
     },
   });
 }

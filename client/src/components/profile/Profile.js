@@ -42,7 +42,7 @@ class Profile extends React.Component {
 
   render() {
     let { user, isUserExists } = this.state,
-      { auth, username, answers, setAnswers } = this.props,
+      { auth, username, answers, setAnswers, answerComments } = this.props,
       isMyProfile = auth.user.username === username;
     
     if (isUserExists === false) {
@@ -63,7 +63,9 @@ class Profile extends React.Component {
             username={username} 
             userId={user.id}
             answers={answers}
-            setAnswers={setAnswers} 
+            setAnswers={setAnswers}
+            isAuthenticated={auth.isAuthenticated}
+            answerComments={answerComments}
           /> 
         </div> 
       );
@@ -73,13 +75,17 @@ class Profile extends React.Component {
 
 Profile.propTypes = {
   auth: React.PropTypes.object.isRequired,
-  username: React.PropTypes.string.isRequired
+  username: React.PropTypes.string.isRequired,
+  answerComments: React.PropTypes.array.isRequired
 };
 
 function mapStateToProps(state) {
+  let { auth, answers, answerComments } = state;
+
   return {
-    auth: state.auth,
-    answers: state.answers
+    auth,
+    answers,
+    answerComments
   };
 }
 
