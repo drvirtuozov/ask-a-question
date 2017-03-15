@@ -9,6 +9,7 @@ import setAuthorizationToken from '../utils/setAuthorizationToken';
 import jwtDecode from 'jwt-decode';
 import { setCurrentUser } from '../actions/auth';
 import getAndSetQuestionsToStore from '../utils/getAndSetQuestionsToStore';
+import '../socket';
 
 
 export const store = createStore(

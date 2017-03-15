@@ -1,5 +1,7 @@
 import { GraphQLObjectType, GraphQLInt, GraphQLString, GraphQLFloat } from 'graphql';
 import GraphQLUser from './user';
+import GraphQLAnswer from './answer';
+import UserAnswer from '../../models/user_answer';
 
 
 const GraphQLComment = new GraphQLObjectType({
@@ -11,6 +13,12 @@ const GraphQLComment = new GraphQLObjectType({
         type: GraphQLInt,
         resolve(comment) {
           return comment.id;
+        }
+      },
+      answer: {
+        type: GraphQLAnswer,
+        resolve(comment) {
+          return UserAnswer.findById(comment.user_answer_id);
         }
       },
       text: {

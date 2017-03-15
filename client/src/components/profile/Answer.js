@@ -6,17 +6,34 @@ import Comments from './Comments';
 import { commentAnswer } from '../../requests/api';
 import Moment from 'react-moment'
 import moment from 'moment';
+import findIndex from 'lodash/findIndex';
 
 
-class Answer extends React.Component {
+export default class Answer extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
+      id: props.id,
       isActiveComments: false,
-      comments: props.comments,
-      commentText: ''
+      commentText: '',
+      comments: props.comments || []
     };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    let { id, comments } = this.state,
+      { answerComments } = nextProps,
+      comment = answerComments[answerComments.length - 1];
+    
+    if (comment && comment.answer.id == id) {
+      if (findIndex(comments, { id: comment.id }) === -1) {
+        comments.push(comment);
+        this.setState({
+          comments
+        });
+      }
+    }
   }
 
   activeComments() {
@@ -27,7 +44,7 @@ class Answer extends React.Component {
 
   async comment() {
     let { id } = this.props,
-      { commentText, comments } = this.state,
+      { comments, commentText } = this.state,
       res = await commentAnswer(id, commentText);
     
     if (res.comment) {
@@ -46,8 +63,8 @@ class Answer extends React.Component {
   }
 
   render() {
-    let { isActiveComments, comments, commentText } = this.state, 
-      { text, timestamp, question, from, isAuthenticated, likes } = this.props;
+    let { isActiveComments, commentText, comments } = this.state, 
+      { id, text, timestamp, question, from, isAuthenticated, likes } = this.props;
 
     return (
       <Panel header={
@@ -62,10 +79,10 @@ class Answer extends React.Component {
         <p>{text}</p>
         <hr />
         <Button bsSize="small">
-          <i className="fa fa-heart" aria-hidden="true"></i> Like {likes.length || ''}
+          <i className="fa fa-heart" aria-hidden="true"></i> Like {likes && likes.length}
         </Button>
         <Button bsStyle="link" onClick={this.activeComments.bind(this)} className="pull-right">
-          Comments ({comments.length})
+          Comments ({(comments && comments.length) || 0})
         </Button>
         { isActiveComments &&
           <div>
@@ -105,18 +122,6 @@ Answer.propTypes = {
   from: React.PropTypes.string,
   comments: React.PropTypes.array,
   likes: React.PropTypes.array,
-  isAuthenticated: React.PropTypes.bool.isRequired
+  isAuthenticated: React.PropTypes.bool.isRequired,
+  answerComments: React.PropTypes.array.isRequired
 };
-
-Answer.defaultProps = {
-  comments: [],
-  likes: []
-};
-
-function mapStateToProps(state) {
-  return {
-    isAuthenticated: state.auth.isAuthenticated
-  };
-}
-
-export default connect(mapStateToProps)(Answer);

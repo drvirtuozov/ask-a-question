@@ -4,6 +4,7 @@ import GraphQLCommentResult from '../results/comment';
 import User from '../../../models/user';
 import UserAnswer from '../../../models/user_answer';
 import { tokenNotProvided, answerNotFound } from '../../../errors/api';
+import { pubsub } from '../../';
 
 
 const GraphQLAnswerMutations = new GraphQLObjectType({
@@ -33,6 +34,8 @@ const GraphQLAnswerMutations = new GraphQLObjectType({
           } else {
             comment = await answer.createComment({ text });
           }
+
+          pubsub.publish('answerCommented', comment);
         } else {
           errors.push(answerNotFound({ field: 'answer_id' }));
         }

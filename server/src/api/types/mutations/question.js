@@ -5,6 +5,7 @@ import GraphQLBooleanResult from '../results/boolean';
 import User from '../../../models/user';
 import UserQuestion from '../../../models/user_question';
 import { userNotFound, questionNotFound, tokenNotProvided } from '../../../errors/api';
+import { pubsub } from '../../';
 
 
 const GraphQLQuestionMutations = new GraphQLObjectType({
@@ -34,6 +35,8 @@ const GraphQLQuestionMutations = new GraphQLObjectType({
           } else {
             question = await user.createQuestion({ text });
           }
+
+          pubsub.publish('questionCreated', question);
         } else {
           errors.push(userNotFound({ field: 'user_id' }));
         }
@@ -68,6 +71,7 @@ const GraphQLQuestionMutations = new GraphQLObjectType({
             answer = await question.createAnswer({ text, user_id: user.id });
             question.setDataValue('deleted', true);
             await answer.setQuestion(question);
+            pubsub.publish('questionReplied', answer);
           } else {
             errors.push(questionNotFound({ field: 'question_id' })); 
           }
