@@ -6,7 +6,6 @@ import Comments from './Comments';
 import { commentAnswer } from '../../requests/api';
 import Moment from 'react-moment'
 import moment from 'moment';
-import findIndex from 'lodash/findIndex';
 
 
 export default class Answer extends React.Component {
@@ -16,24 +15,8 @@ export default class Answer extends React.Component {
     this.state = {
       id: props.id,
       isActiveComments: false,
-      commentText: '',
-      comments: props.comments || []
+      commentText: ''
     };
-  }
-
-  componentWillReceiveProps(nextProps) {
-    let { id, comments } = this.state,
-      { answerComments } = nextProps,
-      comment = answerComments[answerComments.length - 1];
-    
-    if (comment && comment.answer.id == id) {
-      if (findIndex(comments, { id: comment.id }) === -1) {
-        comments.push(comment);
-        this.setState({
-          comments
-        });
-      }
-    }
   }
 
   activeComments() {
@@ -43,14 +26,13 @@ export default class Answer extends React.Component {
   }
 
   async comment() {
-    let { id } = this.props,
-      { comments, commentText } = this.state,
+    let { id, addAnswerComment } = this.props,
+      { commentText } = this.state,
       res = await commentAnswer(id, commentText);
     
     if (res.comment) {
-      comments.push(res.comment);
+      addAnswerComment(res.comment);
       this.setState({
-        comments,
         commentText: ''
       });
     }
@@ -63,8 +45,8 @@ export default class Answer extends React.Component {
   }
 
   render() {
-    let { isActiveComments, commentText, comments } = this.state, 
-      { id, text, timestamp, question, from, isAuthenticated, likes } = this.props;
+    let { isActiveComments, commentText } = this.state, 
+      { id, text, timestamp, question, from, isAuthenticated, comments, likes } = this.props;
 
     return (
       <Panel header={
@@ -123,5 +105,5 @@ Answer.propTypes = {
   comments: React.PropTypes.array,
   likes: React.PropTypes.array,
   isAuthenticated: React.PropTypes.bool.isRequired,
-  answerComments: React.PropTypes.array.isRequired
+  addAnswerComment: React.PropTypes.func.isRequired
 };

@@ -19,7 +19,7 @@ export default class Answers extends React.Component {
   }
 
   render() {
-    let { answers, isMyProfile, username, answerComments, isAuthenticated } = this.props;
+    let { answers, isMyProfile, username, isAuthenticated, addAnswerComment } = this.props;
     
     return (
       <div>
@@ -38,7 +38,7 @@ export default class Answers extends React.Component {
                 likes={likes}
                 id={id} key={id}
                 isAuthenticated={isAuthenticated}
-                answerComments={answerComments}
+                addAnswerComment={addAnswerComment}
               />;
             })}
           </div>
@@ -61,5 +61,5 @@ Answers.propTypes = {
   userId: React.PropTypes.number.isRequired,
   setAnswers: React.PropTypes.func.isRequired,
   isAuthenticated: React.PropTypes.bool.isRequired,
-  answerComments: React.PropTypes.array.isRequired
+  addAnswerComment: React.PropTypes.func.isRequired
 };

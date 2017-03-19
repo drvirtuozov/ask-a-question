@@ -2,8 +2,7 @@ import socketio from 'socket.io-client';
 import { store } from './components/App';
 import { addQuestion } from './actions/questions';
 import { incrementQuestionsCount, decrementQuestionsCount } from './actions/questionsCount';
-import { addAnswer } from './actions/answers';
-import { addAnswerComment } from './actions/answerComments';
+import { addAnswer, addAnswerComment } from './actions/answers';
 
 
 const socket = socketio();

@@ -8,6 +8,7 @@ import { Panel } from 'react-bootstrap';
 import { getUser } from '../../requests/api';
 import socket from '../../socket';
 import { setAnswers } from '../../actions/answers';
+import { addAnswerComment } from '../../actions/answers'
 
 
 class Profile extends React.Component {
@@ -42,7 +43,7 @@ class Profile extends React.Component {
 
   render() {
     let { user, isUserExists } = this.state,
-      { auth, username, answers, setAnswers, answerComments } = this.props,
+      { auth, username, answers, setAnswers, addAnswerComment } = this.props,
       isMyProfile = auth.user.username === username;
     
     if (isUserExists === false) {
@@ -65,7 +66,7 @@ class Profile extends React.Component {
             answers={answers}
             setAnswers={setAnswers}
             isAuthenticated={auth.isAuthenticated}
-            answerComments={answerComments}
+            addAnswerComment={addAnswerComment}
           /> 
         </div> 
       );
@@ -76,17 +77,16 @@ class Profile extends React.Component {
 Profile.propTypes = {
   auth: React.PropTypes.object.isRequired,
   username: React.PropTypes.string.isRequired,
-  answerComments: React.PropTypes.array.isRequired
+  answers: React.PropTypes.array.isRequired
 };
 
 function mapStateToProps(state) {
-  let { auth, answers, answerComments } = state;
+  let { auth, answers } = state;
 
   return {
     auth,
-    answers,
-    answerComments
+    answers
   };
 }
 
-export default connect(mapStateToProps, { setAnswers })(Profile);
+export default connect(mapStateToProps, { setAnswers, addAnswerComment })(Profile);

@@ -11,3 +11,10 @@ export function setAnswers(answers) {
     answers
   };
 }
+
+export function addAnswerComment(comment) {
+  return {
+    type: 'ADD_ANSWER_COMMENT',
+    comment
+  };
+}
