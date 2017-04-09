@@ -7,12 +7,10 @@ module.exports = GraphHTTP(req => ({
   pretty: true,
   graphiql: true,
   rootValue: { user: req.user },
-  formatError: e => {    
-    return {
-      originalError: e.originalError,
-      message: e.message,
-      locations: e.locations,
-      stack: e.stack
-    };
-  }
+  formatError: e => ({
+    originalError: e.originalError,
+    message: e.message,
+    locations: e.locations,
+    stack: e.stack,
+  }),
 }));

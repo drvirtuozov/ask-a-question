@@ -11,21 +11,21 @@ const GraphQLMutation = new GraphQLObjectType({
   fields: {
     token: {
       type: GraphQLTokenMutations,
-      resolve: () => GraphQLTokenMutations
+      resolve: () => GraphQLTokenMutations,
     },
     user: {
       type: GraphQLUserMutations,
-      resolve: () => GraphQLUserMutations
+      resolve: () => GraphQLUserMutations,
     },
     question: {
       type: GraphQLQuestionMutations,
-      resolve: () => GraphQLQuestionMutations
+      resolve: () => GraphQLQuestionMutations,
     },
     answer: {
       type: GraphQLAnswerMutations,
-      resolve: () => GraphQLAnswerMutations
-    }
-  }
+      resolve: () => GraphQLAnswerMutations,
+    },
+  },
 });
 
 module.exports = GraphQLMutation;

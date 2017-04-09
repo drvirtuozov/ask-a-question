@@ -2,7 +2,7 @@ const { GraphQLObjectType, GraphQLNonNull, GraphQLInt, GraphQLString } = require
 const GraphQLAnswerResult = require('../results/answer');
 const GraphQLCommentResult = require('../results/comment');
 const User = require('../../../models/user');
-const UserAnswer = require('../../../models/user_answer');
+const UserAnswer = require('../../../models/userAnswer');
 const { tokenNotProvided, answerNotFound } = require('../../../errors/api');
 const { pubsub } = require('../../');
 
@@ -15,20 +15,20 @@ const GraphQLAnswerMutations = new GraphQLObjectType({
       type: GraphQLCommentResult,
       args: {
         answer_id: {
-          type: new GraphQLNonNull(GraphQLInt)
+          type: new GraphQLNonNull(GraphQLInt),
         },
         text: {
-          type: new GraphQLNonNull(GraphQLString)
-        }
+          type: new GraphQLNonNull(GraphQLString),
+        },
       },
       async resolve(_, { answer_id, text }, ctx) {
-        let answer = await UserAnswer.findById(answer_id),
-          comment = null,
-          errors = [];
+        const answer = await UserAnswer.findById(answer_id);
+        let comment = null;
+        const errors = [];
 
         if (answer) {
           if (ctx.user) {
-            let user = await User.findById(ctx.user.id);
+            const user = await User.findById(ctx.user.id);
             comment = await answer.createComment({ text });
             await comment.setUser(user);
           } else {
@@ -42,25 +42,27 @@ const GraphQLAnswerMutations = new GraphQLObjectType({
 
         return {
           comment,
-          errors: errors.length ? errors : null
+          errors: errors.length ? errors : null,
         };
-      }
+      },
     },
     like: {
       type: GraphQLAnswerResult,
       args: {
         answer_id: {
-          type: new GraphQLNonNull(GraphQLInt)
-        }
+          type: new GraphQLNonNull(GraphQLInt),
+        },
       },
       async resolve(_, { answer_id }, ctx) {
+        const errors = [];
+        let answer = null;
+
         if (ctx.user) {
-          var user = await User.findById(ctx.user.id),
-            answer = await UserAnswer.findById(answer_id),
-            errors = [];
+          const user = await User.findById(ctx.user.id);
+          answer = await UserAnswer.findById(answer_id);
 
           if (answer) {
-            let like = await answer.createLike();
+            const like = await answer.createLike();
             await like.setUser(user);
           } else {
             errors.push(answerNotFound({ field: 'answer_id' }));
@@ -71,11 +73,11 @@ const GraphQLAnswerMutations = new GraphQLObjectType({
 
         return {
           answer,
-          errors: errors.length ? errors : null
+          errors: errors.length ? errors : null,
         };
-      }
-    }
-  }
+      },
+    },
+  },
 });
 
 module.exports = GraphQLAnswerMutations;

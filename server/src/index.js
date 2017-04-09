@@ -5,20 +5,21 @@ const HttpError = require('./errors/http');
 const graphql = require('./middlewares/graphql');
 const { optionalAuth } = require('./middlewares/auth');
 const config = require('./config');
+const { createSocketServer } = require('./socket');
 require('./relations');
-const { socket } = require('./socket');
 
 
 const app = express();
 const server = createServer(app);
-socket(server);
+const io = createSocketServer(server);
 
 app.use(logger('dev'));
 app.use('/api', optionalAuth, graphql);
 
 app.use((err, req, res, next) => {
-  let e = new HttpError(500);
+  const e = new HttpError(500);
   res.status(e.status).json(e.json);
+  next();
 });
 
 server.listen(config.PORT, () => {

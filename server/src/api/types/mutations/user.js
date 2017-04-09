@@ -12,30 +12,30 @@ const GraphQLUserMutations = new GraphQLObjectType({
       type: GraphQLTokenResult,
       args: {
         username: {
-          type: new GraphQLNonNull(GraphQLString)
+          type: new GraphQLNonNull(GraphQLString),
         },
         email: {
-          type: new GraphQLNonNull(GraphQLString)
+          type: new GraphQLNonNull(GraphQLString),
         },
         password: {
-          type: new GraphQLNonNull(GraphQLString)
-        }
+          type: new GraphQLNonNull(GraphQLString),
+        },
       },
       async resolve(_, args) {
-        let token = null,
-          errors = [];  
+        let token = null;
+        const errors = [];
 
         try {
-          let user = await User.create(args);              
+          const user = await User.create(args);
           token = User.sign(user);
         } catch (e) {
           if (e.errors) {
-            e.errors.forEach(err => {
+            e.errors.forEach((err) => {
               errors.push({
                 field: err.path,
                 status: 400,
                 title: 'Bad Request',
-                detail: err.message
+                detail: err.message,
               });
             });
           }
@@ -43,11 +43,11 @@ const GraphQLUserMutations = new GraphQLObjectType({
 
         return {
           token,
-          errors: errors.length ? errors : null
+          errors: errors.length ? errors : null,
         };
-      }
-    }
-  }
+      },
+    },
+  },
 });
 
 module.exports = GraphQLUserMutations;

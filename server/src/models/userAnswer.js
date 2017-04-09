@@ -1,14 +1,14 @@
 const db = require('../db');
 
 
-const UserAnswer = db.import('user_answer', (db, DataTypes) => {
+const UserAnswer = db.import('user_answer', (sequelize, DataTypes) => {
   const { STRING } = DataTypes;
-  
-  return db.define('user_answer', {
+
+  return sequelize.define('user_answer', {
     text: {
       type: STRING,
-      allowNull: false
-    }
+      allowNull: false,
+    },
   }, { underscored: true });
 });
 

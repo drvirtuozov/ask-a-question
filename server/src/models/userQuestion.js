@@ -1,18 +1,18 @@
 const db = require('../db');
 
 
-const UserQuestion = db.import('user_question', (db, DataTypes) => {
+const UserQuestion = db.import('user_question', (sequelize, DataTypes) => {
   const { STRING, BOOLEAN } = DataTypes;
-  
-  return db.define('user_question', {
+
+  return sequelize.define('user_question', {
     text: {
       type: STRING,
-      allowNull: false
+      allowNull: false,
     },
     deleted: {
       type: BOOLEAN,
-      defaultValue: false
-    }
+      defaultValue: false,
+    },
   }, { underscored: true });
 });
 

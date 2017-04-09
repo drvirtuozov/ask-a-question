@@ -1,14 +1,14 @@
 const db = require('../db');
 
 
-const AnswerComment = db.import('answer_comment', (db, DataTypes) => {
+const AnswerComment = db.import('answer_comment', (sequelize, DataTypes) => {
   const { STRING } = DataTypes;
-  
-  return db.define('answer_comment', {
+
+  return sequelize.define('answer_comment', {
     text: {
       type: STRING,
-      allowNull: false
-    }
+      allowNull: false,
+    },
   }, { underscored: true });
 });
 

@@ -6,13 +6,13 @@ const GraphQLUser = require('../user');
 const GraphQLUserResult = new GraphQLObjectType({
   name: 'UserResult',
   fields: {
-    user: { 
-      type: GraphQLUser
+    user: {
+      type: GraphQLUser,
     },
-    errors: { 
-      type: new GraphQLList(GraphQLError) 
-    }
-  }
+    errors: {
+      type: new GraphQLList(GraphQLError),
+    },
+  },
 });
 
 module.exports = GraphQLUserResult;

@@ -4,34 +4,32 @@ const { GraphQLObjectType, GraphQLString, GraphQLInt } = require('graphql');
 const GraphQLError = new GraphQLObjectType({
   name: 'Error',
   description: 'This represents an Error',
-  fields() {
-    return {
-      field: {
-        type: GraphQLString,
-        resolve(error) {
-          return error.field;
-        }
+  fields: {
+    field: {
+      type: GraphQLString,
+      resolve(error) {
+        return error.field;
       },
-      status: {
-        type: GraphQLInt,
-        resolve(error) {
-          return error.status;
-        }
+    },
+    status: {
+      type: GraphQLInt,
+      resolve(error) {
+        return error.status;
       },
-      title: {
-        type: GraphQLString,
-        resolve(error) {
-          return error.title;
-        }
+    },
+    title: {
+      type: GraphQLString,
+      resolve(error) {
+        return error.title;
       },
-      detail: {
-        type: GraphQLString,
-        resolve(error) {
-          return error.detail;
-        }
-      }
-    };
-  }
+    },
+    detail: {
+      type: GraphQLString,
+      resolve(error) {
+        return error.detail;
+      },
+    },
+  },
 });
 
 module.exports = GraphQLError;

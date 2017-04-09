@@ -6,12 +6,12 @@ const GraphQLBooleanResult = new GraphQLObjectType({
   name: 'BooleanResult',
   fields: {
     ok: {
-      type: GraphQLBoolean
+      type: GraphQLBoolean,
     },
-    errors: { 
-      type: new GraphQLList(GraphQLError) 
-    }
-  }
+    errors: {
+      type: new GraphQLList(GraphQLError),
+    },
+  },
 });
 
 module.exports = GraphQLBooleanResult;

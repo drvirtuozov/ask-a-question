@@ -10,38 +10,38 @@ const pubsub = new PubSub();
 const Schema = new GraphQLSchema({
   query: GraphQLQuery,
   mutation: GraphQLMutation,
-  subscription: GraphQLSubscription
+  subscription: GraphQLSubscription,
 });
 
 const subscriptionManager = new SubscriptionManager({
   schema: Schema,
   pubsub,
   setupFunctions: {
-    privateSubscriptions: (options, { user_id }) => ({
+    privateSubscriptions: (options, { user_id: userId }) => ({
       questionCreated: {
-        filter: question => {
-          return question.user_id === user_id;
+        filter(question) {
+          return question.user_id === userId;
         },
-        transform: name => name
-      }
+        transform: name => name,
+      },
     }),
     publicSubscriptions: () => ({
       questionReplied: {
-        filter: answer => {
+        filter(answer) {
           return answer.id;
-        }
+        },
       },
       answerCommented: {
-        filter: comment => {
+        filter(comment) {
           return comment.id;
-        }
-      }
-    })
+        },
+      },
+    }),
   },
 });
 
 module.exports = {
   Schema,
   pubsub,
-  subscriptionManager
+  subscriptionManager,
 };

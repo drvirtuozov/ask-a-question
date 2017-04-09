@@ -6,13 +6,13 @@ const GraphQLAnswer = require('../answer');
 const GraphQLAnswersResult = new GraphQLObjectType({
   name: 'AnswersResult',
   fields: {
-    answers: { 
-      type: new GraphQLList(GraphQLAnswer)
+    answers: {
+      type: new GraphQLList(GraphQLAnswer),
     },
-    errors: { 
-      type: new GraphQLList(GraphQLError) 
-    }
-  }
+    errors: {
+      type: new GraphQLList(GraphQLError),
+    },
+  },
 });
 
 module.exports = GraphQLAnswersResult;

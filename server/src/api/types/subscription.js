@@ -12,26 +12,26 @@ const GraphQLSubscription = new GraphQLObjectType({
       type: GraphQLQuestion,
       args: {
         user_id: {
-          type: new GraphQLNonNull(GraphQLInt)
-        }
+          type: new GraphQLNonNull(GraphQLInt),
+        },
       },
       resolve(question) {
         return question;
-      }
+      },
     },
     questionReplied: {
       type: GraphQLAnswer,
       resolve(answer) {
         return answer;
-      }
+      },
     },
     answerCommented: {
       type: GraphQLComment,
       resolve(comment) {
         return comment;
-      }
-    }    
-  }
+      },
+    },
+  },
 });
 
 module.exports = GraphQLSubscription;

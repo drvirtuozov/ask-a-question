@@ -6,13 +6,13 @@ const GraphQLQuestion = require('../question');
 const GraphQLQuestionResult = new GraphQLObjectType({
   name: 'QuestionResult',
   fields: {
-    question: { 
-      type: GraphQLQuestion
+    question: {
+      type: GraphQLQuestion,
     },
-    errors: { 
-      type: new GraphQLList(GraphQLError) 
-    }
-  }
+    errors: {
+      type: new GraphQLList(GraphQLError),
+    },
+  },
 });
 
 module.exports = GraphQLQuestionResult;

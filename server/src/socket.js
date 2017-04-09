@@ -1,26 +1,25 @@
 const socketio = require('socket.io');
 const jwt = require('jsonwebtoken');
 const cfg = require('./config');
-const { pubsub, subscriptionManager } = require('./api');
+const { subscriptionManager } = require('./api');
 
 
 const sockets = new Map();
-let io = null;
 
-const socket = function(app) {
-  io = socketio(app);
+const createSocketServer = function (app) {
+  const io = socketio(app);
 
-  io.on('connection', socket => {
+  io.on('connection', (socket) => {
     console.log(`A user connected: ${socket.id}`);
 
     socket.on('disconnect', () => {
-      //subscriptionManager.unsubscribe(socket.subscriptionId);
+      // subscriptionManager.unsubscribe(socket.subscriptionId);
       console.log(`A user disconnected: ${socket.id}`);
     });
 
-    socket.on('subscribe', token => {
-      let user = jwt.decode(token, cfg.jwtSecret);
-      
+    socket.on('subscribe', (token) => {
+      const user = jwt.decode(token, cfg.jwtSecret);
+
       if (user) {
         sockets.set(user.id, socket);
         socket.subscriptionId = subscriptionManager.subscribe({
@@ -36,19 +35,17 @@ const socket = function(app) {
               }
             }
           `,
-          callback: (err, data) => {
-            if (err) 
-              return console.log('questionCreated subscription error:', err);
+          callback(err, data) {
+            if (err) return console.log('questionCreated subscription error:', err);
 
-            socket.emit('question', data.data.questionCreated);
+            return socket.emit('question', data.data.questionCreated);
           },
         });
       }
     });
 
-    socket.on('room', room => {
-      if (socket.room)
-        socket.leave(socket.room);
+    socket.on('room', (room) => {
+      if (socket.room) socket.leave(socket.room);
 
       socket.room = room;
       socket.join(room);
@@ -76,12 +73,11 @@ const socket = function(app) {
         }
       }
     `,
-    callback: (err, { data }) => {
-      if (err) 
-        return console.log('questionReplied subscription error:', err);
-      
-      let answer = data.questionReplied;
-      io.sockets.in(answer.user.id).emit('answer', answer);
+    callback(err, { data }) {
+      if (err) return console.log('questionReplied subscription error:', err);
+
+      const answer = data.questionReplied;
+      return io.sockets.in(answer.user.id).emit('answer', answer);
     },
   });
 
@@ -104,18 +100,18 @@ const socket = function(app) {
         }
       }
     `,
-    callback: (err, { data }) => {
-      if (err) 
-        return console.log('answerCommented subscription error:', err);
-    
-      let comment = data.answerCommented;
-      io.sockets.in(comment.answer.user.id).emit('comment', comment);
+    callback(err, { data }) {
+      if (err) return console.log('answerCommented subscription error:', err);
+
+      const comment = data.answerCommented;
+      return io.sockets.in(comment.answer.user.id).emit('comment', comment);
     },
   });
+
+  return io;
 };
 
 module.exports = {
-  socket,
+  createSocketServer,
   sockets,
-  io
 };

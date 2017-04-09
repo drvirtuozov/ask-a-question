@@ -6,13 +6,13 @@ const GraphQLComment = require('../comment');
 const GraphQLCommentResult = new GraphQLObjectType({
   name: 'CommentResult',
   fields: {
-    comment: { 
-      type: GraphQLComment
+    comment: {
+      type: GraphQLComment,
     },
-    errors: { 
-      type: new GraphQLList(GraphQLError) 
-    }
-  }
+    errors: {
+      type: new GraphQLList(GraphQLError),
+    },
+  },
 });
 
 module.exports = GraphQLCommentResult;
