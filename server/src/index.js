@@ -1,12 +1,12 @@
-import { createServer } from 'http';
-import express from 'express';
-import logger from 'morgan';
-import HttpError from './errors/http';
-import graphql from './middlewares/graphql';
-import { optionalAuth } from './middlewares/auth';
-import config from './config';
-import './relations';
-import socket from './socket';
+const { createServer } = require('http');
+const express = require('express');
+const logger = require('morgan');
+const HttpError = require('./errors/http');
+const graphql = require('./middlewares/graphql');
+const { optionalAuth } = require('./middlewares/auth');
+const config = require('./config');
+require('./relations');
+const { socket } = require('./socket');
 
 
 const app = express();

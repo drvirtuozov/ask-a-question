@@ -1,6 +1,6 @@
-import { GraphQLObjectType, GraphQLList } from 'graphql';
-import GraphQLError from '../error';
-import GraphQLComment from '../comment';
+const { GraphQLObjectType, GraphQLList } = require('graphql');
+const GraphQLError = require('../error');
+const GraphQLComment = require('../comment');
 
 
 const GraphQLCommentsResult = new GraphQLObjectType({
@@ -15,4 +15,4 @@ const GraphQLCommentsResult = new GraphQLObjectType({
   }
 });
 
-export default GraphQLCommentsResult;
+module.exports = GraphQLCommentsResult;

@@ -1,6 +1,6 @@
-import { GraphQLObjectType, GraphQLString, GraphQLNonNull } from 'graphql';
-import GraphQLTokenResult from '../results/token';
-import User from '../../../models/user';
+const { GraphQLObjectType, GraphQLString, GraphQLNonNull } = require('graphql');
+const GraphQLTokenResult = require('../results/token');
+const User = require('../../../models/user');
 
 
 const GraphQLUserMutations = new GraphQLObjectType({
@@ -50,4 +50,4 @@ const GraphQLUserMutations = new GraphQLObjectType({
   }
 });
 
-export default GraphQLUserMutations;
+module.exports = GraphQLUserMutations;

@@ -1,12 +1,12 @@
-import expressJwt from 'express-jwt';
-import config from '../config';
+const expressJwt = require('express-jwt');
+const config = require('../config');
 
-export const auth = expressJwt({
+const auth = expressJwt({
   secret: config.jwtSecret,
   getToken
 });
 
-export const optionalAuth = expressJwt({
+const optionalAuth = expressJwt({
   secret: config.jwtSecret,
   credentialsRequired: false,
   getToken
@@ -23,5 +23,7 @@ function getToken(req) {
   return null;
 }
 
-export default auth;
-
+module.exports = {
+  auth,
+  optionalAuth
+};

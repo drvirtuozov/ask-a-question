@@ -1,6 +1,6 @@
-import { GraphQLObjectType, GraphQLList } from 'graphql';
-import GraphQLError from '../error';
-import GraphQLUser from '../user';
+const { GraphQLObjectType, GraphQLList } = require('graphql');
+const GraphQLError = require( '../error');
+const GraphQLUser = require( '../user');
 
 
 const GraphQLLikesResult = new GraphQLObjectType({
@@ -15,4 +15,4 @@ const GraphQLLikesResult = new GraphQLObjectType({
   }
 });
 
-export default GraphQLLikesResult;
+module.exports = GraphQLLikesResult;

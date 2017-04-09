@@ -1,11 +1,11 @@
-import db from '../db';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import config from '../config';
-import { 
+const db = require('../db');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const config = require('../config');
+const { 
   USERNAME_TAKEN, INVALID_USERNAME, INVALID_PASSWORD, 
   EMAIL_TAKEN, INVALID_EMAIL 
-} from '../shared/formErrors';
+} = require('../shared/formErrors');
 
 
 const User = db.import('user', (db, DataTypes) => {
@@ -79,4 +79,4 @@ User.addHook('afterCreate', user => {
   user.createQuestion({ text: 'Third random question from admin', from_id: 1 });
 });
 
-export default User;
+module.exports = User;

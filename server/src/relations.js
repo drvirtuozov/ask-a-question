@@ -1,9 +1,9 @@
-import db from './db';
-import User from './models/user';
-import UserQuestion from './models/user_question';
-import UserAnswer from './models/user_answer';
-import AnswerComment from './models/answer_comment';
-import AnswerLike from './models/answer_like';
+const db = require('./db');
+const User = require('./models/user');
+const UserQuestion = require('./models/user_question');
+const UserAnswer = require('./models/user_answer');
+const AnswerComment = require('./models/answer_comment');
+const AnswerLike = require('./models/answer_like');
 
 
 User.Questions = User.hasMany(UserQuestion, { as: 'questions' });

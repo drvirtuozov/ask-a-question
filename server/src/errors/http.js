@@ -1,7 +1,7 @@
-import http from 'http';
+const http = require('http');
 
 
-export default class HttpError extends Error {
+module.exports = class HttpError extends Error {
   constructor(status = 500, message = 'Unknown error', result = {}) {
     super();
     this.name = 'HttpError';
@@ -10,4 +10,4 @@ export default class HttpError extends Error {
     this.result = result;
     this.json = { ok: false, description: this.message, result };
   }
-}
+};

@@ -1,13 +1,13 @@
-import socketio from 'socket.io';
-import jwt from 'jsonwebtoken';
-import cfg from './config';
-import { pubsub, subscriptionManager } from './api';
+const socketio = require('socket.io');
+const jwt = require('jsonwebtoken');
+const cfg = require('./config');
+const { pubsub, subscriptionManager } = require('./api');
 
 
-export const sockets = new Map();
-export let io = null;
+const sockets = new Map();
+let io = null;
 
-export default function(app) {
+const socket = function(app) {
   io = socketio(app);
 
   io.on('connection', socket => {
@@ -112,4 +112,10 @@ export default function(app) {
       io.sockets.in(comment.answer.user.id).emit('comment', comment);
     },
   });
-}
+};
+
+module.exports = {
+  socket,
+  sockets,
+  io
+};

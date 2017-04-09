@@ -1,11 +1,11 @@
-import { GraphQLSchema } from 'graphql';
-import GraphQLQuery from './types/query';
-import GraphQLMutation from './types/mutation';
-import GraphQLSubscription from './types/subscription';
-import { PubSub, SubscriptionManager } from 'graphql-subscriptions';
+const { GraphQLSchema } = require('graphql');
+const GraphQLQuery = require('./types/query');
+const GraphQLMutation = require('./types/mutation');
+const GraphQLSubscription = require('./types/subscription');
+const { PubSub, SubscriptionManager } = require('graphql-subscriptions');
 
 
-export const pubsub = new PubSub();
+const pubsub = new PubSub();
 
 const Schema = new GraphQLSchema({
   query: GraphQLQuery,
@@ -13,7 +13,7 @@ const Schema = new GraphQLSchema({
   subscription: GraphQLSubscription
 });
 
-export const subscriptionManager = new SubscriptionManager({
+const subscriptionManager = new SubscriptionManager({
   schema: Schema,
   pubsub,
   setupFunctions: {
@@ -40,4 +40,8 @@ export const subscriptionManager = new SubscriptionManager({
   },
 });
 
-export default Schema;
+module.exports = {
+  Schema,
+  pubsub,
+  subscriptionManager
+};

@@ -1,8 +1,8 @@
-import GraphHTTP from 'express-graphql';
-import Schema from '../api';
+const GraphHTTP = require('express-graphql');
+const { Schema } = require('../api');
 
 
-export default GraphHTTP(req => ({
+module.exports = GraphHTTP(req => ({
   schema: Schema,
   pretty: true,
   graphiql: true,

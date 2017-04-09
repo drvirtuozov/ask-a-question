@@ -1,4 +1,4 @@
-import { GraphQLObjectType, GraphQLString, GraphQLInt } from 'graphql';
+const { GraphQLObjectType, GraphQLString, GraphQLInt } = require('graphql');
 
 
 const GraphQLError = new GraphQLObjectType({
@@ -34,4 +34,4 @@ const GraphQLError = new GraphQLObjectType({
   }
 });
 
-export default GraphQLError;
+module.exports = GraphQLError;

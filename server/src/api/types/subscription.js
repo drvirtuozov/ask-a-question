@@ -1,7 +1,7 @@
-import { GraphQLObjectType, GraphQLInt, GraphQLNonNull } from 'graphql';
-import GraphQLQuestion from './question';
-import GraphQLAnswer from './answer';
-import GraphQLComment from './comment';
+const { GraphQLObjectType, GraphQLInt, GraphQLNonNull } = require('graphql');
+const GraphQLQuestion = require('./question');
+const GraphQLAnswer = require('./answer');
+const GraphQLComment = require('./comment');
 
 
 const GraphQLSubscription = new GraphQLObjectType({
@@ -34,4 +34,4 @@ const GraphQLSubscription = new GraphQLObjectType({
   }
 });
 
-export default GraphQLSubscription;
+module.exports = GraphQLSubscription;

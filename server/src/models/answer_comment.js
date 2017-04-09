@@ -1,4 +1,4 @@
-import db from '../db';
+const db = require('../db');
 
 
 const AnswerComment = db.import('answer_comment', (db, DataTypes) => {
@@ -12,4 +12,4 @@ const AnswerComment = db.import('answer_comment', (db, DataTypes) => {
   }, { underscored: true });
 });
 
-export default AnswerComment;
+module.exports = AnswerComment;

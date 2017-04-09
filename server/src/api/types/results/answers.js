@@ -1,6 +1,6 @@
-import { GraphQLObjectType, GraphQLList } from 'graphql';
-import GraphQLError from '../error';
-import GraphQLAnswer from '../answer';
+const { GraphQLObjectType, GraphQLList } = require('graphql');
+const GraphQLError = require('../error');
+const GraphQLAnswer = require('../answer');
 
 
 const GraphQLAnswersResult = new GraphQLObjectType({
@@ -15,4 +15,4 @@ const GraphQLAnswersResult = new GraphQLObjectType({
   }
 });
 
-export default GraphQLAnswersResult;
+module.exports = GraphQLAnswersResult;

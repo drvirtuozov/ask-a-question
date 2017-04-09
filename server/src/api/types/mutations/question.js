@@ -1,11 +1,11 @@
-import { GraphQLObjectType, GraphQLNonNull, GraphQLInt, GraphQLString } from 'graphql';
-import GraphQLQuestionResult from '../results/question';
-import GraphQLAnswerResult from '../results/answer';
-import GraphQLBooleanResult from '../results/boolean';
-import User from '../../../models/user';
-import UserQuestion from '../../../models/user_question';
-import { userNotFound, questionNotFound, tokenNotProvided } from '../../../errors/api';
-import { pubsub } from '../../';
+const { GraphQLObjectType, GraphQLNonNull, GraphQLInt, GraphQLString } = require('graphql');
+const GraphQLQuestionResult = require('../results/question');
+const GraphQLAnswerResult = require('../results/answer');
+const GraphQLBooleanResult = require('../results/boolean');
+const User = require('../../../models/user');
+const UserQuestion = require('../../../models/user_question');
+const { userNotFound, questionNotFound, tokenNotProvided } = require('../../../errors/api');
+const { pubsub } = require( '../../');
 
 
 const GraphQLQuestionMutations = new GraphQLObjectType({
@@ -152,4 +152,4 @@ const GraphQLQuestionMutations = new GraphQLObjectType({
   }
 });
 
-export default GraphQLQuestionMutations;
+module.exports = GraphQLQuestionMutations;

@@ -1,13 +1,13 @@
-import { GraphQLObjectType, GraphQLString, GraphQLList, GraphQLNonNull, GraphQLInt } from 'graphql';
-import { tokenNotProvided, userNotFound, questionNotFound, answerNotFound } from '../../errors/api';
-import User from '../../models/user';
-import UserQuestion from '../../models/user_question';
-import UserAnswer from '../../models/user_answer';
-import GraphQLUserResult from './results/user';
-import GraphQLQuestionsResult from './results/questions';
-import GraphQLAnswersResult from './results/answers';
-import GraphQLCommentsResult from './results/comments';
-import GraphQLLikesResult from './results/likes';
+const { GraphQLObjectType, GraphQLString, GraphQLList, GraphQLNonNull, GraphQLInt } = require('graphql');
+const { tokenNotProvided, userNotFound, questionNotFound, answerNotFound } = require('../../errors/api');
+const User = require('../../models/user');
+const UserQuestion = require('../../models/user_question');
+const UserAnswer = require('../../models/user_answer');
+const GraphQLUserResult = require('./results/user');
+const GraphQLQuestionsResult = require('./results/questions');
+const GraphQLAnswersResult = require('./results/answers');
+const GraphQLCommentsResult = require('./results/comments');
+const GraphQLLikesResult = require('./results/likes');
 
 
 const GraphQLQuery = new GraphQLObjectType({
@@ -135,4 +135,4 @@ const GraphQLQuery = new GraphQLObjectType({
   }
 });
 
-export default GraphQLQuery;
+module.exports = GraphQLQuery;

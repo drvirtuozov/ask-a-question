@@ -1,4 +1,4 @@
-import db from '../db';
+const db = require('../db');
 
 
 const UserAnswer = db.import('user_answer', (db, DataTypes) => {
@@ -12,4 +12,4 @@ const UserAnswer = db.import('user_answer', (db, DataTypes) => {
   }, { underscored: true });
 });
 
-export default UserAnswer;
+module.exports = UserAnswer;

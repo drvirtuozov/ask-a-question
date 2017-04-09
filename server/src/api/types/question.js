@@ -1,5 +1,5 @@
-import { GraphQLObjectType, GraphQLInt, GraphQLString, GraphQLFloat } from 'graphql';
-import GraphQLUser from './user';
+const { GraphQLObjectType, GraphQLInt, GraphQLString, GraphQLFloat } = require('graphql');
+const GraphQLUser = require('./user');
 
 
 const GraphQLQuestion = new GraphQLObjectType({
@@ -35,4 +35,4 @@ const GraphQLQuestion = new GraphQLObjectType({
   }
 });
 
-export default GraphQLQuestion;
+module.exports = GraphQLQuestion;

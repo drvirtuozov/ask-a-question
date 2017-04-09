@@ -1,10 +1,10 @@
-import { GraphQLObjectType, GraphQLNonNull, GraphQLInt, GraphQLString } from 'graphql';
-import GraphQLAnswerResult from '../results/answer';
-import GraphQLCommentResult from '../results/comment';
-import User from '../../../models/user';
-import UserAnswer from '../../../models/user_answer';
-import { tokenNotProvided, answerNotFound } from '../../../errors/api';
-import { pubsub } from '../../';
+const { GraphQLObjectType, GraphQLNonNull, GraphQLInt, GraphQLString } = require('graphql');
+const GraphQLAnswerResult = require('../results/answer');
+const GraphQLCommentResult = require('../results/comment');
+const User = require('../../../models/user');
+const UserAnswer = require('../../../models/user_answer');
+const { tokenNotProvided, answerNotFound } = require('../../../errors/api');
+const { pubsub } = require('../../');
 
 
 const GraphQLAnswerMutations = new GraphQLObjectType({
@@ -78,4 +78,4 @@ const GraphQLAnswerMutations = new GraphQLObjectType({
   }
 });
 
-export default GraphQLAnswerMutations;
+module.exports = GraphQLAnswerMutations;

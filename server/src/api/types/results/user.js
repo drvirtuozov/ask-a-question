@@ -1,6 +1,6 @@
-import { GraphQLObjectType, GraphQLList } from 'graphql';
-import GraphQLError from '../error';
-import GraphQLUser from '../user';
+const { GraphQLObjectType, GraphQLList } = require('graphql');
+const GraphQLError = require('../error');
+const GraphQLUser = require('../user');
 
 
 const GraphQLUserResult = new GraphQLObjectType({
@@ -15,4 +15,4 @@ const GraphQLUserResult = new GraphQLObjectType({
   }
 });
 
-export default GraphQLUserResult;
+module.exports = GraphQLUserResult;

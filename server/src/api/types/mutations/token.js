@@ -1,7 +1,7 @@
-import { GraphQLObjectType, GraphQLString, GraphQLNonNull } from 'graphql';
-import GraphQLTokenResult from '../results/token';
-import User from '../../../models/user';
-import { wrongPassword, userNotFound } from '../../../errors/api';
+const { GraphQLObjectType, GraphQLString, GraphQLNonNull } = require('graphql');
+const GraphQLTokenResult = require( '../results/token');
+const User = require( '../../../models/user');
+const { wrongPassword, userNotFound } = require( '../../../errors/api');
 
 
 const GraphQLTokenMutations = new GraphQLObjectType({
@@ -43,4 +43,4 @@ const GraphQLTokenMutations = new GraphQLObjectType({
   }
 });
 
-export default GraphQLTokenMutations;
+module.exports = GraphQLTokenMutations;

@@ -1,8 +1,8 @@
-import { GraphQLObjectType } from 'graphql';
-import GraphQLTokenMutations from './mutations/token';
-import GraphQLUserMutations from './mutations/user';
-import GraphQLQuestionMutations from './mutations/question';
-import GraphQLAnswerMutations from './mutations/answer';
+const { GraphQLObjectType } = require('graphql');
+const GraphQLTokenMutations = require('./mutations/token');
+const GraphQLUserMutations = require('./mutations/user');
+const GraphQLQuestionMutations = require('./mutations/question');
+const GraphQLAnswerMutations = require('./mutations/answer');
 
 
 const GraphQLMutation = new GraphQLObjectType({
@@ -28,4 +28,4 @@ const GraphQLMutation = new GraphQLObjectType({
   }
 });
 
-export default GraphQLMutation;
+module.exports = GraphQLMutation;

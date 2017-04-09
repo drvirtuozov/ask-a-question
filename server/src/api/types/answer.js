@@ -1,17 +1,18 @@
-import { 
+const { 
   GraphQLObjectType, GraphQLInt, GraphQLString, 
   GraphQLFloat, GraphQLList
-} from 'graphql';
-import GraphQLQuestion from './question';
-import GraphQLComment from './comment';
-import GraphQLUser from './user';
-import User from '../../models/user';
+} = require('graphql');
+const GraphQLQuestion = require('./question');
+const GraphQLUser = require('./user');
+const User = require('../../models/user');
 
 
-const GraphQLAnswer = new GraphQLObjectType({
+module.exports = new GraphQLObjectType({
   name: 'Answer',
   description: 'This represents an Answer',
   fields() {
+    const GraphQLComment = require('./comment'); // need for resolving cyclic dependency
+
     return {
       id: {
         type: GraphQLInt,
@@ -60,5 +61,3 @@ const GraphQLAnswer = new GraphQLObjectType({
     };
   }
 });
-
-export default GraphQLAnswer;

@@ -1,5 +1,5 @@
-import { GraphQLObjectType, GraphQLBoolean, GraphQLList } from 'graphql';
-import GraphQLError from '../error';
+const { GraphQLObjectType, GraphQLBoolean, GraphQLList } = require('graphql');
+const GraphQLError = require('../error');
 
 
 const GraphQLBooleanResult = new GraphQLObjectType({
@@ -14,4 +14,4 @@ const GraphQLBooleanResult = new GraphQLObjectType({
   }
 });
 
-export default GraphQLBooleanResult;
+module.exports = GraphQLBooleanResult;

@@ -1,5 +1,5 @@
-import { GraphQLObjectType, GraphQLString, GraphQLList } from 'graphql';
-import GraphQLError from '../error';
+const { GraphQLObjectType, GraphQLString, GraphQLList } = require('graphql');
+const GraphQLError = require('../error');
 
 
 const GraphQLTokenResult = new GraphQLObjectType({
@@ -14,4 +14,4 @@ const GraphQLTokenResult = new GraphQLObjectType({
   }
 });
 
-export default GraphQLTokenResult;
+module.exports = GraphQLTokenResult;
