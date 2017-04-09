@@ -11,5 +11,5 @@ export default combineReducers({
   auth,
   questions,
   questionsCount,
-  answers
+  answers,
 });

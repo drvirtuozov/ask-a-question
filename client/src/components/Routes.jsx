@@ -17,5 +17,5 @@ export default (
     <Route path="login" component={onlyGuest(Login)} />
     <Route path="inbox" component={requireAuth(Questions)} />
     <Route path="*" component={props => <Profile username={props.params.splat} />} />
-  </Route>  
+  </Route>
 );

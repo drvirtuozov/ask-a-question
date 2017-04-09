@@ -1,7 +1,11 @@
 {
-  "name": "client",
+  "name": "ask-a-question-client",
   "version": "0.1.0",
   "private": true,
+  "scripts": {
+    "build": "webpack -p",
+    "watch": "webpack-dev-server"
+  },
   "devDependencies": {
     "babel-core": "^6.23.1",
     "babel-loader": "^6.3.2",
@@ -17,6 +21,7 @@
     "axios": "^0.12.0",
     "classnames": "^2.2.5",
     "jwt-decode": "^2.1.0",
+    "lodash": "^4.17.4",
     "moment": "^2.14.1",
     "moment-timezone": "^0.5.11",
     "react": "^15.4.1",
@@ -30,9 +35,5 @@
     "shortid": "^2.2.6",
     "socket.io-client": "^1.7.3",
     "validator": "^5.5.0"
-  },
-  "scripts": {
-    "build": "webpack -p",
-    "start": "webpack-dev-server"
   }
 }

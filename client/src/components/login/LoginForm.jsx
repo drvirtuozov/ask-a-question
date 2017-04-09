@@ -1,55 +1,62 @@
 import React from 'react';
-import { FIELD_REQUIRED } from '../../../../server/src/shared/formErrors';
-import { 
-  FormControl, FormGroup, ControlLabel, 
-  HelpBlock, InputGroup, Button, Col 
+import {
+  FormControl, FormGroup, ControlLabel,
+  HelpBlock, InputGroup, Button, Col,
 } from 'react-bootstrap';
 import { isNull } from 'validator';
-import apiErrorsToState from '../../utils/apiErrorsToState';
+import { FIELD_REQUIRED } from '../../../../server/src/shared/formErrors';
 
 
 export default class LoginForm extends React.Component {
   constructor(props) {
     super(props);
-    
+
     this.state = {
       username: '',
       password: '',
       errors: {},
-      isLoading: false
+      isLoading: false,
     };
   }
-  
+
   async onSubmit(e) {
     e.preventDefault();
-    let { username, password } = this.state;
-    let { errors, isValid } = this.validateInput();
+    const { username, password } = this.state;
+    const { errors, isValid } = this.validateInput();
 
     if (isValid) {
       this.setState({ errors: {}, isLoading: true });
-      let res = await this.props.login(username, password);
-      
+      const res = await this.props.login(username, password);
+
       if (res.token) {
         this.context.router.push('/');
       } else {
-        this.setState({ 
-          errors: this.apiErrorsToState(res.errors), 
-          isLoading: false 
+        this.setState({
+          errors: this.apiErrorsToState(res.errors),
+          isLoading: false,
         });
       }
     } else {
       this.setState({ errors });
     }
   }
-  
+
   onChange(e) {
     this.setState({ [e.target.name]: e.target.value });
   }
 
+  getFieldValidationState(field) {
+    if (this.state[field]) {
+      if (this.state.errors[field]) {
+        return 'error';
+      }
+    }
+  }
+
   validateInput() {
-    let { username, password } = this.state,
-      errors = {},
-      isValid = true;
+    const { username, password } = this.state;
+    const errors = {};
+    let isValid = true;
 
     if (isNull(username)) {
       errors.username = FIELD_REQUIRED;
@@ -63,22 +70,14 @@ export default class LoginForm extends React.Component {
 
     return { errors, isValid };
   }
-  
-  getFieldValidationState(field) {
-    if (this.state[field]) {
-      if (this.state.errors[field]) {
-        return 'error';
-      }
-    }
-  }
-  
+
   render() {
-    let { errors, isLoading } = this.state;
-    
+    const { errors, isLoading } = this.state;
+
     return (
       <Col lg={4} lgOffset={4}>
         <h2>Enter the Site</h2>
-        <form onSubmit={this.onSubmit.bind(this)}>          
+        <form onSubmit={this.onSubmit.bind(this)}>
           <FormGroup validationState={this.getFieldValidationState('username')}>
             <ControlLabel>Username</ControlLabel>
             <InputGroup>
@@ -91,7 +90,7 @@ export default class LoginForm extends React.Component {
             </InputGroup>
             {errors.username && <HelpBlock>{errors.username}</HelpBlock>}
           </FormGroup>
-          
+
           <FormGroup validationState={this.getFieldValidationState('password')}>
             <ControlLabel>Password</ControlLabel>
             <InputGroup>
@@ -104,24 +103,24 @@ export default class LoginForm extends React.Component {
             </InputGroup>
             {errors.password && <HelpBlock>{errors.password}</HelpBlock>}
           </FormGroup>
-          
-          <Button 
-            type="submit" 
-            bsSize="large" 
-            bsStyle="default" 
+
+          <Button
+            type="submit"
+            bsSize="large"
+            bsStyle="default"
             disabled={isLoading}
           >Log In
           </Button>
-        </form> 
-      </Col> 
+        </form>
+      </Col>
     );
   }
 }
 
 LoginForm.propTypes = {
-  login: React.PropTypes.func.isRequired
+  login: React.PropTypes.func.isRequired,
 };
 
 LoginForm.contextTypes = {
-  router: React.PropTypes.object.isRequired
+  router: React.PropTypes.object.isRequired,
 };

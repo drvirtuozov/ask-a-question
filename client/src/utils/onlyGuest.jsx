@@ -1,7 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-export default function(ComposedComponent) {
+
+export default function (ComposedComponent) {
   class Guest extends React.Component {
     componentWillMount() {
       if (this.props.isAuthenticated) {
@@ -14,27 +15,27 @@ export default function(ComposedComponent) {
         this.context.router.push('/');
       }
     }
-    
+
     render() {
       return (
-        <ComposedComponent {...this.props} />  
+        <ComposedComponent {...this.props} />
       );
     }
   }
-  
+
   Guest.propTypes = {
-    isAuthenticated: React.PropTypes.bool.isRequired
+    isAuthenticated: React.PropTypes.bool.isRequired,
   };
-  
+
   Guest.contextTypes = {
-    router: React.PropTypes.object.isRequired
+    router: React.PropTypes.object.isRequired,
   };
-  
+
   function mapStateToProps(state) {
     return {
-      isAuthenticated: state.auth.isAuthenticated
+      isAuthenticated: state.auth.isAuthenticated,
     };
   }
-  
+
   return connect(mapStateToProps)(Guest);
 }

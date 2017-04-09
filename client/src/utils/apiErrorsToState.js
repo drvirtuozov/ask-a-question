@@ -1,9 +1,9 @@
-export default function(errors) {
-  let output = {};
-  
-  for (let e of errors) {
+export default function (errors) {
+  const output = {};
+
+  for (const e of errors) {
     output[e.field] = e.detail;
   }
-  
+
   return output;
 }

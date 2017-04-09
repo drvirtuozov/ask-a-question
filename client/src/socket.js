@@ -9,19 +9,20 @@ const socket = socketio();
 
 socket.emit('subscribe', localStorage.token);
 
-socket.on('question', question => {
+socket.on('question', (question) => {
   store.dispatch(addQuestion(question));
   store.dispatch(incrementQuestionsCount());
 });
 
-socket.on('answer', answer => {
+socket.on('answer', (answer) => {
   store.dispatch(addAnswer(answer));
 
-  if (store.getState().auth.user.id == answer.user.id)
+  if (store.getState().auth.user.id === answer.user.id) {
     store.dispatch(decrementQuestionsCount());
+  }
 });
 
-socket.on('comment', comment => {
+socket.on('comment', (comment) => {
   store.dispatch(addAnswerComment(comment));
 });
 

@@ -1,6 +1,6 @@
 import React from 'react';
 
 
-export default function() {
+export default function () {
   return <center><h1>Loading...</h1></center>;
 }

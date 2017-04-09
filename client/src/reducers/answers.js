@@ -1,21 +1,21 @@
 import findIndex from 'lodash/findIndex';
 
 
-export default function(state = [], action) {
-  switch(action.type) {
+export default function (state = [], action) {
+  switch (action.type) {
     case 'ADD_ANSWER':
       return [
         action.answer,
-        ...state
+        ...state,
       ];
 
     case 'SET_ANSWERS':
       return action.answers;
 
     case 'ADD_ANSWER_COMMENT':
-      let { comment } = action,
-        i = findIndex(state, { id: comment.answer && comment.answer.id }),
-        newState = [ ...state ];
+      const { comment } = action;
+      const i = findIndex(state, { id: comment.answer && comment.answer.id });
+      const newState = [...state];
 
       if (i !== -1) {
         if (newState[i].comments) {
@@ -26,6 +26,8 @@ export default function(state = [], action) {
 
         return newState;
       }
+
+      return state;
 
     default: return state;
   }

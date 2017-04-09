@@ -4,8 +4,8 @@ import { setQuestions } from '../actions/questions';
 import { setQuestionsCount } from '../actions/questionsCount';
 
 
-export default async function() {
-  let res = await getQuestions();
+export default async function () {
+  const res = await getQuestions();
   store.dispatch(setQuestions(res.questions));
   store.dispatch(setQuestionsCount(res.questions.length));
 }

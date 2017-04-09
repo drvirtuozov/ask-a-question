@@ -1,8 +1,8 @@
 {
-  "name": "server",
+  "name": "ask-a-question-server",
   "version": "0.0.0",
   "scripts": {
-    "start": "nodemon src/index.js --watch src"
+    "watch": "nodemon src/index.js --watch src"
   },
   "dependencies": {
     "axios": "^0.12.0",

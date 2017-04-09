@@ -2,7 +2,7 @@ import axios from 'axios';
 
 
 export async function createUser(user) {
-  let res = await axios.post('/api', {
+  const res = await axios.post('/api', {
     query: `
       mutation { 
         user {
@@ -19,14 +19,14 @@ export async function createUser(user) {
           } 
         }
       }
-    `
+    `,
   });
 
   return res.data.data.user.create;
 }
 
 export async function isUserExists(username) {
-  let res = await axios.post('/api', { 
+  const res = await axios.post('/api', {
     query: `{ 
       user(username: "${username}") { 
         user {
@@ -37,14 +37,14 @@ export async function isUserExists(username) {
           detail
         }
       } 
-    }` 
+    }`,
   });
 
   return res.data.data.user.user ? true : false;
 }
 
 export async function createToken(username, password) {
-  let res = await axios.post('/api', { 
+  const res = await axios.post('/api', {
     query: `
       mutation {
         token {
@@ -57,14 +57,14 @@ export async function createToken(username, password) {
           }
         }
       }
-    `
+    `,
   });
 
   return res.data.data.token.create;
 }
 
 export async function getQuestions() {
-  let res = await axios.post('/api', {
+  const res = await axios.post('/api', {
     query: `{
       questions {
         questions {
@@ -79,14 +79,14 @@ export async function getQuestions() {
           detail
         }
       }
-    }`
+    }`,
   });
 
   return res.data.data.questions;
 }
 
 export async function replyQuestion(id, text) {
-  let res = await axios.post('/api', {
+  const res = await axios.post('/api', {
     query: `
       mutation {
         question {
@@ -101,14 +101,14 @@ export async function replyQuestion(id, text) {
           }
         }
       }
-    `
+    `,
   });
 
   return res.data.data.question.reply;
 }
 
 export async function deleteQuestion(id) {
-  let res = await axios.post('/api', {
+  const res = await axios.post('/api', {
     query: `
       mutation {
         question {
@@ -120,14 +120,14 @@ export async function deleteQuestion(id) {
           }
         }
       }
-    `
+    `,
   });
 
   return res.data.data.question.delete;
 }
 
 export async function restoreQuestion(id) {
-  let res = await axios.post('/api', {
+  const res = await axios.post('/api', {
     query: `
       mutation {
         question {
@@ -139,14 +139,14 @@ export async function restoreQuestion(id) {
           }
         }
       }
-    `
+    `,
   });
 
   return res.data.data.question.restore;
 }
 
 export async function getAnswers(id) {
-  let res = await axios.post('/api', {
+  const res = await axios.post('/api', {
     query: `{
       answers(user_id: ${id}) {
         answers {
@@ -175,14 +175,14 @@ export async function getAnswers(id) {
           detail
         }
       }
-    }`
+    }`,
   });
 
   return res.data.data.answers;
 }
 
 export async function getUser(username) {
-  let res = await axios.post('/api', {
+  const res = await axios.post('/api', {
     query: `{
       user(username: "${username}") {
         user {
@@ -195,14 +195,14 @@ export async function getUser(username) {
           detail
         }
       }
-    }`
+    }`,
   });
 
   return res.data.data.user;
 }
 
 export async function commentAnswer(id, text) {
-  let res = await axios.post('/api', {
+  const res = await axios.post('/api', {
     query: `
       mutation {
         answer {
@@ -221,19 +221,19 @@ export async function commentAnswer(id, text) {
           }
         }
       }
-    `
+    `,
   });
 
   return res.data.data.answer.comment;
 }
 
 export async function createQuestion(userId, text, params = {}) {
-  let headers = {};
+  const headers = {};
   Object.assign(headers, axios.defaults.headers);
 
-  if (params.anonymously) headers['Authorization'] = '';
+  if (params.anonymously) headers.Authorization = '';
 
-  let res = await axios.post('/api', {
+  const res = await axios.post('/api', {
     query: `
       mutation {
         question {
@@ -247,7 +247,7 @@ export async function createQuestion(userId, text, params = {}) {
           }
         }
       }
-    `
+    `,
   }, { headers });
 
   return res.data.data.question.create;

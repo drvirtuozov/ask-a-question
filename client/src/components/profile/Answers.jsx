@@ -10,42 +10,44 @@ export default class Answers extends React.Component {
   }
 
   async getAnswers() {
-    let { userId, setAnswers } = this.props,
-      res = await getAnswers(userId);
-    
+    const { userId, setAnswers } = this.props;
+    const res = await getAnswers(userId);
+
     if (res.answers) {
       setAnswers(res.answers);
     }
   }
 
   render() {
-    let { answers, isMyProfile, username, isAuthenticated, addAnswerComment } = this.props;
-    
+    const { answers, isMyProfile, username, isAuthenticated, addAnswerComment } = this.props;
+
     return (
       <div>
         { answers.length ?
           <div className="container-fluid">
             <h3>{ isMyProfile ? 'You have' : `${username} has`} {answers.length} answers:</h3>
             <hr />
-            {answers.map(answer => {
-              let { id, text, question, comments, likes, timestamp } = answer;
-              return <Answer 
-                question={question.text} 
-                from={question.from && question.from.username} 
-                text={text} 
-                timestamp={timestamp} 
-                comments={comments}
-                likes={likes}
-                id={id} key={id}
-                isAuthenticated={isAuthenticated}
-                addAnswerComment={addAnswerComment}
-              />;
+            {answers.map((answer) => {
+              const { id, text, question, comments, likes, timestamp } = answer;
+              return (
+                <Answer
+                  question={question.text}
+                  from={question.from && question.from.username}
+                  text={text}
+                  timestamp={timestamp}
+                  comments={comments}
+                  likes={likes}
+                  id={id} key={id}
+                  isAuthenticated={isAuthenticated}
+                  addAnswerComment={addAnswerComment}
+                />
+              );
             })}
           </div>
           :
           <center>
             <h3 className="text-muted">
-              {isMyProfile ? 'You haven\'t' : `${username} hasn\'t`} answered a single question yet
+              {isMyProfile ? 'You haven\'t' : `${username} hasn't`} answered a single question yet
             </h3>
           </center>
         }
@@ -61,5 +63,5 @@ Answers.propTypes = {
   userId: React.PropTypes.number.isRequired,
   setAnswers: React.PropTypes.func.isRequired,
   isAuthenticated: React.PropTypes.bool.isRequired,
-  addAnswerComment: React.PropTypes.func.isRequired
+  addAnswerComment: React.PropTypes.func.isRequired,
 };
