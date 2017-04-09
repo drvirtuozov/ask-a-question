@@ -1,9 +1,9 @@
 const db = require('./db');
 const User = require('./models/user');
-const UserQuestion = require('./models/user_question');
-const UserAnswer = require('./models/user_answer');
-const AnswerComment = require('./models/answer_comment');
-const AnswerLike = require('./models/answer_like');
+const UserQuestion = require('./models/userQuestion');
+const UserAnswer = require('./models/userAnswer');
+const AnswerComment = require('./models/answerComment');
+const AnswerLike = require('./models/answerLike');
 
 
 User.Questions = User.hasMany(UserQuestion, { as: 'questions' });
