@@ -1,14 +1,14 @@
 package main
 
 import (
-	"github.com/graphql-go/graphql"
 	"fmt"
+	"github.com/graphql-go/graphql"
 )
 
 func newSchema() *graphql.Schema {
 	schema, err := graphql.NewSchema(graphql.SchemaConfig{
 		Query: graphql.NewObject(graphql.ObjectConfig{
-			Name: "RootQuery",
+			Name:        "Query",
 			Description: "This is a root query",
 			Fields: graphql.Fields{
 				"hello": &graphql.Field{
