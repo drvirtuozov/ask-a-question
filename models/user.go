@@ -2,9 +2,8 @@ package models
 
 import (
 	"github.com/jinzhu/gorm"
-	//"golang.org/x/crypto/bcrypt"
+	"golang.org/x/crypto/bcrypt"
 )
-
 
 type User struct {
 	gorm.Model
@@ -15,3 +14,13 @@ type User struct {
 	LastName  string
 }
 
+func (user *User) BeforeCreate() error {
+	hashedPass, err := bcrypt.GenerateFromPassword([]byte(user.Password), 8)
+
+	if err != nil {
+		return err
+	}
+
+	user.Password = string(hashedPass)
+	return nil
+}
