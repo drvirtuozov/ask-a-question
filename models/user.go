@@ -7,10 +7,10 @@ import (
 
 type User struct {
 	gorm.Model
-	Username  string `gorm:"unique" valid:"required,matches(^[a-z]+$)"`
+	Username  string `gorm:"unique" valid:"required,matches(^[a-z]+$),runelength(5|50)"`
 	Password  string `valid:"runelength(8|80),required"`
 	Email     string `gorm:"unique" valid:"email,required"`
-	FirstName string `valid:"required"`
+	FirstName string
 	LastName  string
 }
 
@@ -23,4 +23,12 @@ func (user *User) BeforeCreate() error {
 
 	user.Password = string(hashedPass)
 	return nil
+}
+
+func (user *User) ComparePassword(password string) bool {
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+		return false
+	}
+
+	return true
 }
