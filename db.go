@@ -17,9 +17,9 @@ func init() {
 		panic(err)
 	}
 
-	defer db.Close()
 	DB = db
 	db.AutoMigrate(&models.User{}, &models.UserQuestion{}, &models.UserAnswer{})
+	db.LogMode(true)
 	validations.RegisterCallbacks(db)
 	db.Create(&models.User{
 		Username:  "drvirtuozov",

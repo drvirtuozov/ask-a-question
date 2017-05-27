@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"github.com/drvirtuozov/ask-a-question/models"
 	"github.com/graphql-go/graphql"
 )
 
@@ -11,15 +11,21 @@ func newSchema() *graphql.Schema {
 			Name:        "Query",
 			Description: "This is a root query",
 			Fields: graphql.Fields{
-				"hello": &graphql.Field{
-					Type: graphql.String,
+				"getUser": &graphql.Field{
+					Type: GraphQLUser,
 					Args: graphql.FieldConfigArgument{
-						"name": &graphql.ArgumentConfig{
+						"username": &graphql.ArgumentConfig{
 							Type: graphql.NewNonNull(graphql.String),
 						},
 					},
 					Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-						return fmt.Sprintf("Hello, %s!", p.Args["name"]), nil
+						res := DB.Find(&models.User{}, "username = ?", p.Args["username"])
+
+						if errs := res.GetErrors(); len(errs) > 0 {
+							return nil, errs[0]
+						}
+
+						return res.Value, nil
 					},
 				},
 			},
