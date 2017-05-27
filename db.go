@@ -19,7 +19,7 @@ func init() {
 
 	defer db.Close()
 	DB = db
-	db.AutoMigrate(&models.User{})
+	db.AutoMigrate(&models.User{}, &models.UserQuestion{}, &models.UserAnswer{})
 	validations.RegisterCallbacks(db)
 	db.Create(&models.User{
 		Username:  "drvirtuozov",

@@ -15,6 +15,7 @@ type User struct {
 	FirstName     string
 	LastName      string
 	UserQuestions []UserQuestion
+	UserAnswers   []UserAnswer
 }
 
 func (user *User) BeforeCreate() error {
