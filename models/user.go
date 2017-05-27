@@ -1,20 +1,20 @@
 package models
 
 import (
-	"github.com/jinzhu/gorm"
-	"golang.org/x/crypto/bcrypt"
-
 	"encoding/json"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/jinzhu/gorm"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type User struct {
 	gorm.Model
-	Username  string `gorm:"unique" valid:"required,matches(^[a-z]+$),runelength(5|50)"`
-	Password  string `valid:"runelength(8|80),required"`
-	Email     string `gorm:"unique" valid:"email,required"`
-	FirstName string
-	LastName  string
+	Username      string `gorm:"unique" valid:"required,matches(^[a-z]+$),runelength(5|50)"`
+	Password      string `valid:"runelength(8|80),required"`
+	Email         string `gorm:"unique" valid:"email,required"`
+	FirstName     string
+	LastName      string
+	UserQuestions []UserQuestion
 }
 
 func (user *User) BeforeCreate() error {
@@ -54,4 +54,21 @@ func (user *User) Sign() (string, error) {
 	}
 
 	return token, nil
+}
+
+func (user *User) AfterCreate(db *gorm.DB) {
+	db.Model(user).Association("UserQuestions").Append([]*UserQuestion{
+		&UserQuestion{
+			Text:   "First random question from admin",
+			FromId: 1,
+		},
+		&UserQuestion{
+			Text:   "Second random question from admin",
+			FromId: 1,
+		},
+		&UserQuestion{
+			Text:   "Third random question from admin",
+			FromId: 1,
+		},
+	})
 }
