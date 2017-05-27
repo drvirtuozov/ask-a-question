@@ -7,10 +7,10 @@ import (
 
 type User struct {
 	gorm.Model
-	Username  string `gorm:"size:50;not null;unique"`
-	Password  string `gorm:"not null"`
-	Email     string `gorm:"not null;unique"`
-	FirstName string `gorm:"not null"`
+	Username  string `gorm:"unique" valid:"required,matches(^[a-z]+$)"`
+	Password  string `valid:"runelength(8|80),required"`
+	Email     string `gorm:"unique" valid:"email,required"`
+	FirstName string `valid:"required"`
 	LastName  string
 }
 

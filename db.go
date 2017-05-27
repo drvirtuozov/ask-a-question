@@ -4,6 +4,7 @@ import (
 	"github.com/drvirtuozov/ask-a-question/models"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
+	"github.com/qor/validations"
 )
 
 var DB *gorm.DB
@@ -19,15 +20,17 @@ func init() {
 	defer db.Close()
 	DB = db
 	db.AutoMigrate(&models.User{})
+	validations.RegisterCallbacks(db)
 	db.Create(&models.User{
 		Username:  "drvirtuozov",
-		Password:  "7321",
+		Password:  "73217321",
 		Email:     "dr.virtuozov@ya.ru",
-		FirstName: "",
+		FirstName: "Vlad",
 	})
 	db.Create(&models.User{
-		Username: "drvirtuozov2",
-		Password: "7321",
-		//Email: "dr.virtuozov@ya.ru",
+		Username:  "boratische",
+		Password:  "73217321",
+		Email:     "boratische@ya.ru",
+		FirstName: "Vlad",
 	})
 }
