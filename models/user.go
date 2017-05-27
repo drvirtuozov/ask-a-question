@@ -3,6 +3,9 @@ package models
 import (
 	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
+
+	"encoding/json"
+	"github.com/dgrijalva/jwt-go"
 )
 
 type User struct {
@@ -31,4 +34,24 @@ func (user *User) ComparePassword(password string) bool {
 	}
 
 	return true
+}
+
+func (user *User) Sign() (string, error) {
+	rsa := jwt.GetSigningMethod("RSA")
+	data, err := json.Marshal(map[string]interface{}{
+		"id":       user.ID,
+		"username": user.Username,
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	token, err := rsa.Sign(string(data), "jwtSecret")
+
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
 }
