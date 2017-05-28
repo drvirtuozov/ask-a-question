@@ -19,13 +19,27 @@ func newSchema() *graphql.Schema {
 						},
 					},
 					Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-						res := DB.Find(&models.User{}, "username = ?", p.Args["username"])
+						user := &models.User{}
+						err := DB.Find(user, "username = ?", p.Args["username"]).Error
 
-						if errs := res.GetErrors(); len(errs) > 0 {
-							return nil, errs[0]
+						if err != nil {
+							return nil, err
 						}
 
-						return res.Value, nil
+						return user, nil
+					},
+				},
+				"getQuestions": &graphql.Field{
+					Type: graphql.NewList(GraphQLQuestion),
+					Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+						questions := []*models.UserQuestion{}
+						err := DB.Find(&questions, "user_id = ?", 2).Error
+
+						if err != nil {
+							return nil, err
+						}
+
+						return questions, nil
 					},
 				},
 			},
