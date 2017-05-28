@@ -9,7 +9,7 @@ import (
 
 func main() {
 	http.Handle("/api", handler.New(&handler.Config{
-		Schema: newSchema(),
+		Schema: Schema,
 		Pretty: true,
 	}))
 

@@ -1,4 +1,4 @@
-package main
+package db
 
 import (
 	"github.com/drvirtuozov/ask-a-question/models"
@@ -7,7 +7,7 @@ import (
 	"github.com/qor/validations"
 )
 
-var DB *gorm.DB
+var Conn *gorm.DB
 
 func init() {
 	db, err := gorm.Open("postgres",
@@ -17,7 +17,7 @@ func init() {
 		panic(err)
 	}
 
-	DB = db
+	Conn = db
 	db.AutoMigrate(&models.User{}, &models.UserQuestion{}, &models.UserAnswer{})
 	db.LogMode(true)
 	validations.RegisterCallbacks(db)
