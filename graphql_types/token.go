@@ -3,7 +3,7 @@ package graphql_types
 import "github.com/graphql-go/graphql"
 
 var Token = graphql.NewObject(graphql.ObjectConfig{
-	Name: "Token",
+	Name:        "Token",
 	Description: "This represents a Token",
 	Fields: graphql.Fields{
 		"token": &graphql.Field{
