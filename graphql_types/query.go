@@ -1,6 +1,8 @@
 package graphql_types
 
 import (
+	"errors"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/drvirtuozov/ask-a-question/db"
 	"github.com/drvirtuozov/ask-a-question/models"
 	"github.com/graphql-go/graphql"
@@ -31,8 +33,15 @@ var Query = graphql.NewObject(graphql.ObjectConfig{
 		"getQuestions": &graphql.Field{
 			Type: graphql.NewList(Question),
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				user := p.Context.Value("user")
+
+				if user == nil {
+					return nil, errors.New("Token not provided")
+				}
+
+				id := user.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
 				questions := []*models.UserQuestion{}
-				err := db.Conn.Find(&questions, "user_id = ?", 2).Error // change to id from context later
+				err := db.Conn.Find(&questions, "user_id = ?", id).Error
 
 				if err != nil {
 					return nil, err

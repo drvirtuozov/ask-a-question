@@ -1,7 +1,6 @@
 package models
 
 import (
-	"encoding/json"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
@@ -38,23 +37,18 @@ func (user *User) ComparePassword(password string) bool {
 }
 
 func (user *User) Sign() (string, error) {
-	rsa := jwt.GetSigningMethod("RSA")
-	data, err := json.Marshal(map[string]interface{}{
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id":       user.ID,
 		"username": user.Username,
 	})
 
-	if err != nil {
-		return "", err
-	}
-
-	token, err := rsa.Sign(string(data), "jwtSecret")
+	tokenString, err := token.SignedString([]byte("secret"))
 
 	if err != nil {
 		return "", err
 	}
 
-	return token, nil
+	return tokenString, nil
 }
 
 func (user *User) AfterCreate(db *gorm.DB) {
