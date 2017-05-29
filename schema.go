@@ -10,6 +10,7 @@ var Schema *graphql.Schema
 func init() {
 	schema, err := graphql.NewSchema(graphql.SchemaConfig{
 		Query: graphql_types.Query,
+		Mutation: graphql_types.Mutation,
 	})
 
 	if err != nil {
