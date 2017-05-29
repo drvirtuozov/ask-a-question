@@ -29,7 +29,7 @@ var Question = graphql.NewObject(graphql.ObjectConfig{
 				err := db.Conn.Model(p.Source).Related(from, "FromId").Error
 
 				if err != nil {
-					return nil, err
+					return nil, nil
 				}
 
 				return from, nil
