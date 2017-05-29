@@ -18,7 +18,13 @@ func init() {
 	}
 
 	Conn = db
-	db.AutoMigrate(&models.User{}, &models.UserQuestion{}, &models.UserAnswer{})
+	db.AutoMigrate(
+		&models.User{},
+		&models.UserQuestion{},
+		&models.UserAnswer{},
+		&models.AnswerLike{},
+		&models.AnswerComment{},
+	)
 	db.LogMode(true)
 	validations.RegisterCallbacks(db)
 	db.Create(&models.User{

@@ -2,7 +2,6 @@ package graphql_types
 
 import (
 	"errors"
-	//"github.com/dgrijalva/jwt-go"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/drvirtuozov/ask-a-question/db"
 	"github.com/drvirtuozov/ask-a-question/models"
@@ -114,6 +113,54 @@ var Mutation = graphql.NewObject(graphql.ObjectConfig{
 				}
 
 				return question, nil
+			},
+		},
+		"answerQuestion": &graphql.Field{
+			Type: Answer,
+			Args: graphql.FieldConfigArgument{
+				"question_id": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(graphql.Int),
+				},
+				"text": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(graphql.String),
+				},
+			},
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				ctxUser := p.Context.Value("user")
+
+				if ctxUser == nil {
+					return nil, errors.New("Token not provided")
+				}
+
+				userId := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
+				question := &models.UserQuestion{}
+				err := db.Conn.Find(question, "id = ?", p.Args["question_id"]).Error
+
+				if err != nil {
+					return nil, err
+				}
+
+				user := &models.User{}
+				err = db.Conn.Find(user, "id = ?", userId).Error
+
+				if err != nil {
+					return nil, err
+				}
+
+				answer := &models.UserAnswer{
+					Text:           p.Args["text"].(string),
+					UserQuestionId: question.ID,
+				}
+
+				err = db.Conn.Model(user).Association("UserAnswers").Append(answer).Error
+
+				if err != nil {
+					return nil, err
+				}
+
+				question.UserAnswerId = answer.ID
+				db.Conn.Save(question)
+				return answer, nil
 			},
 		},
 	},
