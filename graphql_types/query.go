@@ -50,5 +50,23 @@ var Query = graphql.NewObject(graphql.ObjectConfig{
 				return questions, nil
 			},
 		},
+		"getAnswers": &graphql.Field{
+			Type: graphql.NewList(Answer),
+			Args: graphql.FieldConfigArgument{
+				"user_id": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(graphql.Int),
+				},
+			},
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				answers := []*models.UserAnswer{}
+				err := db.Conn.Find(&answers, "user_id = ?", p.Args["user_id"]).Error
+
+				if err != nil {
+					return nil, err
+				}
+
+				return answers, nil
+			},
+		},
 	},
 })
