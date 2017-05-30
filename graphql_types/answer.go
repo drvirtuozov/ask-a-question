@@ -1,6 +1,7 @@
 package graphql_types
 
 import (
+	"fmt"
 	"github.com/drvirtuozov/ask-a-question/db"
 	"github.com/drvirtuozov/ask-a-question/models"
 	"github.com/graphql-go/graphql"
@@ -29,7 +30,7 @@ var Answer = graphql.NewObject(graphql.ObjectConfig{
 				err := db.Conn.Model(p.Source).Related(user).Error
 
 				if err != nil {
-					return nil, nil
+					return nil, err
 				}
 
 				return user, nil
@@ -42,7 +43,7 @@ var Answer = graphql.NewObject(graphql.ObjectConfig{
 				err := db.Conn.Model(p.Source).Related(question).Error
 
 				if err != nil {
-					return nil, nil
+					return nil, err
 				}
 
 				return question, nil
@@ -51,14 +52,44 @@ var Answer = graphql.NewObject(graphql.ObjectConfig{
 		"comments": &graphql.Field{
 			Type: graphql.NewList(Comment),
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				comments := &[]*models.AnswerComment{}
-				err := db.Conn.Model(p.Source).Related(comments).Error
+				comments := []*models.AnswerComment{}
+				err := db.Conn.Model(p.Source).Related(&comments).Error
 
 				if err != nil {
-					return nil, nil
+					return nil, err
 				}
 
 				return comments, nil
+			},
+		},
+		"likes": &graphql.Field{
+			Type: graphql.NewList(User),
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				likes := []*models.AnswerLike{}
+				err := db.Conn.Model(p.Source).Related(&likes).Error
+
+				if err != nil {
+					return nil, err
+				}
+
+				if len(likes) != 0 {
+					users := []*models.User{}
+					query := fmt.Sprintf("id = %d", likes[0].UserId)
+
+					for i := 1; i < len(likes); i++ {
+						query += fmt.Sprintf(" OR id = %d", likes[i].UserId)
+					}
+
+					err = db.Conn.Find(&users, query).Error
+
+					if err != nil {
+						return nil, err
+					}
+
+					return users, nil
+				}
+
+				return nil, nil
 			},
 		},
 		"timestamp": &graphql.Field{

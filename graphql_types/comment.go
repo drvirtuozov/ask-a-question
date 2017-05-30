@@ -29,7 +29,7 @@ var Comment = graphql.NewObject(graphql.ObjectConfig{
 				err := db.Conn.Model(p.Source).Related(user).Error
 
 				if err != nil {
-					return nil, nil
+					return nil, err
 				}
 
 				return user, nil

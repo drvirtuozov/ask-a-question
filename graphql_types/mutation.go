@@ -225,7 +225,7 @@ var Mutation = graphql.NewObject(graphql.ObjectConfig{
 				ctxUser := p.Context.Value("user")
 
 				if ctxUser == nil {
-					return false, errors.New("Token not provided")
+					return nil, errors.New("Token not provided")
 				}
 
 				userId := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
@@ -237,10 +237,38 @@ var Mutation = graphql.NewObject(graphql.ObjectConfig{
 				err := db.Conn.Find(&models.UserAnswer{}, "id = ?", p.Args["answer_id"]).Association("AnswerComments").Append(comment).Error
 
 				if err != nil {
-					return false, errors.New("Record not found")
+					return nil, errors.New("Record not found")
 				}
 
 				return comment, nil
+			},
+		},
+		"likeAnswer": &graphql.Field{
+			Type: graphql.Boolean,
+			Args: graphql.FieldConfigArgument{
+				"answer_id": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(graphql.Int),
+				},
+			},
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				ctxUser := p.Context.Value("user")
+
+				if ctxUser == nil {
+					return false, errors.New("Token not provided")
+				}
+
+				userId := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
+				like := &models.AnswerLike{
+					UserId: uint(userId.(float64)),
+				}
+
+				err := db.Conn.Find(&models.UserAnswer{}, "id = ?", p.Args["answer_id"]).Association("AnswerLikes").Append(like).Error
+
+				if err != nil {
+					return false, errors.New("Record not found")
+				}
+
+				return true, nil
 			},
 		},
 	},
