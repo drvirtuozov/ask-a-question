@@ -271,5 +271,30 @@ var Mutation = graphql.NewObject(graphql.ObjectConfig{
 				return true, nil
 			},
 		},
+		"unlikeAnswer": &graphql.Field{
+			Type: graphql.Boolean,
+			Args: graphql.FieldConfigArgument{
+				"answer_id": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(graphql.Int),
+				},
+			},
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				ctxUser := p.Context.Value("user")
+
+				if ctxUser == nil {
+					return false, errors.New("Token not provided")
+				}
+
+				userId := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
+
+				err := db.Conn.Delete(&models.AnswerLike{}, "user_id = ? AND user_answer_id = ?", userId, p.Args["answer_id"]).Error
+
+				if err != nil {
+					return false, errors.New("Record not found")
+				}
+
+				return true, nil
+			},
+		},
 	},
 })
