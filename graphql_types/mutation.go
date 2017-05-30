@@ -163,5 +163,29 @@ var Mutation = graphql.NewObject(graphql.ObjectConfig{
 				return answer, nil
 			},
 		},
+		"deleteQuestion": &graphql.Field{
+			Type: graphql.Boolean,
+			Args: graphql.FieldConfigArgument{
+				"question_id": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(graphql.Int),
+				},
+			},
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				ctxUser := p.Context.Value("user")
+
+				if ctxUser == nil {
+					return false, errors.New("Token not provided")
+				}
+
+				userId := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
+				err := db.Conn.Where("id = ? AND user_id = ?", p.Args["question_id"], userId).Delete(&models.UserQuestion{}).Error
+
+				if err != nil {
+					return false, err
+				}
+
+				return true, nil
+			},
+		},
 	},
 })
