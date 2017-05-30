@@ -181,7 +181,31 @@ var Mutation = graphql.NewObject(graphql.ObjectConfig{
 				err := db.Conn.Where("id = ? AND user_id = ?", p.Args["question_id"], userId).Delete(&models.UserQuestion{}).Error
 
 				if err != nil {
-					return false, err
+					return false, errors.New("Record not found")
+				}
+
+				return true, nil
+			},
+		},
+		"restoreQuestion": &graphql.Field{
+			Type: graphql.Boolean,
+			Args: graphql.FieldConfigArgument{
+				"question_id": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(graphql.Int),
+				},
+			},
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				ctxUser := p.Context.Value("user")
+
+				if ctxUser == nil {
+					return false, errors.New("Token not provided")
+				}
+
+				userId := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
+				err := db.Conn.Model(&models.UserQuestion{}).Unscoped().Where("id = ? AND user_id = ?", p.Args["question_id"], userId).Update("deleted_at", nil).Error
+
+				if err != nil {
+					return false, errors.New("Record not found")
 				}
 
 				return true, nil
