@@ -6,20 +6,20 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-var Answer = graphql.NewObject(graphql.ObjectConfig{
-	Name:        "Answer",
-	Description: "This represents an Answer",
+var Comment = graphql.NewObject(graphql.ObjectConfig{
+	Name:        "Comment",
+	Description: "This represents a Comment",
 	Fields: graphql.Fields{
 		"id": &graphql.Field{
 			Type: graphql.Int,
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				return p.Source.(*models.UserAnswer).ID, nil
+				return p.Source.(*models.AnswerComment).ID, nil
 			},
 		},
 		"text": &graphql.Field{
 			Type: graphql.String,
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				return p.Source.(*models.UserAnswer).Text, nil
+				return p.Source.(*models.AnswerComment).Text, nil
 			},
 		},
 		"user": &graphql.Field{
@@ -33,32 +33,6 @@ var Answer = graphql.NewObject(graphql.ObjectConfig{
 				}
 
 				return user, nil
-			},
-		},
-		"question": &graphql.Field{
-			Type: Question,
-			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				question := &models.UserQuestion{}
-				err := db.Conn.Model(p.Source).Related(question).Error
-
-				if err != nil {
-					return nil, nil
-				}
-
-				return question, nil
-			},
-		},
-		"comments": &graphql.Field{
-			Type: graphql.NewList(Comment),
-			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				comments := &[]*models.AnswerComment{}
-				err := db.Conn.Model(p.Source).Related(comments).Error
-
-				if err != nil {
-					return nil, nil
-				}
-
-				return comments, nil
 			},
 		},
 		"timestamp": &graphql.Field{

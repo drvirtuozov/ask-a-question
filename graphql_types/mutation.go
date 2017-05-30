@@ -211,5 +211,37 @@ var Mutation = graphql.NewObject(graphql.ObjectConfig{
 				return true, nil
 			},
 		},
+		"commentAnswer": &graphql.Field{
+			Type: Comment,
+			Args: graphql.FieldConfigArgument{
+				"answer_id": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(graphql.Int),
+				},
+				"text": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(graphql.String),
+				},
+			},
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				ctxUser := p.Context.Value("user")
+
+				if ctxUser == nil {
+					return false, errors.New("Token not provided")
+				}
+
+				userId := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
+				comment := &models.AnswerComment{
+					UserId: uint(userId.(float64)),
+					Text:   p.Args["text"].(string),
+				}
+
+				err := db.Conn.Find(&models.UserAnswer{}, "id = ?", p.Args["answer_id"]).Association("AnswerComments").Append(comment).Error
+
+				if err != nil {
+					return false, errors.New("Record not found")
+				}
+
+				return comment, nil
+			},
+		},
 	},
 })
