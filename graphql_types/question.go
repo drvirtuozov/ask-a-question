@@ -36,9 +36,9 @@ var Question = graphql.NewObject(graphql.ObjectConfig{
 			},
 		},
 		"timestamp": &graphql.Field{
-			Type: graphql.String,
+			Type: graphql.Int,
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				return p.Source.(*models.UserQuestion).CreatedAt, nil // change to unix timestamp later
+				return p.Source.(*models.UserQuestion).CreatedAt.Unix(), nil
 			},
 		},
 	},
