@@ -41,7 +41,7 @@ var Query = graphql.NewObject(graphql.ObjectConfig{
 
 				id := user.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
 				questions := []*models.UserQuestion{}
-				err := db.Conn.Find(&questions, "user_id = ?", id).Error
+				err := db.Conn.Order("id desc").Find(&questions, "user_id = ?", id).Error
 
 				if err != nil {
 					return nil, err
@@ -59,7 +59,7 @@ var Query = graphql.NewObject(graphql.ObjectConfig{
 			},
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 				answers := []*models.UserAnswer{}
-				err := db.Conn.Find(&answers, "user_id = ?", p.Args["user_id"]).Error
+				err := db.Conn.Order("id desc").Find(&answers, "user_id = ?", p.Args["user_id"]).Error
 
 				if err != nil {
 					return nil, err
