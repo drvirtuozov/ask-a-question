@@ -1,14 +1,12 @@
-package graphql_types
+package main
 
 import (
 	"errors"
 	"github.com/dgrijalva/jwt-go"
-	"github.com/drvirtuozov/ask-a-question/db"
-	"github.com/drvirtuozov/ask-a-question/models"
 	"github.com/graphql-go/graphql"
 )
 
-var Mutation = graphql.NewObject(graphql.ObjectConfig{
+var GraphQLMutation = graphql.NewObject(graphql.ObjectConfig{
 	Name:        "Mutation",
 	Description: "This is a root mutation",
 	Fields: graphql.Fields{
@@ -23,7 +21,7 @@ var Mutation = graphql.NewObject(graphql.ObjectConfig{
 						},
 					},
 					"errors": &graphql.Field{
-						Type: graphql.NewList(Error),
+						Type: graphql.NewList(GraphQLError),
 						Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 							return p.Source.(map[string]interface{})["errors"], nil
 						},
@@ -42,13 +40,13 @@ var Mutation = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				user := &models.User{
+				user := &User{
 					Username: p.Args["username"].(string),
 					Email:    p.Args["email"].(string),
 					Password: p.Args["password"].(string),
 				}
 
-				errs := db.Conn.Create(user).GetErrors()
+				errs := db.Create(user).GetErrors()
 
 				if len(errs) > 0 {
 					return map[string]interface{}{
@@ -70,7 +68,7 @@ var Mutation = graphql.NewObject(graphql.ObjectConfig{
 			},
 		},
 		"createToken": &graphql.Field{
-			Type: Token,
+			Type: GraphQLToken,
 			Args: graphql.FieldConfigArgument{
 				"username": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.String),
@@ -80,8 +78,8 @@ var Mutation = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				user := &models.User{}
-				err := db.Conn.Find(user, "username = ?", p.Args["username"]).Error
+				user := &User{}
+				err := db.Find(user, "username = ?", p.Args["username"]).Error
 
 				if err != nil {
 					return nil, err
@@ -101,7 +99,7 @@ var Mutation = graphql.NewObject(graphql.ObjectConfig{
 			},
 		},
 		"createQuestion": &graphql.Field{
-			Type: Question,
+			Type: GraphQLQuestion,
 			Args: graphql.FieldConfigArgument{
 				"user_id": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.Int),
@@ -112,8 +110,8 @@ var Mutation = graphql.NewObject(graphql.ObjectConfig{
 			},
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 				var fromId uint = 0
-				user := &models.User{}
-				err := db.Conn.Find(user, "id = ?", p.Args["user_id"]).Error
+				user := &User{}
+				err := db.Find(user, "id = ?", p.Args["user_id"]).Error
 
 				if err != nil {
 					return nil, err
@@ -123,12 +121,12 @@ var Mutation = graphql.NewObject(graphql.ObjectConfig{
 					fromId = uint(value.(*jwt.Token).Claims.(jwt.MapClaims)["id"].(float64))
 				}
 
-				question := &models.UserQuestion{
+				question := &UserQuestion{
 					Text:   p.Args["text"].(string),
 					FromId: fromId,
 				}
 
-				err = db.Conn.Model(user).Association("UserQuestions").Append(question).Error
+				err = db.Model(user).Association("UserQuestions").Append(question).Error
 
 				if err != nil {
 					return nil, err
@@ -138,7 +136,7 @@ var Mutation = graphql.NewObject(graphql.ObjectConfig{
 			},
 		},
 		"answerQuestion": &graphql.Field{
-			Type: Answer,
+			Type: GraphQLAnswer,
 			Args: graphql.FieldConfigArgument{
 				"question_id": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.Int),
@@ -155,33 +153,33 @@ var Mutation = graphql.NewObject(graphql.ObjectConfig{
 				}
 
 				userId := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
-				question := &models.UserQuestion{}
-				err := db.Conn.Find(question, "id = ?", p.Args["question_id"]).Error
+				question := &UserQuestion{}
+				err := db.Find(question, "id = ?", p.Args["question_id"]).Error
 
 				if err != nil {
 					return nil, err
 				}
 
-				user := &models.User{}
-				err = db.Conn.Find(user, "id = ?", userId).Error
+				user := &User{}
+				err = db.Find(user, "id = ?", userId).Error
 
 				if err != nil {
 					return nil, err
 				}
 
-				answer := &models.UserAnswer{
+				answer := &UserAnswer{
 					Text:           p.Args["text"].(string),
 					UserQuestionId: question.ID,
 				}
 
-				err = db.Conn.Model(user).Association("UserAnswers").Append(answer).Error
+				err = db.Model(user).Association("UserAnswers").Append(answer).Error
 
 				if err != nil {
 					return nil, err
 				}
 
 				question.UserAnswerId = answer.ID
-				db.Conn.Save(question)
+				db.Save(question)
 				return answer, nil
 			},
 		},
@@ -200,7 +198,7 @@ var Mutation = graphql.NewObject(graphql.ObjectConfig{
 				}
 
 				userId := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
-				err := db.Conn.Where("id = ? AND user_id = ?", p.Args["question_id"], userId).Delete(&models.UserQuestion{}).Error
+				err := db.Where("id = ? AND user_id = ?", p.Args["question_id"], userId).Delete(&UserQuestion{}).Error
 
 				if err != nil {
 					return false, errors.New("Record not found")
@@ -224,7 +222,7 @@ var Mutation = graphql.NewObject(graphql.ObjectConfig{
 				}
 
 				userId := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
-				err := db.Conn.Model(&models.UserQuestion{}).Unscoped().Where("id = ? AND user_id = ?", p.Args["question_id"], userId).Update("deleted_at", nil).Error
+				err := db.Model(&UserQuestion{}).Unscoped().Where("id = ? AND user_id = ?", p.Args["question_id"], userId).Update("deleted_at", nil).Error
 
 				if err != nil {
 					return false, errors.New("Record not found")
@@ -234,7 +232,7 @@ var Mutation = graphql.NewObject(graphql.ObjectConfig{
 			},
 		},
 		"commentAnswer": &graphql.Field{
-			Type: Comment,
+			Type: GraphQLComment,
 			Args: graphql.FieldConfigArgument{
 				"answer_id": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.Int),
@@ -251,12 +249,12 @@ var Mutation = graphql.NewObject(graphql.ObjectConfig{
 				}
 
 				userId := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
-				comment := &models.AnswerComment{
+				comment := &AnswerComment{
 					UserId: uint(userId.(float64)),
 					Text:   p.Args["text"].(string),
 				}
 
-				err := db.Conn.Find(&models.UserAnswer{}, "id = ?", p.Args["answer_id"]).Association("AnswerComments").Append(comment).Error
+				err := db.Find(&UserAnswer{}, "id = ?", p.Args["answer_id"]).Association("AnswerComments").Append(comment).Error
 
 				if err != nil {
 					return nil, errors.New("Record not found")
@@ -280,11 +278,11 @@ var Mutation = graphql.NewObject(graphql.ObjectConfig{
 				}
 
 				userId := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
-				like := &models.AnswerLike{
+				like := &AnswerLike{
 					UserId: uint(userId.(float64)),
 				}
 
-				err := db.Conn.Find(&models.UserAnswer{}, "id = ?", p.Args["answer_id"]).Association("AnswerLikes").Append(like).Error
+				err := db.Find(&UserAnswer{}, "id = ?", p.Args["answer_id"]).Association("AnswerLikes").Append(like).Error
 
 				if err != nil {
 					return false, errors.New("Record not found")
@@ -309,7 +307,7 @@ var Mutation = graphql.NewObject(graphql.ObjectConfig{
 
 				userId := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
 
-				err := db.Conn.Delete(&models.AnswerLike{}, "user_id = ? AND user_answer_id = ?", userId, p.Args["answer_id"]).Error
+				err := db.Delete(&AnswerLike{}, "user_id = ? AND user_answer_id = ?", userId, p.Args["answer_id"]).Error
 
 				if err != nil {
 					return false, errors.New("Record not found")

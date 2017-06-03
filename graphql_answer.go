@@ -1,33 +1,31 @@
-package graphql_types
+package main
 
 import (
 	"fmt"
-	"github.com/drvirtuozov/ask-a-question/db"
-	"github.com/drvirtuozov/ask-a-question/models"
 	"github.com/graphql-go/graphql"
 )
 
-var Answer = graphql.NewObject(graphql.ObjectConfig{
+var GraphQLAnswer = graphql.NewObject(graphql.ObjectConfig{
 	Name:        "Answer",
 	Description: "This represents an Answer",
 	Fields: graphql.Fields{
 		"id": &graphql.Field{
 			Type: graphql.Int,
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				return p.Source.(*models.UserAnswer).ID, nil
+				return p.Source.(*UserAnswer).ID, nil
 			},
 		},
 		"text": &graphql.Field{
 			Type: graphql.String,
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				return p.Source.(*models.UserAnswer).Text, nil
+				return p.Source.(*UserAnswer).Text, nil
 			},
 		},
 		"user": &graphql.Field{
-			Type: User,
+			Type: GraphQLUser,
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				user := &models.User{}
-				err := db.Conn.Model(p.Source).Related(user).Error
+				user := &User{}
+				err := db.Model(p.Source).Related(user).Error
 
 				if err != nil {
 					return nil, err
@@ -37,10 +35,10 @@ var Answer = graphql.NewObject(graphql.ObjectConfig{
 			},
 		},
 		"question": &graphql.Field{
-			Type: Question,
+			Type: GraphQLQuestion,
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				question := &models.UserQuestion{}
-				err := db.Conn.Model(p.Source).Related(question).Error
+				question := &UserQuestion{}
+				err := db.Model(p.Source).Related(question).Error
 
 				if err != nil {
 					return nil, err
@@ -50,10 +48,10 @@ var Answer = graphql.NewObject(graphql.ObjectConfig{
 			},
 		},
 		"comments": &graphql.Field{
-			Type: graphql.NewList(Comment),
+			Type: graphql.NewList(GraphQLComment),
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				comments := []*models.AnswerComment{}
-				err := db.Conn.Model(p.Source).Related(&comments).Error
+				comments := []*AnswerComment{}
+				err := db.Model(p.Source).Related(&comments).Error
 
 				if err != nil {
 					return nil, err
@@ -63,24 +61,24 @@ var Answer = graphql.NewObject(graphql.ObjectConfig{
 			},
 		},
 		"likes": &graphql.Field{
-			Type: graphql.NewList(User),
+			Type: graphql.NewList(GraphQLUser),
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				likes := []*models.AnswerLike{}
-				err := db.Conn.Model(p.Source).Related(&likes).Error
+				likes := []*AnswerLike{}
+				err := db.Model(p.Source).Related(&likes).Error
 
 				if err != nil {
 					return nil, err
 				}
 
 				if len(likes) != 0 {
-					users := []*models.User{}
+					users := []*User{}
 					query := fmt.Sprintf("id = %d", likes[0].UserId)
 
 					for i := 1; i < len(likes); i++ {
 						query += fmt.Sprintf(" OR id = %d", likes[i].UserId)
 					}
 
-					err = db.Conn.Find(&users, query).Error
+					err = db.Find(&users, query).Error
 
 					if err != nil {
 						return nil, err
@@ -95,7 +93,7 @@ var Answer = graphql.NewObject(graphql.ObjectConfig{
 		"timestamp": &graphql.Field{
 			Type: graphql.Int,
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				return p.Source.(*models.UserAnswer).CreatedAt.Unix(), nil
+				return p.Source.(*UserAnswer).CreatedAt.Unix(), nil
 			},
 		},
 	},

@@ -1,11 +1,11 @@
-package graphql_types
+package main
 
 import (
 	"github.com/graphql-go/graphql"
 	"strings"
 )
 
-var Error = graphql.NewObject(graphql.ObjectConfig{
+var GraphQLError = graphql.NewObject(graphql.ObjectConfig{
 	Name: "Error",
 	Fields: graphql.Fields{
 		"field": &graphql.Field{

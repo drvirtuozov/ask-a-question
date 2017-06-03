@@ -19,7 +19,7 @@ func main() {
 	})
 
 	graphqlHandler := handler.New(&handler.Config{
-		Schema: Schema,
+		Schema: GraphQLSchema,
 		Pretty: true,
 	})
 

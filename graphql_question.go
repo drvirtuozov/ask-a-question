@@ -1,32 +1,30 @@
-package graphql_types
+package main
 
 import (
-	"github.com/drvirtuozov/ask-a-question/db"
-	"github.com/drvirtuozov/ask-a-question/models"
 	"github.com/graphql-go/graphql"
 )
 
-var Question = graphql.NewObject(graphql.ObjectConfig{
+var GraphQLQuestion = graphql.NewObject(graphql.ObjectConfig{
 	Name:        "Question",
 	Description: "This represents a Question",
 	Fields: graphql.Fields{
 		"id": &graphql.Field{
 			Type: graphql.Int,
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				return p.Source.(*models.UserQuestion).ID, nil
+				return p.Source.(*UserQuestion).ID, nil
 			},
 		},
 		"text": &graphql.Field{
 			Type: graphql.String,
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				return p.Source.(*models.UserQuestion).Text, nil
+				return p.Source.(*UserQuestion).Text, nil
 			},
 		},
 		"from": &graphql.Field{
-			Type: User,
+			Type: GraphQLUser,
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				from := &models.User{}
-				err := db.Conn.Model(p.Source).Related(from, "FromId").Error
+				from := &User{}
+				err := db.Model(p.Source).Related(from, "FromId").Error
 
 				if err != nil {
 					return nil, nil
@@ -38,7 +36,7 @@ var Question = graphql.NewObject(graphql.ObjectConfig{
 		"timestamp": &graphql.Field{
 			Type: graphql.Int,
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				return p.Source.(*models.UserQuestion).CreatedAt.Unix(), nil
+				return p.Source.(*UserQuestion).CreatedAt.Unix(), nil
 			},
 		},
 	},

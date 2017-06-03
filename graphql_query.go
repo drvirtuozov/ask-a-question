@@ -1,27 +1,25 @@
-package graphql_types
+package main
 
 import (
 	"errors"
 	"github.com/dgrijalva/jwt-go"
-	"github.com/drvirtuozov/ask-a-question/db"
-	"github.com/drvirtuozov/ask-a-question/models"
 	"github.com/graphql-go/graphql"
 )
 
-var Query = graphql.NewObject(graphql.ObjectConfig{
+var GraphQLQuery = graphql.NewObject(graphql.ObjectConfig{
 	Name:        "Query",
 	Description: "This is a root query",
 	Fields: graphql.Fields{
 		"getUser": &graphql.Field{
-			Type: User,
+			Type: GraphQLUser,
 			Args: graphql.FieldConfigArgument{
 				"username": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.String),
 				},
 			},
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				user := &models.User{}
-				err := db.Conn.Find(user, "username = ?", p.Args["username"]).Error
+				user := &User{}
+				err := db.Find(user, "username = ?", p.Args["username"]).Error
 
 				if err != nil {
 					return nil, err
@@ -31,7 +29,7 @@ var Query = graphql.NewObject(graphql.ObjectConfig{
 			},
 		},
 		"getQuestions": &graphql.Field{
-			Type: graphql.NewList(Question),
+			Type: graphql.NewList(GraphQLQuestion),
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 				user := p.Context.Value("user")
 
@@ -40,8 +38,8 @@ var Query = graphql.NewObject(graphql.ObjectConfig{
 				}
 
 				id := user.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
-				questions := []*models.UserQuestion{}
-				err := db.Conn.Order("id desc").Find(&questions, "user_id = ?", id).Error
+				questions := []*UserQuestion{}
+				err := db.Order("id desc").Find(&questions, "user_id = ?", id).Error
 
 				if err != nil {
 					return nil, err
@@ -51,15 +49,15 @@ var Query = graphql.NewObject(graphql.ObjectConfig{
 			},
 		},
 		"getAnswers": &graphql.Field{
-			Type: graphql.NewList(Answer),
+			Type: graphql.NewList(GraphQLAnswer),
 			Args: graphql.FieldConfigArgument{
 				"user_id": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.Int),
 				},
 			},
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				answers := []*models.UserAnswer{}
-				err := db.Conn.Order("id desc").Find(&answers, "user_id = ?", p.Args["user_id"]).Error
+				answers := []*UserAnswer{}
+				err := db.Order("id desc").Find(&answers, "user_id = ?", p.Args["user_id"]).Error
 
 				if err != nil {
 					return nil, err

@@ -1,10 +1,23 @@
-package models
+package main
 
 import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
 )
+
+type AnswerComment struct {
+	gorm.Model
+	Text         string `gorm:"not null"`
+	UserId       uint
+	UserAnswerId uint
+}
+
+type AnswerLike struct {
+	gorm.Model
+	UserId       uint
+	UserAnswerId uint
+}
 
 type User struct {
 	gorm.Model
@@ -66,4 +79,22 @@ func (user *User) AfterCreate(db *gorm.DB) {
 			FromId: 1,
 		},
 	})
+}
+
+type UserAnswer struct {
+	gorm.Model
+	Text           string `gorm:"not null"`
+	UserId         uint
+	UserQuestion   UserQuestion
+	UserQuestionId uint
+	AnswerComments []AnswerComment
+	AnswerLikes    []AnswerLike
+}
+
+type UserQuestion struct {
+	gorm.Model
+	Text         string `gorm:"not null"`
+	UserId       uint
+	FromId       uint `sql:"DEFAULT:NULL"`
+	UserAnswerId uint `sql:"DEFAULT:NULL"`
 }
