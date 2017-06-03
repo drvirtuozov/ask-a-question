@@ -13,7 +13,23 @@ var Mutation = graphql.NewObject(graphql.ObjectConfig{
 	Description: "This is a root mutation",
 	Fields: graphql.Fields{
 		"createUser": &graphql.Field{
-			Type: Token,
+			Type: graphql.NewObject(graphql.ObjectConfig{
+				Name: "TokenResult",
+				Fields: graphql.Fields{
+					"token": &graphql.Field{
+						Type: graphql.String,
+						Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+							return p.Source.(map[string]interface{})["token"], nil
+						},
+					},
+					"errors": &graphql.Field{
+						Type: graphql.NewList(Error),
+						Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+							return p.Source.(map[string]interface{})["errors"], nil
+						},
+					},
+				},
+			}),
 			Args: graphql.FieldConfigArgument{
 				"username": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.String),
@@ -32,10 +48,13 @@ var Mutation = graphql.NewObject(graphql.ObjectConfig{
 					Password: p.Args["password"].(string),
 				}
 
-				err := db.Conn.Create(user).Error
+				errs := db.Conn.Create(user).GetErrors()
 
-				if err != nil {
-					return nil, err
+				if len(errs) > 0 {
+					return map[string]interface{}{
+						"token":  nil,
+						"errors": errs,
+					}, nil
 				}
 
 				token, err := user.Sign()
@@ -44,7 +63,10 @@ var Mutation = graphql.NewObject(graphql.ObjectConfig{
 					return nil, err
 				}
 
-				return token, nil
+				return map[string]interface{}{
+					"token":  token,
+					"errors": nil,
+				}, nil
 			},
 		},
 		"createToken": &graphql.Field{
