@@ -135,7 +135,7 @@ var GraphQLMutation = graphql.NewObject(graphql.ObjectConfig{
 			},
 		},
 		"answerQuestion": &graphql.Field{
-			Type: GraphQLAnswer,
+			Type: GraphQLAnswerResult,
 			Args: graphql.FieldConfigArgument{
 				"question_id": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.Int),
@@ -148,15 +148,21 @@ var GraphQLMutation = graphql.NewObject(graphql.ObjectConfig{
 				ctxUser := p.Context.Value("user")
 
 				if ctxUser == nil {
-					return nil, errors.New("Token not provided")
+					return map[string]interface{}{
+						"answer": nil,
+						"errors": append([]error{}, errors.New("Token not provided")),
+					}, nil
 				}
 
 				userId := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
 				question := &UserQuestion{}
-				err := db.Find(question, "id = ?", p.Args["question_id"]).Error
+				err := db.Find(question, "id = ? AND user_answer_id IS NULL AND user_id = ?", p.Args["question_id"], userId).Error
 
 				if err != nil {
-					return nil, err
+					return map[string]interface{}{
+						"answer": nil,
+						"errors": append([]error{}, errors.New("Question not found")),
+					}, nil
 				}
 
 				user := &User{}
@@ -179,7 +185,10 @@ var GraphQLMutation = graphql.NewObject(graphql.ObjectConfig{
 
 				question.UserAnswerId = answer.ID
 				db.Save(question)
-				return answer, nil
+				return map[string]interface{}{
+					"answer": answer,
+					"errors": nil,
+				}, nil
 			},
 		},
 		"deleteQuestion": &graphql.Field{

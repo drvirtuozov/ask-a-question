@@ -8,6 +8,7 @@ import (
 
 var GraphQLTokenResult = NewGraphQLResult("token", graphql.String)
 var GraphQLQuestionResult = NewGraphQLResult("question", GraphQLQuestion)
+var GraphQLAnswerResult = NewGraphQLResult("answer", GraphQLAnswer)
 
 func NewGraphQLResult(key string, gqltype graphql.Output) *graphql.Object {
 	return graphql.NewObject(graphql.ObjectConfig{
