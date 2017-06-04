@@ -192,7 +192,7 @@ var GraphQLMutation = graphql.NewObject(graphql.ObjectConfig{
 			},
 		},
 		"deleteQuestion": &graphql.Field{
-			Type: graphql.Boolean,
+			Type: GraphQLBooleanResult,
 			Args: graphql.FieldConfigArgument{
 				"question_id": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.Int),
@@ -202,17 +202,26 @@ var GraphQLMutation = graphql.NewObject(graphql.ObjectConfig{
 				ctxUser := p.Context.Value("user")
 
 				if ctxUser == nil {
-					return false, errors.New("Token not provided")
+					return map[string]interface{}{
+						"ok": false,
+						"errors": append([]error{}, errors.New("Token not provided")),
+					}, nil
 				}
 
 				userId := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
 				err := db.Where("id = ? AND user_id = ?", p.Args["question_id"], userId).Delete(&UserQuestion{}).Error
 
 				if err != nil {
-					return false, errors.New("Record not found")
+					return map[string]interface{}{
+						"ok": false,
+						"errors": append([]error{}, errors.New("Question not found")),
+					}, nil
 				}
 
-				return true, nil
+				return map[string]interface{}{
+					"ok": true,
+					"errors": nil,
+				}, nil
 			},
 		},
 		"restoreQuestion": &graphql.Field{

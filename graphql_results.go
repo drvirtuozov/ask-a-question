@@ -1,21 +1,20 @@
 package main
 
 import (
-	"fmt"
 	"github.com/graphql-go/graphql"
-	"strings"
 )
 
-var GraphQLTokenResult = NewGraphQLResult("token", graphql.String)
-var GraphQLQuestionResult = NewGraphQLResult("question", GraphQLQuestion)
-var GraphQLAnswerResult = NewGraphQLResult("answer", GraphQLAnswer)
+var GraphQLTokenResult = NewGraphQLResult("token", "TokenResult", graphql.String)
+var GraphQLQuestionResult = NewGraphQLResult("question", "QuestionResult", GraphQLQuestion)
+var GraphQLAnswerResult = NewGraphQLResult("answer", "AnswerResult", GraphQLAnswer)
+var GraphQLBooleanResult = NewGraphQLResult("ok", "BooleanResult", graphql.Boolean)
 
-func NewGraphQLResult(key string, gqltype graphql.Output) *graphql.Object {
+func NewGraphQLResult(key string, name string, gqlType graphql.Output) *graphql.Object {
 	return graphql.NewObject(graphql.ObjectConfig{
-		Name: fmt.Sprintf("%sResult", strings.ToUpper(string(key[0])) + key[1:]),
+		Name: name,
 		Fields: graphql.Fields{
 			key: &graphql.Field{
-				Type: gqltype,
+				Type: gqlType,
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 					return p.Source.(map[string]interface{})[key], nil
 				},
