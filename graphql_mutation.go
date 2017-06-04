@@ -11,23 +11,7 @@ var GraphQLMutation = graphql.NewObject(graphql.ObjectConfig{
 	Description: "This is a root mutation",
 	Fields: graphql.Fields{
 		"createUser": &graphql.Field{
-			Type: graphql.NewObject(graphql.ObjectConfig{
-				Name: "TokenResult",
-				Fields: graphql.Fields{
-					"token": &graphql.Field{
-						Type: graphql.String,
-						Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-							return p.Source.(map[string]interface{})["token"], nil
-						},
-					},
-					"errors": &graphql.Field{
-						Type: graphql.NewList(GraphQLError),
-						Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-							return p.Source.(map[string]interface{})["errors"], nil
-						},
-					},
-				},
-			}),
+			Type: GraphQLTokenResult,
 			Args: graphql.FieldConfigArgument{
 				"username": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.String),
@@ -68,7 +52,7 @@ var GraphQLMutation = graphql.NewObject(graphql.ObjectConfig{
 			},
 		},
 		"createToken": &graphql.Field{
-			Type: GraphQLToken,
+			Type: GraphQLTokenResult,
 			Args: graphql.FieldConfigArgument{
 				"username": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.String),
@@ -82,11 +66,17 @@ var GraphQLMutation = graphql.NewObject(graphql.ObjectConfig{
 				err := db.Find(user, "username = ?", p.Args["username"]).Error
 
 				if err != nil {
-					return nil, err
+					return map[string]interface{}{
+						"token":  nil,
+						"errors": append([]error{}, errors.New("Wrong username")),
+					}, nil
 				}
 
 				if !user.ComparePassword(p.Args["password"].(string)) {
-					return nil, errors.New("Wrong password")
+					return map[string]interface{}{
+						"token":  nil,
+						"errors": append([]error{}, errors.New("Wrong password")),
+					}, nil
 				}
 
 				token, err := user.Sign()
@@ -95,7 +85,10 @@ var GraphQLMutation = graphql.NewObject(graphql.ObjectConfig{
 					return nil, err
 				}
 
-				return token, nil
+				return map[string]interface{}{
+					"token":  token,
+					"errors": nil,
+				}, nil
 			},
 		},
 		"createQuestion": &graphql.Field{
