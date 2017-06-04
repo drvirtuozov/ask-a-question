@@ -203,7 +203,7 @@ var GraphQLMutation = graphql.NewObject(graphql.ObjectConfig{
 
 				if ctxUser == nil {
 					return map[string]interface{}{
-						"ok": false,
+						"ok":     false,
 						"errors": append([]error{}, errors.New("Token not provided")),
 					}, nil
 				}
@@ -213,19 +213,19 @@ var GraphQLMutation = graphql.NewObject(graphql.ObjectConfig{
 
 				if err != nil {
 					return map[string]interface{}{
-						"ok": false,
+						"ok":     false,
 						"errors": append([]error{}, errors.New("Question not found")),
 					}, nil
 				}
 
 				return map[string]interface{}{
-					"ok": true,
+					"ok":     true,
 					"errors": nil,
 				}, nil
 			},
 		},
 		"restoreQuestion": &graphql.Field{
-			Type: graphql.Boolean,
+			Type: GraphQLBooleanResult,
 			Args: graphql.FieldConfigArgument{
 				"question_id": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.Int),
@@ -235,17 +235,26 @@ var GraphQLMutation = graphql.NewObject(graphql.ObjectConfig{
 				ctxUser := p.Context.Value("user")
 
 				if ctxUser == nil {
-					return false, errors.New("Token not provided")
+					return map[string]interface{}{
+						"ok":     false,
+						"errors": append([]error{}, errors.New("Token not provided")),
+					}, nil
 				}
 
 				userId := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
 				err := db.Model(&UserQuestion{}).Unscoped().Where("id = ? AND user_id = ?", p.Args["question_id"], userId).Update("deleted_at", nil).Error
 
 				if err != nil {
-					return false, errors.New("Record not found")
+					return map[string]interface{}{
+						"ok":     false,
+						"errors": append([]error{}, errors.New("Question not found")),
+					}, nil
 				}
 
-				return true, nil
+				return map[string]interface{}{
+					"ok":     true,
+					"errors": nil,
+				}, nil
 			},
 		},
 		"commentAnswer": &graphql.Field{
