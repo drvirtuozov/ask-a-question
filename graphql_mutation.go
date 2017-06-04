@@ -92,7 +92,7 @@ var GraphQLMutation = graphql.NewObject(graphql.ObjectConfig{
 			},
 		},
 		"createQuestion": &graphql.Field{
-			Type: GraphQLQuestion,
+			Type: GraphQLQuestionResult,
 			Args: graphql.FieldConfigArgument{
 				"user_id": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.Int),
@@ -107,7 +107,10 @@ var GraphQLMutation = graphql.NewObject(graphql.ObjectConfig{
 				err := db.Find(user, "id = ?", p.Args["user_id"]).Error
 
 				if err != nil {
-					return nil, err
+					return map[string]interface{}{
+						"question": nil,
+						"errors":   append([]error{}, errors.New("User not found")),
+					}, nil
 				}
 
 				if value := p.Context.Value("user"); value != nil {
@@ -125,7 +128,10 @@ var GraphQLMutation = graphql.NewObject(graphql.ObjectConfig{
 					return nil, err
 				}
 
-				return question, nil
+				return map[string]interface{}{
+					"question": question,
+					"errors":   nil,
+				}, nil
 			},
 		},
 		"answerQuestion": &graphql.Field{

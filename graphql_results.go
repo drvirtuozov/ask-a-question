@@ -7,13 +7,14 @@ import (
 )
 
 var GraphQLTokenResult = NewGraphQLResult("token", graphql.String)
+var GraphQLQuestionResult = NewGraphQLResult("question", GraphQLQuestion)
 
 func NewGraphQLResult(key string, gqltype graphql.Output) *graphql.Object {
 	return graphql.NewObject(graphql.ObjectConfig{
 		Name: fmt.Sprintf("%sResult", strings.ToUpper(string(key[0])) + key[1:]),
 		Fields: graphql.Fields{
 			key: &graphql.Field{
-				Type: graphql.String,
+				Type: gqltype,
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 					return p.Source.(map[string]interface{})[key], nil
 				},

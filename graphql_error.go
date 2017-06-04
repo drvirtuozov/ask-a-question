@@ -6,7 +6,8 @@ import (
 )
 
 var GraphQLError = graphql.NewObject(graphql.ObjectConfig{
-	Name: "Error",
+	Name:        "Error",
+	Description: "This represents an Error",
 	Fields: graphql.Fields{
 		"field": &graphql.Field{
 			Type: graphql.String,
@@ -25,7 +26,7 @@ var GraphQLError = graphql.NewObject(graphql.ObjectConfig{
 				return nil, nil
 			},
 		},
-		"message": &graphql.Field{
+		"detail": &graphql.Field{
 			Type: graphql.String,
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 				return p.Source.(error).Error(), nil
