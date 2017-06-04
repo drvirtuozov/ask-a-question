@@ -273,7 +273,7 @@ var GraphQLMutation = graphql.NewObject(graphql.ObjectConfig{
 				if ctxUser == nil {
 					return map[string]interface{}{
 						"comment": nil,
-						"errors": append([]error{}, errors.New("Token not provided")),
+						"errors":  append([]error{}, errors.New("Token not provided")),
 					}, nil
 				}
 
@@ -288,18 +288,18 @@ var GraphQLMutation = graphql.NewObject(graphql.ObjectConfig{
 				if err != nil {
 					return map[string]interface{}{
 						"comment": nil,
-						"errors": append([]error{}, errors.New("Answer not found")),
+						"errors":  append([]error{}, errors.New("Answer not found")),
 					}, nil
 				}
 
 				return map[string]interface{}{
 					"comment": comment,
-					"errors": nil,
+					"errors":  nil,
 				}, nil
 			},
 		},
 		"likeAnswer": &graphql.Field{
-			Type: graphql.Boolean,
+			Type: GraphQLBooleanResult,
 			Args: graphql.FieldConfigArgument{
 				"answer_id": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.Int),
@@ -309,10 +309,14 @@ var GraphQLMutation = graphql.NewObject(graphql.ObjectConfig{
 				ctxUser := p.Context.Value("user")
 
 				if ctxUser == nil {
-					return false, errors.New("Token not provided")
+					return map[string]interface{}{
+						"ok":     false,
+						"errors": append([]error{}, errors.New("Token not provided")),
+					}, nil
 				}
 
 				userId := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
+
 				like := &AnswerLike{
 					UserId: uint(userId.(float64)),
 				}
@@ -320,14 +324,20 @@ var GraphQLMutation = graphql.NewObject(graphql.ObjectConfig{
 				err := db.Find(&UserAnswer{}, "id = ?", p.Args["answer_id"]).Association("AnswerLikes").Append(like).Error
 
 				if err != nil {
-					return false, errors.New("Record not found")
+					return map[string]interface{}{
+						"ok":     false,
+						"errors": append([]error{}, errors.New("Answer not found")),
+					}, nil
 				}
 
-				return true, nil
+				return map[string]interface{}{
+					"ok":     true,
+					"errors": nil,
+				}, nil
 			},
 		},
 		"unlikeAnswer": &graphql.Field{
-			Type: graphql.Boolean,
+			Type: GraphQLBooleanResult,
 			Args: graphql.FieldConfigArgument{
 				"answer_id": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.Int),
@@ -337,18 +347,26 @@ var GraphQLMutation = graphql.NewObject(graphql.ObjectConfig{
 				ctxUser := p.Context.Value("user")
 
 				if ctxUser == nil {
-					return false, errors.New("Token not provided")
+					return map[string]interface{}{
+						"ok":     false,
+						"errors": append([]error{}, errors.New("Token not provided")),
+					}, nil
 				}
 
 				userId := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
-
 				err := db.Delete(&AnswerLike{}, "user_id = ? AND user_answer_id = ?", userId, p.Args["answer_id"]).Error
 
 				if err != nil {
-					return false, errors.New("Record not found")
+					return map[string]interface{}{
+						"ok":     false,
+						"errors": append([]error{}, errors.New("Answer not found")),
+					}, nil
 				}
 
-				return true, nil
+				return map[string]interface{}{
+					"ok":     true,
+					"errors": nil,
+				}, nil
 			},
 		},
 	},
