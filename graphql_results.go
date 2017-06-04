@@ -8,6 +8,7 @@ var GraphQLTokenResult = NewGraphQLResult("token", "TokenResult", graphql.String
 var GraphQLQuestionResult = NewGraphQLResult("question", "QuestionResult", GraphQLQuestion)
 var GraphQLAnswerResult = NewGraphQLResult("answer", "AnswerResult", GraphQLAnswer)
 var GraphQLBooleanResult = NewGraphQLResult("ok", "BooleanResult", graphql.Boolean)
+var GraphQLCommentResult = NewGraphQLResult("comment", "CommentResult", GraphQLComment)
 
 func NewGraphQLResult(key string, name string, gqlType graphql.Output) *graphql.Object {
 	return graphql.NewObject(graphql.ObjectConfig{

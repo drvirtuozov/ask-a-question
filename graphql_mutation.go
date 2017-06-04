@@ -258,7 +258,7 @@ var GraphQLMutation = graphql.NewObject(graphql.ObjectConfig{
 			},
 		},
 		"commentAnswer": &graphql.Field{
-			Type: GraphQLComment,
+			Type: GraphQLCommentResult,
 			Args: graphql.FieldConfigArgument{
 				"answer_id": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.Int),
@@ -271,7 +271,10 @@ var GraphQLMutation = graphql.NewObject(graphql.ObjectConfig{
 				ctxUser := p.Context.Value("user")
 
 				if ctxUser == nil {
-					return nil, errors.New("Token not provided")
+					return map[string]interface{}{
+						"comment": nil,
+						"errors": append([]error{}, errors.New("Token not provided")),
+					}, nil
 				}
 
 				userId := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
@@ -283,10 +286,16 @@ var GraphQLMutation = graphql.NewObject(graphql.ObjectConfig{
 				err := db.Find(&UserAnswer{}, "id = ?", p.Args["answer_id"]).Association("AnswerComments").Append(comment).Error
 
 				if err != nil {
-					return nil, errors.New("Record not found")
+					return map[string]interface{}{
+						"comment": nil,
+						"errors": append([]error{}, errors.New("Answer not found")),
+					}, nil
 				}
 
-				return comment, nil
+				return map[string]interface{}{
+					"comment": comment,
+					"errors": nil,
+				}, nil
 			},
 		},
 		"likeAnswer": &graphql.Field{
