@@ -1,7 +1,7 @@
 import React from 'react';
 import { Col } from 'react-bootstrap';
-import NavigationBar from './NavigationBar';
-import FlashMessages from './flash/FlashMessages';
+import NavigationBar from '../components/NavigationBar';
+import FlashMessages from '../components/flash/FlashMessages';
 
 
 export default function (props) {

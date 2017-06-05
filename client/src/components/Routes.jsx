@@ -1,6 +1,6 @@
 import React from 'react';
 import { Route, IndexRoute } from 'react-router';
-import Container from './Container';
+import Container from '../containers/Container';
 import Index from './Index';
 import Signup from './signup/Signup';
 import Login from './login/Login';

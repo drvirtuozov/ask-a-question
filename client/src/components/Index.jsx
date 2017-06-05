@@ -7,7 +7,7 @@ class Index extends React.Component {
     const { isAuthenticated } = this.props.auth;
 
     if (isAuthenticated) {
-      this.context.router.push('/inbox')
+      this.context.router.push('/inbox');
     } else {
       this.context.router.push('/signup');
     }
