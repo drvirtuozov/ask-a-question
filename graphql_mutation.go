@@ -104,14 +104,6 @@ var GraphQLMutation = graphql.NewObject(graphql.ObjectConfig{
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 				var fromId uint = 0
 				user := &User{}
-				err := db.Find(user, "id = ?", p.Args["user_id"]).Error
-
-				if err != nil {
-					return map[string]interface{}{
-						"question": nil,
-						"errors":   append([]error{}, errors.New("User not found")),
-					}, nil
-				}
 
 				if value := p.Context.Value("user"); value != nil {
 					fromId = uint(value.(*jwt.Token).Claims.(jwt.MapClaims)["id"].(float64))
@@ -122,10 +114,13 @@ var GraphQLMutation = graphql.NewObject(graphql.ObjectConfig{
 					FromId: fromId,
 				}
 
-				err = db.Model(user).Association("UserQuestions").Append(question).Error
+				err := db.Find(user, "id = ?", p.Args["user_id"]).Association("UserQuestions").Append(question).Error
 
 				if err != nil {
-					return nil, err
+					return map[string]interface{}{
+						"question": nil,
+						"errors":   append([]error{}, errors.New("User not found")),
+					}, nil
 				}
 
 				return map[string]interface{}{
