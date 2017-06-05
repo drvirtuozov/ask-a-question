@@ -11,7 +11,7 @@ var GraphQLQuery = graphql.NewObject(graphql.ObjectConfig{
 	Description: "This is a root query",
 	Fields: graphql.Fields{
 		"getUser": &graphql.Field{
-			Type: GraphQLUser,
+			Type: GraphQLUserResult,
 			Args: graphql.FieldConfigArgument{
 				"username": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.String),
@@ -22,34 +22,57 @@ var GraphQLQuery = graphql.NewObject(graphql.ObjectConfig{
 				err := db.Find(user, "username = ?", p.Args["username"]).Error
 
 				if err != nil {
-					return nil, err
+					return map[string]interface{}{
+						"user":   nil,
+						"errors": append([]error{}, errors.New("User not found")),
+					}, nil
 				}
 
-				return user, nil
+				return map[string]interface{}{
+					"user":   user,
+					"errors": nil,
+				}, nil
 			},
 		},
 		"getQuestions": &graphql.Field{
-			Type: graphql.NewList(GraphQLQuestion),
+			Type: GraphQLQuestionsResult,
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				user := p.Context.Value("user")
+				ctxUser := p.Context.Value("user")
 
-				if user == nil {
-					return nil, errors.New("Token not provided")
+				if ctxUser == nil {
+					return map[string]interface{}{
+						"questions": nil,
+						"errors":    append([]error{}, errors.New("Token not provided")),
+					}, nil
 				}
 
-				id := user.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
+				userId := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
+				user := &User{}
 				questions := []*UserQuestion{}
-				err := db.Order("id desc").Find(&questions, "user_id = ?", id).Error
+				err := db.Order("id DESC").Find(user, "id = ?", userId).Related(&questions).Error
 
 				if err != nil {
-					return nil, err
+					return map[string]interface{}{
+						"questions": nil,
+						"errors":    append([]error{}, errors.New("User not found")),
+					}, nil
 				}
 
-				return questions, nil
+				if len(questions) == 0 {
+					return map[string]interface{}{
+						"questions": nil,
+						"errors":    nil,
+					}, nil
+				}
+
+				return map[string]interface{}{
+					"questions": questions,
+					"errors":    nil,
+				}, nil
 			},
 		},
 		"getAnswers": &graphql.Field{
-			Type: graphql.NewList(GraphQLAnswer),
+			Type: GraphQLAnswersResult,
 			Args: graphql.FieldConfigArgument{
 				"user_id": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.Int),
@@ -57,13 +80,27 @@ var GraphQLQuery = graphql.NewObject(graphql.ObjectConfig{
 			},
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 				answers := []*UserAnswer{}
-				err := db.Order("id desc").Find(&answers, "user_id = ?", p.Args["user_id"]).Error
+				user := &User{}
+				err := db.Order("id DESC").Find(user, "id = ?", p.Args["user_id"]).Related(&answers).Error
 
 				if err != nil {
-					return nil, err
+					return map[string]interface{}{
+						"answers": nil,
+						"errors":  append([]error{}, errors.New("User not found")),
+					}, nil
 				}
 
-				return answers, nil
+				if len(answers) == 0 {
+					return map[string]interface{}{
+						"answers": nil,
+						"errors":  nil,
+					}, nil
+				}
+
+				return map[string]interface{}{
+					"answers": answers,
+					"errors":  nil,
+				}, nil
 			},
 		},
 	},

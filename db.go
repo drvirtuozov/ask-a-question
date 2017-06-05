@@ -17,6 +17,13 @@ func init() {
 	}
 
 	db = conn
+	db.DropTable(
+		&User{},
+		&UserQuestion{},
+		&UserAnswer{},
+		&AnswerLike{},
+		&AnswerComment{},
+	)
 	db.AutoMigrate(
 		&User{},
 		&UserQuestion{},
