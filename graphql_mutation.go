@@ -161,25 +161,23 @@ var GraphQLMutation = graphql.NewObject(graphql.ObjectConfig{
 				}
 
 				user := &User{}
-				err = db.Find(user, "id = ?", userId).Error
-
-				if err != nil {
-					return nil, err
-				}
-
 				answer := &UserAnswer{
 					Text:           p.Args["text"].(string),
 					UserQuestionId: question.ID,
 				}
 
-				err = db.Model(user).Association("UserAnswers").Append(answer).Error
+				err = db.Find(user, "id = ?", userId).Association("UserAnswers").Append(answer).Error
 
 				if err != nil {
-					return nil, err
+					return map[string]interface{}{
+						"answer": nil,
+						"errors": append([]error{}, errors.New("User not found")),
+					}, nil
 				}
 
 				question.UserAnswerId = answer.ID
 				db.Save(question)
+
 				return map[string]interface{}{
 					"answer": answer,
 					"errors": nil,
