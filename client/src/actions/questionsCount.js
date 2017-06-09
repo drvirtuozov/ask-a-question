@@ -13,6 +13,6 @@ export function decrementQuestionsCount() {
 export function setQuestionsCount(count) {
   return {
     type: 'SET_QUESTIONS_COUNT',
-    count,
+    payload: count,
   };
 }

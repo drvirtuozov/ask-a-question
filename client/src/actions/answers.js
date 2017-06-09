@@ -1,20 +1,20 @@
 export function addAnswer(answer) {
   return {
     type: 'ADD_ANSWER',
-    answer,
+    payload: answer,
   };
 }
 
 export function setAnswers(answers) {
   return {
     type: 'SET_ANSWERS',
-    answers,
+    payload: answers,
   };
 }
 
 export function addAnswerComment(comment) {
   return {
     type: 'ADD_ANSWER_COMMENT',
-    comment,
+    payload: comment,
   };
 }

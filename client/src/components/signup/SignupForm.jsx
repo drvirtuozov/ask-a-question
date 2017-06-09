@@ -8,8 +8,8 @@ import {
 import {
   USERNAME_TAKEN, EMAIL_TAKEN, FIELD_REQUIRED,
   INVALID_PASSWORD, INVALID_USERNAME, INVALID_EMAIL,
-} from '../../../../server/src/shared/formErrors';
-import apiErrorsToState from '../../utils/apiErrorsToState';
+} from '../../helpers/formErrors';
+import { apiErrorsToState } from '../../helpers/utils';
 
 
 export default class SignupForm extends React.Component {

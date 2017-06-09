@@ -9,12 +9,12 @@ export default (state = [], action = {}) => {
         ...state,
         {
           id: shortid.generate(),
-          type: action.message.type,
-          text: action.message.text,
+          type: action.payload.type,
+          text: action.payload.text,
         },
       ];
     case 'DELETE_FLASH_MESSAGE':
-      const index = findIndex(state, { id: action.id });
+      const index = findIndex(state, { id: action.payload });
 
       if (index >= 0) {
         return [

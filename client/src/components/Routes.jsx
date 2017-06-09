@@ -6,8 +6,8 @@ import Signup from './signup/Signup';
 import Login from './login/Login';
 import Questions from './inbox/Questions';
 import Profile from './profile/Profile';
-import requireAuth from '../utils/requireAuth';
-import onlyGuest from '../utils/onlyGuest';
+import requireAuth from '../helpers/requireAuth';
+import onlyGuest from '../helpers/onlyGuest';
 
 
 export default (

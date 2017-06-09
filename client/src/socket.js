@@ -1,4 +1,4 @@
-import socketio from 'socket.io-client';
+/* import socketio from 'socket.io-client';
 import { store } from './components/App';
 import { addQuestion } from './actions/questions';
 import { incrementQuestionsCount, decrementQuestionsCount } from './actions/questionsCount';
@@ -26,4 +26,4 @@ socket.on('comment', (comment) => {
   store.dispatch(addAnswerComment(comment));
 });
 
-export default socket;
+export default socket; */

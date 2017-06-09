@@ -23,7 +23,7 @@ module.exports = {
     historyApiFallback: true,
     proxy: {
       '/api': 'http://localhost:3001',
-      '/socket.io': 'http://localhost:3001',
+      // '/socket.io': 'http://localhost:3001',
     },
     port: 3000,
   },
@@ -32,7 +32,7 @@ module.exports = {
       {
         test: /\.jsx?$/,
         exclude: /node_modules/,
-        include: [path.join(__dirname), path.join(__dirname, '../server/shared')],
+        include: [path.join(__dirname)],
         loader: 'babel-loader',
         options: {
           presets: [['es2015', { modules: false }], 'es2017', 'react'],

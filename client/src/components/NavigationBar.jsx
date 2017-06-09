@@ -6,7 +6,7 @@ import {
   FormGroup, FormControl, Button, Label, Col,
 } from 'react-bootstrap';
 import { login, logout } from '../actions/auth';
-import apiErrorsToState from '../utils/apiErrorsToState';
+import { apiErrorsToState } from '../helpers/utils';
 
 
 class NavigationBar extends React.Component {
@@ -134,4 +134,7 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, { logout, login })(NavigationBar);
+export default connect(mapStateToProps, {
+  logout,
+  login,
+})(NavigationBar);

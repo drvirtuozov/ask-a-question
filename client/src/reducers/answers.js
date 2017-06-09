@@ -5,16 +5,16 @@ export default function (state = [], action) {
   switch (action.type) {
     case 'ADD_ANSWER':
       return [
-        action.answer,
+        action.payload,
         ...state,
       ];
 
     case 'SET_ANSWERS':
-      return action.answers;
+      return action.payload;
 
     case 'ADD_ANSWER_COMMENT':
-      const { comment } = action;
-      const i = findIndex(state, { id: comment.answer && comment.answer.id });
+      const { payload } = action;
+      const i = findIndex(state, { id: payload.answer && payload.answer.id });
       const newState = [...state];
 
       if (i !== -1) {

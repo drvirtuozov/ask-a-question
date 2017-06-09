@@ -1,27 +1,26 @@
 import jwtDecode from 'jwt-decode';
-import setAuthorizationToken from '../utils/setAuthorizationToken';
-import { grapqlQuery } from './requests';
-import getAndSetQuestionsToStore from '../utils/getAndSetQuestionsToStore';
+import { setRequestAuthorizationToken } from '../helpers/utils';
+import { getGraph } from './requests';
 
 
 export function setCurrentUser(user) {
   return {
     type: 'SET_CURRENT_USER',
-    user,
+    payload: user,
   };
 }
 
 export function logout() {
   return (dispatch) => {
     localStorage.removeItem('token');
-    setAuthorizationToken(false);
+    setRequestAuthorizationToken(false);
     dispatch(setCurrentUser({}));
   };
 }
 
 export function signup(user) {
   return async (dispatch) => {
-    const data = await grapqlQuery(`
+    const data = await getGraph(`
       mutation { 
         user {
           create(
@@ -41,7 +40,7 @@ export function signup(user) {
 
     if (data.token) {
       localStorage.setItem('token', data.token);
-      setAuthorizationToken(data.token);
+      setRequestAuthorizationToken(data.token);
       dispatch(setCurrentUser(jwtDecode(data.token)));
       getAndSetQuestionsToStore();
     }
@@ -52,15 +51,26 @@ export function signup(user) {
 
 export function login(username, password) {
   return async (dispatch) => {
-    const res = await createToken(username, password);
+    const data = await getGraph(`
+      mutation {
+        createToken(username: "${username}", password: "${password}") {
+          token
+          errors {
+            field
+            detail
+          }
+        }
+      }
+    `);
 
-    if (res.token) {
-      localStorage.setItem('token', res.token);
-      setAuthorizationToken(res.token);
-      dispatch(setCurrentUser(jwtDecode(res.token)));
-      getAndSetQuestionsToStore();
+    const token = data.createToken.token;
+
+    if (token) {
+      localStorage.setItem('token', token);
+      setRequestAuthorizationToken(token);
+      dispatch(setCurrentUser(jwtDecode(token)));
     }
 
-    return res;
+    return data.createToken;
   };
 }

@@ -7,7 +7,7 @@ import {
 
 
 function Questions(props) {
-  const { questions, questionsCount } = this.props;
+  const { questions, questionsCount } = props;
 
   return (
     <div>

@@ -6,10 +6,10 @@ import { createStore, applyMiddleware, compose } from 'redux';
 import jwtDecode from 'jwt-decode';
 import Routes from './Routes';
 import rootReducer from '../reducers';
-import setAuthorizationToken from '../utils/setAuthorizationToken';
+import { setRequestAuthorizationToken } from '../helpers/utils';
 import { setCurrentUser } from '../actions/auth';
-import getAndSetQuestionsToStore from '../utils/getAndSetQuestionsToStore';
-import '../socket';
+import { getAndSetQuestionsToStore } from '../actions/questions';
+// import '../socket';
 
 
 export const store = createStore(
@@ -21,9 +21,9 @@ export const store = createStore(
 );
 
 if (localStorage.token) {
-  setAuthorizationToken(localStorage.token);
+  setRequestAuthorizationToken(localStorage.token);
   store.dispatch(setCurrentUser(jwtDecode(localStorage.token)));
-  getAndSetQuestionsToStore();
+  store.dispatch(getAndSetQuestionsToStore());
 }
 
 const App = () => (

@@ -7,7 +7,7 @@ export default (state = 0, action = {}) => {
       return state - 1;
 
     case 'SET_QUESTIONS_COUNT':
-      return action.count;
+      return action.payload;
 
     default: return state;
   }

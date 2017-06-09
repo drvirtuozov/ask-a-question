@@ -43,48 +43,6 @@ export async function isUserExists(username) {
   return res.data.data.user.user ? true : false;
 }
 
-export async function createToken(username, password) {
-  const res = await axios.post('/api', {
-    query: `
-      mutation {
-        token {
-          create(username: "${username}", password: "${password}") {
-            token
-            errors {
-              field
-              detail
-            }
-          }
-        }
-      }
-    `,
-  });
-
-  return res.data.data.token.create;
-}
-
-export async function getQuestions() {
-  const res = await axios.post('/api', {
-    query: `{
-      questions {
-        questions {
-          id
-          text
-          from {
-            username
-          }
-          timestamp
-        }
-        errors {
-          detail
-        }
-      }
-    }`,
-  });
-
-  return res.data.data.questions;
-}
-
 export async function replyQuestion(id, text) {
   const res = await axios.post('/api', {
     query: `

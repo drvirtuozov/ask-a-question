@@ -5,7 +5,11 @@ import { login } from '../../actions/auth';
 
 
 function Login(props) {
-  return <LoginForm login={props.login} />;
+  return (
+    <LoginForm
+      login={props.login}
+    />
+  );
 }
 
 Login.propTypes = {

@@ -4,7 +4,8 @@ import {
   HelpBlock, InputGroup, Button, Col,
 } from 'react-bootstrap';
 import { isNull } from 'validator';
-import { FIELD_REQUIRED } from '../../../../server/src/shared/formErrors';
+import { FIELD_REQUIRED } from '../../helpers/formErrors';
+import { apiErrorsToState } from '../../helpers/utils';
 
 
 export default class LoginForm extends React.Component {
@@ -28,13 +29,13 @@ export default class LoginForm extends React.Component {
       this.setState({ errors: {}, isLoading: true });
       const res = await this.props.login(username, password);
 
-      if (res.token) {
-        this.context.router.push('/');
-      } else {
+      if (res.errors) {
         this.setState({
-          errors: this.apiErrorsToState(res.errors),
+          errors: apiErrorsToState(res.errors),
           isLoading: false,
         });
+      } else {
+        this.props.getAndSetQuestionsToStore();
       }
     } else {
       this.setState({ errors });
@@ -119,6 +120,7 @@ export default class LoginForm extends React.Component {
 
 LoginForm.propTypes = {
   login: React.PropTypes.func.isRequired,
+  getAndSetQuestionsToStore: React.PropTypes.func.isRequired,
 };
 
 LoginForm.contextTypes = {
