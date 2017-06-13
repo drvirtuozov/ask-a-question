@@ -5,12 +5,13 @@ import { deleteFlashMessage } from '../../actions/flashMessages';
 
 
 function FlashMessages(props) {
-  const messages = props.messages.map(message =>
+  const messages = props.messages.map(message => (
     <FlashMessage
       key={message.id}
       message={message}
-      deleteFlashMessage={this.props.deleteFlashMessage}
-    />);
+      deleteFlashMessage={props.deleteFlashMessage}
+    />
+  ));
 
   return <div>{messages}</div>;
 }

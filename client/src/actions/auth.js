@@ -21,31 +21,26 @@ export function logout() {
 export function signup(user) {
   return async (dispatch) => {
     const data = await getGraph(`
-      mutation { 
-        user {
-          create(
-            username: "${user.username}",
-            password: "${user.password}",
-            email: "${user.email}"
-          ) { 
-            token 
-            errors {
-              field
-              detail
-            }
-          } 
+      mutation {
+        createUser(username: "${user.username}", password: "${user.password}", email: "${user.email}") {
+          token
+          errors {
+            field
+            detail
+          }
         }
       }
     `);
 
-    if (data.token) {
-      localStorage.setItem('token', data.token);
-      setRequestAuthorizationToken(data.token);
-      dispatch(setCurrentUser(jwtDecode(data.token)));
-      getAndSetQuestionsToStore();
+    const token = data.createUser.token;
+
+    if (token) {
+      localStorage.setItem('token', token);
+      setRequestAuthorizationToken(token);
+      dispatch(setCurrentUser(jwtDecode(token)));
     }
 
-    return data;
+    return data.createUser;
   };
 }
 

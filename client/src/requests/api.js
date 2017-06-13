@@ -1,48 +1,6 @@
 import axios from 'axios';
 
 
-export async function createUser(user) {
-  const res = await axios.post('/api', {
-    query: `
-      mutation { 
-        user {
-          create(
-            username: "${user.username}",
-            password: "${user.password}",
-            email: "${user.email}"
-          ) { 
-            token 
-            errors {
-              field
-              detail
-            }
-          } 
-        }
-      }
-    `,
-  });
-
-  return res.data.data.user.create;
-}
-
-export async function isUserExists(username) {
-  const res = await axios.post('/api', {
-    query: `{ 
-      user(username: "${username}") { 
-        user {
-          username
-        }
-        errors {
-          field
-          detail
-        }
-      } 
-    }`,
-  });
-
-  return res.data.data.user.user ? true : false;
-}
-
 export async function replyQuestion(id, text) {
   const res = await axios.post('/api', {
     query: `
@@ -137,26 +95,6 @@ export async function getAnswers(id) {
   });
 
   return res.data.data.answers;
-}
-
-export async function getUser(username) {
-  const res = await axios.post('/api', {
-    query: `{
-      user(username: "${username}") {
-        user {
-          id
-          username
-          first_name
-          last_name
-        }
-        errors {
-          detail
-        }
-      }
-    }`,
-  });
-
-  return res.data.data.user;
 }
 
 export async function commentAnswer(id, text) {
