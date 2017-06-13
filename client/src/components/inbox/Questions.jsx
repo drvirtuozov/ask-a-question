@@ -4,6 +4,7 @@ import Question from './Question';
 import {
   incrementQuestionsCount, decrementQuestionsCount,
 } from '../../actions/questionsCount';
+import { answerQuestion, deleteQuestion, restoreQuestion } from '../../actions/questions';
 
 
 function Questions(props) {
@@ -28,6 +29,9 @@ function Questions(props) {
               timestamp={question.timestamp}
               decrementQuestionsCount={props.decrementQuestionsCount}
               incrementQuestionsCount={props.incrementQuestionsCount}
+              answerQuestion={props.answerQuestion}
+              deleteQuestion={props.deleteQuestion}
+              restoreQuestion={props.restoreQuestion}
             />
           ))}
         </div>
@@ -45,6 +49,9 @@ Questions.propTypes = {
   questionsCount: React.PropTypes.number.isRequired,
   incrementQuestionsCount: React.PropTypes.func.isRequired,
   decrementQuestionsCount: React.PropTypes.func.isRequired,
+  answerQuestion: React.PropTypes.func.isRequired,
+  deleteQuestion: React.PropTypes.func.isRequired,
+  restoreQuestion: React.PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {
@@ -55,5 +62,5 @@ function mapStateToProps(state) {
 }
 
 export default connect(mapStateToProps, {
-  incrementQuestionsCount, decrementQuestionsCount,
+  incrementQuestionsCount, decrementQuestionsCount, answerQuestion, deleteQuestion, restoreQuestion,
 })(Questions);

@@ -4,7 +4,7 @@ import Moment from 'react-moment';
 import moment from 'moment';
 import { Panel, Button, FormGroup, FormControl } from 'react-bootstrap';
 import Comments from './Comments';
-import { commentAnswer } from '../../requests/api';
+import { commentAnswer } from '../../actions/answers';
 
 
 export default class Answer extends React.Component {

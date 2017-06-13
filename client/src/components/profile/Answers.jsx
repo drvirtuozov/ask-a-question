@@ -1,6 +1,6 @@
 import React from 'react';
 import Answer from './Answer';
-import { getAnswers } from '../../requests/api';
+import { getAnswers } from '../../actions/answers';
 
 
 export default class Answers extends React.Component {

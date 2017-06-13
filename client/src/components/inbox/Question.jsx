@@ -4,7 +4,6 @@ import Moment from 'react-moment';
 import { Button, Panel, FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
 import moment from 'moment';
 import { isNull } from 'validator';
-import { replyQuestion, deleteQuestion, restoreQuestion } from '../../requests/api';
 
 
 export default class Question extends React.Component {
@@ -27,34 +26,34 @@ export default class Question extends React.Component {
 
   async reply() {
     this.setState({ isLoading: true });
-    const { id } = this.props;
+    const { id, answerQuestion, decrementQuestionsCount } = this.props;
     const { answer } = this.state;
-    await replyQuestion(id, answer);
+    await answerQuestion(id, answer);
     this.setState({ isAnswered: true });
-    this.props.decrementQuestionsCount();
+    decrementQuestionsCount();
   }
 
   async delete() {
-    const { id } = this.props;
+    const { id, deleteQuestion, decrementQuestionsCount, incrementQuestionsCount } = this.props;
     this.setState({ isDeleted: true });
-    this.props.decrementQuestionsCount();
+    decrementQuestionsCount();
     const res = await deleteQuestion(id);
 
     if (res.errors) {
       this.setState({ isDeleted: false });
-      this.props.incrementQuestionsCount();
+      incrementQuestionsCount();
     }
   }
 
   async restore() {
-    const { id } = this.props;
+    const { id, restoreQuestion, incrementQuestionsCount, decrementQuestionsCount } = this.props;
     this.setState({ isDeleted: false });
-    this.props.incrementQuestionsCount();
+    incrementQuestionsCount();
     const res = await restoreQuestion(id);
 
     if (res.errors) {
       this.setState({ isDeleted: true });
-      this.props.decrementQuestionsCount();
+      decrementQuestionsCount();
     }
   }
 
@@ -104,4 +103,7 @@ Question.propTypes = {
   timestamp: React.PropTypes.number.isRequired,
   decrementQuestionsCount: React.PropTypes.func.isRequired,
   incrementQuestionsCount: React.PropTypes.func.isRequired,
+  answerQuestion: React.PropTypes.func.isRequired,
+  deleteQuestion: React.PropTypes.func.isRequired,
+  restoreQuestion: React.PropTypes.func.isRequired,
 };

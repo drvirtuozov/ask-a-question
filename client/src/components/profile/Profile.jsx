@@ -5,9 +5,9 @@ import Ask from './Ask';
 import Answers from './Answers';
 import NotFound from '../../containers/NotFound';
 import Loading from '../../containers/Loading';
-import { getUser } from '../../requests/api';
-import socket from '../../socket';
+import { getUser } from '../../actions/user';
 import { setAnswers, addAnswerComment } from '../../actions/answers';
+import { createQuestion } from '../../actions/questions';
 
 
 class Profile extends React.Component {
@@ -18,17 +18,17 @@ class Profile extends React.Component {
       user: {},
       isUserExists: null,
     };
-
-    this.getUser();
   }
 
-  async getUser() {
+  componentDidMount() {
+    this.fetchUser();
+  }
+
+  async fetchUser() {
     const { username } = this.props;
-    const res = await getUser(username);
+    const res = await this.props.getUser(username);
 
     if (res.user) {
-      socket.emit('room', res.user.id);
-      console.log('EMITTED ROOM', res.user.id);
       this.setState({
         user: res.user,
         isUserExists: true,
@@ -58,7 +58,15 @@ class Profile extends React.Component {
           <hr />
           <p>Some info</p>
         </Panel>
-        { !isMyProfile && <Ask userId={user.id} isAuthenticated={auth.isAuthenticated} username={username} /> }
+        {
+          !isMyProfile &&
+            <Ask
+              userId={user.id}
+              isAuthenticated={auth.isAuthenticated}
+              username={username}
+              createQuestion={this.props.createQuestion}
+            />
+        }
         <Answers
           isMyProfile={isMyProfile}
           username={username}
@@ -79,6 +87,8 @@ Profile.propTypes = {
   answers: React.PropTypes.array.isRequired,
   addAnswerComment: React.PropTypes.func.isRequired,
   setAnswers: React.PropTypes.func.isRequired,
+  getUser: React.PropTypes.func.isRequired,
+  createQuestion: React.PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {
@@ -90,4 +100,6 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, { setAnswers, addAnswerComment })(Profile);
+export default connect(mapStateToProps, {
+  setAnswers, addAnswerComment, getUser, createQuestion,
+})(Profile);

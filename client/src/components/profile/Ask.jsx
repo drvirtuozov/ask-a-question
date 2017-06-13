@@ -3,7 +3,6 @@ import {
   Panel, FormGroup, FormControl,
   ControlLabel, Button, Checkbox, ButtonToolbar,
 } from 'react-bootstrap';
-import { createQuestion } from '../../requests/api';
 
 
 export default class Ask extends React.Component {
@@ -45,7 +44,7 @@ export default class Ask extends React.Component {
     });
 
     try {
-      const { userId } = this.props;
+      const { userId, createQuestion } = this.props;
       const { question, anonymously } = this.state;
       await createQuestion(userId, question, { anonymously });
 
@@ -103,4 +102,5 @@ Ask.propTypes = {
   userId: React.PropTypes.number.isRequired,
   isAuthenticated: React.PropTypes.bool.isRequired,
   username: React.PropTypes.string.isRequired,
+  createQuestion: React.PropTypes.func.isRequired,
 };
