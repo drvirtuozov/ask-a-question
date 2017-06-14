@@ -1,6 +1,8 @@
 import jwtDecode from 'jwt-decode';
 import { setRequestAuthorizationToken } from '../helpers/utils';
 import { getGraph } from './requests';
+import { setQuestions } from './questions';
+import { setQuestionsCount } from './questionsCount';
 
 
 export function setCurrentUser(user) {
@@ -15,6 +17,8 @@ export function logout() {
     localStorage.removeItem('token');
     setRequestAuthorizationToken(false);
     dispatch(setCurrentUser({}));
+    dispatch(setQuestions([]));
+    dispatch(setQuestionsCount(0));
   };
 }
 
