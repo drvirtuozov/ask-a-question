@@ -1,7 +1,7 @@
 import jwtDecode from 'jwt-decode';
 import { setRequestAuthorizationToken } from '../helpers/utils';
 import { getGraph } from './requests';
-import { setQuestions } from './questions';
+import { setQuestions, getAndSetQuestionsToStore } from './questions';
 import { setQuestionsCount } from './questionsCount';
 
 
@@ -68,6 +68,7 @@ export function login(username, password) {
       localStorage.setItem('token', token);
       setRequestAuthorizationToken(token);
       dispatch(setCurrentUser(jwtDecode(token)));
+      dispatch(getAndSetQuestionsToStore());
     }
 
     return data.createToken;
