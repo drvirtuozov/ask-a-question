@@ -1,16 +1,14 @@
 import React from 'react';
 import Answer from './Answer';
-import { getAnswers } from '../../actions/answers';
 
 
 export default class Answers extends React.Component {
-  constructor(props) {
-    super(props);
+  componentDidMount() {
     this.getAnswers();
   }
 
   async getAnswers() {
-    const { userId, setAnswers } = this.props;
+    const { userId, getAnswers, setAnswers } = this.props;
     const res = await getAnswers(userId);
 
     if (res.answers) {
@@ -61,6 +59,7 @@ Answers.propTypes = {
   isMyProfile: React.PropTypes.bool.isRequired,
   username: React.PropTypes.string.isRequired,
   userId: React.PropTypes.number.isRequired,
+  getAnswers: React.PropTypes.func.isRequired,
   setAnswers: React.PropTypes.func.isRequired,
   isAuthenticated: React.PropTypes.bool.isRequired,
   addAnswerComment: React.PropTypes.func.isRequired,
