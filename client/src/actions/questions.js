@@ -119,3 +119,13 @@ export function createQuestion(userId, text, params = {}) {
     return res.data.data.createQuestion;
   };
 }
+
+export function setQuestionState(id, state) {
+  return {
+    type: 'SET_QUESTION_STATE',
+    payload: {
+      id,
+      state,
+    },
+  };
+}

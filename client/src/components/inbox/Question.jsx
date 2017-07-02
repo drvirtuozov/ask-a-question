@@ -3,67 +3,64 @@ import { Link } from 'react-router';
 import Moment from 'react-moment';
 import { Button, Panel, FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
 import moment from 'moment';
-import { isNull } from 'validator';
 
 
 export default class Question extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      answer: '',
-      isLoading: false,
-      isAnswered: false,
-      isDeleted: false,
-    };
-  }
-
   onChange(e) {
-    this.setState({
+    const { id, setQuestionState } = this.props;
+
+    setQuestionState(id, {
       [e.target.name]: e.target.value,
     });
   }
 
   async reply() {
-    this.setState({ isLoading: true });
-    const { id, answerQuestion, decrementQuestionsCount } = this.props;
-    const { answer } = this.state;
-    await answerQuestion(id, answer);
-    this.setState({ isAnswered: true });
-    decrementQuestionsCount();
+    const { id, answerQuestion, decrementQuestionsCount, setQuestionState, state } = this.props;
+    setQuestionState(id, { isLoading: true });
+    const res = await answerQuestion(id, state.answer);
+
+    if (!res.errors) {
+      setQuestionState(id, { isAnswered: true });
+      decrementQuestionsCount();
+    } else {
+      setQuestionState(id, { isLoading: false });
+      this.props.addFlashMessage({
+        type: 'error',
+        text: res.errors[0].detail,
+      });
+    }
   }
 
   async delete() {
-    const { id, deleteQuestion, decrementQuestionsCount, incrementQuestionsCount } = this.props;
-    this.setState({ isDeleted: true });
+    const { id, deleteQuestion, decrementQuestionsCount, incrementQuestionsCount, setQuestionState } = this.props;
+    setQuestionState(id, { isDeleted: true });
     decrementQuestionsCount();
     const res = await deleteQuestion(id);
 
     if (res.errors) {
-      this.setState({ isDeleted: false });
+      setQuestionState(id, { isDeleted: false });
       incrementQuestionsCount();
     }
   }
 
   async restore() {
-    const { id, restoreQuestion, incrementQuestionsCount, decrementQuestionsCount } = this.props;
-    this.setState({ isDeleted: false });
+    const { id, restoreQuestion, incrementQuestionsCount, decrementQuestionsCount, setQuestionState } = this.props;
+    setQuestionState(id, { isDeleted: false });
     incrementQuestionsCount();
     const res = await restoreQuestion(id);
 
     if (res.errors) {
-      this.setState({ isDeleted: true });
+      setQuestionState(id, { isDeleted: true });
       decrementQuestionsCount();
     }
   }
 
   render() {
-    const { answer, isLoading, isAnswered, isDeleted } = this.state;
-    const { from, text, timestamp } = this.props;
+    const { from, text, timestamp, state } = this.props;
 
-    if (isAnswered) {
+    if (state.isAnswered) {
       return <Panel><center>The question has been answered</center></Panel>;
-    } else if (isDeleted) {
+    } else if (state.isDeleted) {
       return (<Panel>
         <center>The question has been deleted. <a onClick={this.restore.bind(this)}>Restore</a></center>
       </Panel>);
@@ -88,13 +85,24 @@ export default class Question extends React.Component {
             componentClass="textarea"
             placeholder="Type your answer..."
             onChange={this.onChange.bind(this)}
+            value={state.answer}
           />
         </FormGroup>
-        <Button onClick={this.reply.bind(this)} disabled={isLoading || isNull(answer)}>Reply</Button>
+        <Button onClick={this.reply.bind(this)} disabled={state.isLoading || !state.answer}>Reply</Button>
       </Panel>
     );
   }
 }
+
+Question.defaultProps = {
+  from: '',
+  state: {
+    answer: '',
+    isLoading: false,
+    isAnswered: false,
+    isDeleted: false,
+  },
+};
 
 Question.propTypes = {
   id: React.PropTypes.number.isRequired,
@@ -106,4 +114,7 @@ Question.propTypes = {
   answerQuestion: React.PropTypes.func.isRequired,
   deleteQuestion: React.PropTypes.func.isRequired,
   restoreQuestion: React.PropTypes.func.isRequired,
+  addFlashMessage: React.PropTypes.func.isRequired,
+  state: React.PropTypes.object,
+  setQuestionState: React.PropTypes.func.isRequired,
 };

@@ -8,5 +8,6 @@ export async function getGraph(query) {
     return res.data.data;
   }
 
-  throw new Error('GraphQL error', res.data.errors);
+  console.log(res.data.errors);
+  throw new Error('GraphQL error');
 }

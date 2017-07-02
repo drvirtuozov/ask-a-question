@@ -4,7 +4,8 @@ import Question from './Question';
 import {
   incrementQuestionsCount, decrementQuestionsCount,
 } from '../../actions/questionsCount';
-import { answerQuestion, deleteQuestion, restoreQuestion } from '../../actions/questions';
+import { answerQuestion, deleteQuestion, restoreQuestion, setQuestionState } from '../../actions/questions';
+import { addFlashMessage } from '../../actions/flashMessages';
 
 
 function Questions(props) {
@@ -32,6 +33,9 @@ function Questions(props) {
               answerQuestion={props.answerQuestion}
               deleteQuestion={props.deleteQuestion}
               restoreQuestion={props.restoreQuestion}
+              addFlashMessage={props.addFlashMessage}
+              state={question.state}
+              setQuestionState={props.setQuestionState}
             />
           ))}
         </div>
@@ -52,6 +56,8 @@ Questions.propTypes = {
   answerQuestion: React.PropTypes.func.isRequired,
   deleteQuestion: React.PropTypes.func.isRequired,
   restoreQuestion: React.PropTypes.func.isRequired,
+  addFlashMessage: React.PropTypes.func.isRequired,
+  setQuestionState: React.PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {
@@ -62,5 +68,11 @@ function mapStateToProps(state) {
 }
 
 export default connect(mapStateToProps, {
-  incrementQuestionsCount, decrementQuestionsCount, answerQuestion, deleteQuestion, restoreQuestion,
+  incrementQuestionsCount,
+  decrementQuestionsCount,
+  answerQuestion,
+  deleteQuestion,
+  restoreQuestion,
+  addFlashMessage,
+  setQuestionState,
 })(Questions);

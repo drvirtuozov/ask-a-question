@@ -25,6 +25,7 @@ export function getUser(username) {
       getUser(username: "${username}") { 
         user {
           id
+          username
         }
         errors {
           field

@@ -13,18 +13,17 @@ export default function (state = [], action) {
       return action.payload;
 
     case 'ADD_ANSWER_COMMENT':
-      const { payload } = action;
-      const i = findIndex(state, { id: payload.answer && payload.answer.id });
-      const newState = [...state];
+      const i = findIndex(state, { id: action.payload.answer && action.payload.answer.id });
+      const answers = [...state];
 
       if (i !== -1) {
-        if (newState[i].comments) {
-          newState[i].comments.push(action.comment);
+        if (answers[i].comments) {
+          answers[i].comments.push(action.comment);
         } else {
-          newState[i].comments = [action.comment];
+          answers[i].comments = [action.comment];
         }
 
-        return newState;
+        return answers;
       }
 
       return state;
