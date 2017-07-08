@@ -15,10 +15,13 @@ export function setAnswers(answers) {
   };
 }
 
-export function addAnswerComment(comment) {
+export function addAnswerComment(id, comment) {
   return {
     type: 'ADD_ANSWER_COMMENT',
-    payload: comment,
+    payload: {
+      id,
+      comment,
+    },
   };
 }
 
@@ -77,5 +80,15 @@ export function commentAnswer(id, text) {
     }`);
 
     return res.commentAnswer;
+  };
+}
+
+export function setAnswerState(id, state) {
+  return {
+    type: 'SET_ANSWER_STATE',
+    payload: {
+      id,
+      state,
+    },
   };
 }

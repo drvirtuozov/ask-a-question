@@ -4,49 +4,35 @@ import Moment from 'react-moment';
 import moment from 'moment';
 import { Panel, Button, FormGroup, FormControl } from 'react-bootstrap';
 import Comments from './Comments';
-import { commentAnswer } from '../../actions/answers';
 
 
 export default class Answer extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      id: props.id,
-      isActiveComments: false,
-      commentText: '',
-    };
-  }
-
   onChange(e) {
-    this.setState({
+    this.props.setAnswerState(this.props.id, {
       [e.target.name]: e.target.value,
     });
   }
 
   async comment() {
-    const { id, addAnswerComment } = this.props;
-    const { commentText } = this.state;
-    const res = await commentAnswer(id, commentText);
+    const { id, addAnswerComment, commentAnswer, state, setAnswerState } = this.props;
+    const res = await commentAnswer(id, state.commentText);
 
     if (res.comment) {
-      addAnswerComment(res.comment);
-      this.setState({
+      addAnswerComment(id, res.comment);
+      setAnswerState(id, {
         commentText: '',
       });
     }
   }
 
-  activeComments() {
-    this.setState({
-      isActiveComments: !this.state.isActiveComments,
+  showComments() {
+    this.props.setAnswerState(this.props.id, {
+      isActiveComments: !this.props.state.isActiveComments,
     });
   }
 
   render() {
-    const { isActiveComments, commentText } = this.state;
-    const { text, timestamp, question, from, isAuthenticated, comments, likes } = this.props;
-
+    const { text, timestamp, question, from, isAuthenticated, comments, likes, state } = this.props;
     return (
       <Panel
         header={
@@ -64,10 +50,10 @@ export default class Answer extends React.Component {
         <Button bsSize="small">
           <i className="fa fa-heart" aria-hidden="true" /> Like {likes && likes.length}
         </Button>
-        <Button bsStyle="link" onClick={this.activeComments.bind(this)} className="pull-right">
+        <Button bsStyle="link" onClick={this.showComments.bind(this)} className="pull-right">
           Comments ({(comments && comments.length) || 0})
         </Button>
-        { isActiveComments &&
+        { state.isActiveComments &&
           <div>
             <hr />
             <Comments comments={comments} />
@@ -76,14 +62,16 @@ export default class Answer extends React.Component {
                 <FormGroup>
                   <FormControl
                     name="commentText"
-                    value={commentText}
+                    value={state.commentText}
                     componentClass="textarea"
                     placeholder="Leave a comment..."
                     onChange={this.onChange.bind(this)}
                   />
                 </FormGroup>
                 <FormGroup>
-                  <Button onClick={this.comment.bind(this)} disabled={!commentText}>Comment</Button>
+                  <Button onClick={this.comment.bind(this)} disabled={!state.commentText}>
+                    Comment
+                  </Button>
                 </FormGroup>
               </div>
               :
@@ -98,6 +86,13 @@ export default class Answer extends React.Component {
   }
 }
 
+Answer.defaultProps = {
+  state: {
+    isActiveComments: false,
+    commentText: '',
+  },
+};
+
 Answer.propTypes = {
   id: React.PropTypes.number.isRequired,
   text: React.PropTypes.string.isRequired,
@@ -107,5 +102,8 @@ Answer.propTypes = {
   comments: React.PropTypes.array,
   likes: React.PropTypes.array,
   isAuthenticated: React.PropTypes.bool.isRequired,
+  commentAnswer: React.PropTypes.func.isRequired,
   addAnswerComment: React.PropTypes.func.isRequired,
+  state: React.PropTypes.object,
+  setAnswerState: React.PropTypes.func.isRequired,
 };

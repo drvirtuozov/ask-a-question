@@ -6,7 +6,7 @@ import Answers from './Answers';
 import NotFound from '../../containers/NotFound';
 import Loading from '../../containers/Loading';
 import { getUser } from '../../actions/user';
-import { getAnswers, setAnswers, addAnswerComment } from '../../actions/answers';
+import { getAnswers, setAnswers, commentAnswer, addAnswerComment, setAnswerState } from '../../actions/answers';
 import { createQuestion } from '../../actions/questions';
 import { setCurrentProfile } from '../../actions/profile';
 
@@ -81,7 +81,9 @@ class Profile extends React.Component {
           isMyProfile={isMyProfile}
           username={username}
           isAuthenticated={auth.isAuthenticated}
+          commentAnswer={this.props.commentAnswer}
           addAnswerComment={this.props.addAnswerComment}
+          setAnswerState={this.props.setAnswerState}
         />
       </div>
     );
@@ -92,6 +94,7 @@ Profile.propTypes = {
   auth: React.PropTypes.object.isRequired,
   username: React.PropTypes.string.isRequired,
   answers: React.PropTypes.array.isRequired,
+  commentAnswer: React.PropTypes.func.isRequired,
   addAnswerComment: React.PropTypes.func.isRequired,
   getAnswers: React.PropTypes.func.isRequired,
   setAnswers: React.PropTypes.func.isRequired,
@@ -99,6 +102,7 @@ Profile.propTypes = {
   createQuestion: React.PropTypes.func.isRequired,
   profile: React.PropTypes.object.isRequired,
   setCurrentProfile: React.PropTypes.func.isRequired,
+  setAnswerState: React.PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {
@@ -112,5 +116,12 @@ function mapStateToProps(state) {
 }
 
 export default connect(mapStateToProps, {
-  getAnswers, setAnswers, addAnswerComment, getUser, createQuestion, setCurrentProfile,
+  getAnswers,
+  setAnswers,
+  commentAnswer,
+  addAnswerComment,
+  getUser,
+  createQuestion,
+  setCurrentProfile,
+  setAnswerState,
 })(Profile);

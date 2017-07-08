@@ -3,7 +3,8 @@ import Answer from './Answer';
 
 
 export default function Answers(props) {
-  const { answers, isMyProfile, username, isAuthenticated, addAnswerComment } = props;
+  const { answers, isMyProfile, username,
+    isAuthenticated, commentAnswer, addAnswerComment, setAnswerState } = props;
   return (
     <div>
       { answers.length ?
@@ -23,7 +24,10 @@ export default function Answers(props) {
                 id={id}
                 key={id}
                 isAuthenticated={isAuthenticated}
+                commentAnswer={commentAnswer}
                 addAnswerComment={addAnswerComment}
+                state={answer.state}
+                setAnswerState={setAnswerState}
               />
             );
           })}
@@ -44,5 +48,7 @@ Answers.propTypes = {
   isMyProfile: React.PropTypes.bool.isRequired,
   username: React.PropTypes.string.isRequired,
   isAuthenticated: React.PropTypes.bool.isRequired,
+  commentAnswer: React.PropTypes.func.isRequired,
   addAnswerComment: React.PropTypes.func.isRequired,
+  setAnswerState: React.PropTypes.func.isRequired,
 };

@@ -8,7 +8,13 @@ export default function Comments(props) {
     <ListGroup>
       {props.comments.map((comment) => {
         const { id, user, text, timestamp } = comment;
-        return <Comment id={id} username={user.username} text={text} timestamp={timestamp} key={id} />;
+        return (<Comment
+          id={id}
+          username={user.username}
+          text={text}
+          timestamp={timestamp}
+          key={id}
+        />);
       })}
     </ListGroup>
   );

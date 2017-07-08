@@ -2,6 +2,9 @@ import findIndex from 'lodash/findIndex';
 
 
 export default function (state = [], action) {
+  let i = -1;
+  let answers = [];
+
   switch (action.type) {
     case 'ADD_ANSWER':
       return [
@@ -13,16 +16,32 @@ export default function (state = [], action) {
       return action.payload;
 
     case 'ADD_ANSWER_COMMENT':
-      const i = findIndex(state, { id: action.payload.answer && action.payload.answer.id });
-      const answers = [...state];
+      i = findIndex(state, { id: action.payload.id });
+      answers = [...state];
 
       if (i !== -1) {
         if (answers[i].comments) {
-          answers[i].comments.push(action.comment);
+          answers[i].comments.push(action.payload.comment);
         } else {
-          answers[i].comments = [action.comment];
+          answers[i].comments = [action.payload.comment];
         }
 
+        return answers;
+      }
+
+      return state;
+
+    case 'SET_ANSWER_STATE':
+      i = findIndex(state, { id: action.payload.id });
+      answers = [...state];
+
+      if (i !== -1) {
+        answers[i].state = answers[i].state || {};
+
+        for (const key in action.payload.state) {
+          answers[i].state[key] = action.payload.state[key];
+        }
+        //answers[i].state = action.payload.state;
         return answers;
       }
 
