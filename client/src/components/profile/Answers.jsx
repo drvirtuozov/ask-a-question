@@ -3,8 +3,7 @@ import Answer from './Answer';
 
 
 export default function Answers(props) {
-  const { answers, isMyProfile, username,
-    isAuthenticated, commentAnswer, addAnswerComment, setAnswerState } = props;
+  const { answers, isMyProfile, username } = props;
   return (
     <div>
       { answers.length ?
@@ -23,11 +22,15 @@ export default function Answers(props) {
                 likes={likes}
                 id={id}
                 key={id}
-                isAuthenticated={isAuthenticated}
-                commentAnswer={commentAnswer}
-                addAnswerComment={addAnswerComment}
+                commentAnswer={props.commentAnswer}
+                addAnswerComment={props.addAnswerComment}
                 state={answer.state}
-                setAnswerState={setAnswerState}
+                setAnswerState={props.setAnswerState}
+                auth={props.auth}
+                answersLikes={props.answersLikes}
+                setAnswerLikes={props.setAnswerLikes}
+                likeAnswer={props.likeAnswer}
+                unlikeAnswer={props.unlikeAnswer}
               />
             );
           })}
@@ -47,8 +50,12 @@ Answers.propTypes = {
   answers: React.PropTypes.array.isRequired,
   isMyProfile: React.PropTypes.bool.isRequired,
   username: React.PropTypes.string.isRequired,
-  isAuthenticated: React.PropTypes.bool.isRequired,
   commentAnswer: React.PropTypes.func.isRequired,
   addAnswerComment: React.PropTypes.func.isRequired,
   setAnswerState: React.PropTypes.func.isRequired,
+  auth: React.PropTypes.object.isRequired,
+  answersLikes: React.PropTypes.object.isRequired,
+  setAnswerLikes: React.PropTypes.func.isRequired,
+  likeAnswer: React.PropTypes.func.isRequired,
+  unlikeAnswer: React.PropTypes.func.isRequired,
 };

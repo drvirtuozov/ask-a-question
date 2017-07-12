@@ -7,6 +7,7 @@ import NotFound from '../../containers/NotFound';
 import Loading from '../../containers/Loading';
 import { getUser } from '../../actions/user';
 import { getAnswers, setAnswers, commentAnswer, addAnswerComment, setAnswerState } from '../../actions/answers';
+import { setAnswerLikes, likeAnswer, unlikeAnswer } from '../../actions/answersLikes';
 import { createQuestion } from '../../actions/questions';
 import { setCurrentProfile } from '../../actions/profile';
 
@@ -80,10 +81,14 @@ class Profile extends React.Component {
           answers={answers}
           isMyProfile={isMyProfile}
           username={username}
-          isAuthenticated={auth.isAuthenticated}
           commentAnswer={this.props.commentAnswer}
           addAnswerComment={this.props.addAnswerComment}
           setAnswerState={this.props.setAnswerState}
+          auth={auth}
+          answersLikes={this.props.answersLikes}
+          setAnswerLikes={this.props.setAnswerLikes}
+          likeAnswer={this.props.likeAnswer}
+          unlikeAnswer={this.props.unlikeAnswer}
         />
       </div>
     );
@@ -103,15 +108,20 @@ Profile.propTypes = {
   profile: React.PropTypes.object.isRequired,
   setCurrentProfile: React.PropTypes.func.isRequired,
   setAnswerState: React.PropTypes.func.isRequired,
+  answersLikes: React.PropTypes.object.isRequired,
+  setAnswerLikes: React.PropTypes.func.isRequired,
+  likeAnswer: React.PropTypes.func.isRequired,
+  unlikeAnswer: React.PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {
-  const { auth, answers, profile } = state;
+  const { auth, answers, profile, answersLikes } = state;
 
   return {
     auth,
     answers,
     profile,
+    answersLikes,
   };
 }
 
@@ -124,4 +134,7 @@ export default connect(mapStateToProps, {
   createQuestion,
   setCurrentProfile,
   setAnswerState,
+  setAnswerLikes,
+  likeAnswer,
+  unlikeAnswer,
 })(Profile);

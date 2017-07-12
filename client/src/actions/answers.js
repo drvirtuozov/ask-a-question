@@ -39,6 +39,7 @@ export function getAnswers(id) {
             }
           }
           likes {
+            id
             username
           }
           comments {
