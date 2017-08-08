@@ -21,11 +21,11 @@ type AnswerLike struct {
 
 type User struct {
 	gorm.Model
-	Username      string `gorm:"unique" valid:"required,matches(^[a-z]+$),runelength(5|50)"`
-	Password      string `valid:"runelength(8|80),required"`
-	Email         string `gorm:"unique" valid:"email,required"`
-	FirstName     string
-	LastName      string
+	Username      string `gorm:"unique" valid:"required,matches(^[a-z]+$),runelength(5|50)" json:"username"`
+	Password      string `valid:"runelength(8|80),required" json:"password"`
+	Email         string `gorm:"unique" valid:"email,required" json:"email"`
+	FirstName     string `json:"first_name,omitempty"`
+	LastName      string `json:"last_name,omitempty"`
 	UserQuestions []UserQuestion
 	UserAnswers   []UserAnswer
 }
@@ -65,7 +65,7 @@ func (user *User) Sign() (string, error) {
 }
 
 func (user *User) AfterCreate(db *gorm.DB) {
-	db.Model(user).Association("UserQuestions").Append([]*UserQuestion{
+	/*db.Model(user).Association("UserQuestions").Append([]*UserQuestion{
 		&UserQuestion{
 			Text:   "First random question from admin",
 			FromId: 1,
@@ -78,7 +78,7 @@ func (user *User) AfterCreate(db *gorm.DB) {
 			Text:   "Third random question from admin",
 			FromId: 1,
 		},
-	})
+	})*/
 }
 
 type UserAnswer struct {
