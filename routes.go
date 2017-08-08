@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/render"
@@ -90,11 +91,22 @@ func init() {
 			})
 
 			r.Post("/", func(w http.ResponseWriter, r *http.Request) {
-				user := User{}
+				reqParams := struct {
+					Username string `json:"username"`
+					Password string `json:"password"`
+					Email    string `json:"email"`
+				}{}
 
-				if err := render.Decode(r, &user); err != nil {
+				if err := render.Decode(r, &reqParams); err != nil {
 					render.Render(w, r, ErrBadRequest(append([]error{}, err)))
 					return
+				}
+
+				user := User{
+					Username: reqParams.Username,
+					Password: reqParams.Password,
+					Email: reqParams.Email,
+
 				}
 
 				errs := db.Create(&user).GetErrors()
@@ -113,7 +125,46 @@ func init() {
 
 				render.Render(w, r, OKResponse{
 					Data: token,
-					Ok: true,
+					Ok:   true,
+				})
+			})
+		})
+
+		r.Route("/tokens", func(r chi.Router) {
+			r.Post("/", func(w http.ResponseWriter, r *http.Request) {
+				reqParams := struct {
+					Username string `json:"username"`
+					Password string `json:"password"`
+				}{}
+
+				if err := render.Decode(r, &reqParams); err != nil {
+					render.Render(w, r, ErrBadRequest(append([]error{}, err)))
+					return
+				}
+
+				user := User{}
+				err := db.Find(&user, "username = ?", reqParams.Username).Error
+
+				if err != nil {
+					render.Render(w, r, ErrBadRequest(append([]error{}, err)))
+					return
+				}
+
+				if !user.ComparePassword(reqParams.Password) {
+					render.Render(w, r, ErrBadRequest(append([]error{}, errors.New("Wrong password"))))
+					return
+				}
+
+				token, err := user.Sign()
+
+				if err != nil {
+					render.Render(w, r, ErrInternalError(append([]error{}, err)))
+					return
+				}
+
+				render.Render(w, r, OKResponse{
+					Data: token,
+					Ok:   true,
 				})
 			})
 		})
