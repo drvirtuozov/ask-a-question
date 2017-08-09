@@ -65,7 +65,7 @@ func ErrorsToErrorInfo(errs []error) []ErrorInfo {
 func ErrBadRequest(errs []error) render.Renderer {
 	return ErrResponse{
 		Errs:       errs,
-		StatusCode: 400,
+		StatusCode: http.StatusBadRequest,
 		Ok:         false,
 		Errors:     ErrorsToErrorInfo(errs),
 	}
@@ -74,7 +74,7 @@ func ErrBadRequest(errs []error) render.Renderer {
 func ErrInternalError(errs []error) render.Renderer {
 	return ErrResponse{
 		Errs:       errs,
-		StatusCode: 500,
+		StatusCode: http.StatusInternalServerError,
 		Ok:         false,
 		Errors:     ErrorsToErrorInfo(errs),
 	}
@@ -84,29 +84,24 @@ func init() {
 	r = chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Route("/api", func(r chi.Router) {
-		r.Use(JWTMiddleware.Handler)
+		r.Use(JWTMiddleware().Handler)
 		r.Route("/users", func(r chi.Router) {
 			r.Get("/{username}", func(w http.ResponseWriter, r *http.Request) {
 
 			})
 
 			r.Post("/", func(w http.ResponseWriter, r *http.Request) {
-				reqParams := struct {
-					Username string `json:"username"`
-					Password string `json:"password"`
-					Email    string `json:"email"`
-				}{}
+				var params UserCreateParams
 
-				if err := render.Decode(r, &reqParams); err != nil {
+				if err := render.Bind(r, &params); err != nil {
 					render.Render(w, r, ErrBadRequest(append([]error{}, err)))
 					return
 				}
 
 				user := User{
-					Username: reqParams.Username,
-					Password: reqParams.Password,
-					Email: reqParams.Email,
-
+					Username: params.Username,
+					Password: params.Password,
+					Email:    params.Email,
 				}
 
 				errs := db.Create(&user).GetErrors()
@@ -132,25 +127,22 @@ func init() {
 
 		r.Route("/tokens", func(r chi.Router) {
 			r.Post("/", func(w http.ResponseWriter, r *http.Request) {
-				reqParams := struct {
-					Username string `json:"username"`
-					Password string `json:"password"`
-				}{}
+				var params TokenCreateParams
 
-				if err := render.Decode(r, &reqParams); err != nil {
+				if err := render.Bind(r, &params); err != nil {
 					render.Render(w, r, ErrBadRequest(append([]error{}, err)))
 					return
 				}
 
 				user := User{}
-				err := db.Find(&user, "username = ?", reqParams.Username).Error
+				err := db.Find(&user, "username = ?", params.Username).Error
 
 				if err != nil {
 					render.Render(w, r, ErrBadRequest(append([]error{}, err)))
 					return
 				}
 
-				if !user.ComparePassword(reqParams.Password) {
+				if !user.ComparePassword(params.Password) {
 					render.Render(w, r, ErrBadRequest(append([]error{}, errors.New("Wrong password"))))
 					return
 				}
