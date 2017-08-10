@@ -72,18 +72,6 @@ func (qcr *QuestionCreateResult) Bind(r *http.Request) error {
 	return nil
 }
 
-type QuestionDeleteParams struct {
-	QuestionId int    `json:"question_id"`
-}
-
-func (qdp *QuestionDeleteParams) Bind(r *http.Request) error {
-	if qdp.QuestionId == 0 {
-		return errors.New("Question id is required")
-	}
-
-	return nil
-}
-
 type AnswerCreateParams struct {
 	QuestionId int    `json:"question_id"`
 	Text       string `json:"text"`

@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strings"
 	"github.com/dgrijalva/jwt-go"
+	"strconv"
 )
 
 var r *chi.Mux
@@ -211,31 +212,33 @@ func init() {
 				})
 			})
 
-			questions.Delete("/", func(w http.ResponseWriter, r *http.Request) {
-				var params QuestionDeleteParams
+			questions.Route("/{question_id}", func(q chi.Router) {
+				q.Delete("/", func(w http.ResponseWriter, r *http.Request) {
+					questionId, err := strconv.Atoi(chi.URLParam(r, "question_id"))
 
-				if err := render.Bind(r, &params); err != nil {
-					render.Render(w, r, ErrBadRequest(err))
-					return
-				}
+					if err != nil {
+						render.Render(w, r, ErrBadRequest(errors.New("Question id must be integer")))
+						return
+					}
 
-				ctxUser := r.Context().Value("user")
+					ctxUser := r.Context().Value("user")
 
-				if ctxUser == nil {
-					render.Render(w, r, ErrUnauthorized(errors.New("Token is not provided")))
-					return
-				}
+					if ctxUser == nil {
+						render.Render(w, r, ErrUnauthorized(errors.New("Token is not provided")))
+						return
+					}
 
-				userId := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
-				err := db.Delete(UserQuestion{}, "id = ? AND user_id = ?", params.QuestionId, userId).Error
+					userId := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
+					err = db.Delete(UserQuestion{}, "id = ? AND user_id = ?", questionId, userId).Error
 
-				if err != nil {
-					render.Render(w, r, ErrBadRequest(errors.New("Question not found")))
-					return
-				}
+					if err != nil {
+						render.Render(w, r, ErrBadRequest(errors.New("Question not found")))
+						return
+					}
 
-				render.Render(w, r, OKResponse{
-					Ok: true,
+					render.Render(w, r, OKResponse{
+						Ok: true,
+					})
 				})
 			})
 		})
