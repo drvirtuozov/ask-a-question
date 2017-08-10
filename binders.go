@@ -71,3 +71,32 @@ type QuestionCreateResult struct {
 func (qcr *QuestionCreateResult) Bind(r *http.Request) error {
 	return nil
 }
+
+type AnswerCreateParams struct {
+	QuestionId int    `json:"question_id"`
+	Text       string `json:"text"`
+}
+
+func (acp *AnswerCreateParams) Bind(r *http.Request) error {
+	if acp.QuestionId == 0 {
+		return errors.New("Question id is required")
+	}
+
+	if acp.Text == "" {
+		return errors.New("Text is required")
+	}
+
+	return nil
+}
+
+type AnswerCreateResult struct {
+	Id         uint   `json:"id"`
+	Text       string `json:"text"`
+	UserId     uint   `json:"user_id"`
+	QuestionId uint   `json:"question_id"`
+	Timestamp  int64  `json:"timestamp"`
+}
+
+func (acr *AnswerCreateResult) Bind(r *http.Request) error {
+	return nil
+}

@@ -75,6 +75,24 @@ func ErrInternalError(err error) render.Renderer {
 	}
 }
 
+func ErrUnauthorized(err error) render.Renderer {
+	return ErrResponse{
+		Err:        err,
+		StatusCode: http.StatusUnauthorized,
+		Ok:         false,
+		Error:      ErrorToErrorInfo(err),
+	}
+}
+
+func ErrNotFound(err error) render.Renderer {
+	return ErrResponse{
+		Err:        err,
+		StatusCode: http.StatusNotFound,
+		Ok:         false,
+		Error:      ErrorToErrorInfo(err),
+	}
+}
+
 func init() {
 	r = chi.NewRouter()
 	r.Use(middleware.Logger)
@@ -188,6 +206,59 @@ func init() {
 						Text: question.Text,
 						FromId: question.FromId,
 						Timestamp: question.CreatedAt.Unix(),
+					},
+					Ok:   true,
+				})
+			})
+		})
+
+		r.Route("/answers", func(r chi.Router) {
+			r.Post("/", func(w http.ResponseWriter, r *http.Request) {
+				var params AnswerCreateParams
+
+				if err := render.Bind(r, &params); err != nil {
+					render.Render(w, r, ErrBadRequest(err))
+					return
+				}
+
+				ctxUser := r.Context().Value("user")
+
+				if ctxUser == nil {
+					render.Render(w, r, ErrUnauthorized(errors.New("Token not provided")))
+					return
+				}
+
+				userId := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
+				question := UserQuestion{}
+				err := db.Find(&question, "id = ? AND user_answer_id IS NULL AND user_id = ?", params.QuestionId, userId).Error
+
+				if err != nil {
+					render.Render(w, r, ErrBadRequest(errors.New("Question not found")))
+					return
+				}
+
+				user := User{}
+				answer := UserAnswer{
+					Text:           params.Text,
+					UserQuestionId: question.ID,
+				}
+
+				err = db.Find(&user, "id = ?", userId).Association("UserAnswers").Append(&answer).Error
+
+				if err != nil {
+					render.Render(w, r, ErrNotFound(errors.New("User not found")))
+				}
+
+				question.UserAnswerId = answer.ID
+				db.Save(&question)
+
+				render.Render(w, r, OKResponse{
+					Data: AnswerCreateResult{
+						Id: answer.ID,
+						Text: answer.Text,
+						UserId: answer.UserId,
+						QuestionId: question.ID,
+						Timestamp: answer.CreatedAt.Unix(),
 					},
 					Ok:   true,
 				})
