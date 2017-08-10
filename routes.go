@@ -7,6 +7,7 @@ import (
 	"github.com/go-chi/render"
 	"net/http"
 	"strings"
+	"github.com/dgrijalva/jwt-go"
 )
 
 var r *chi.Mux
@@ -148,6 +149,46 @@ func init() {
 
 				render.Render(w, r, OKResponse{
 					Data: token,
+					Ok:   true,
+				})
+			})
+		})
+
+		r.Route("/questions", func(r chi.Router) {
+			r.Post("/", func(w http.ResponseWriter, r *http.Request) {
+				var params QuestionCreateParams
+
+				if err := render.Bind(r, &params); err != nil {
+					render.Render(w, r, ErrBadRequest(err))
+					return
+				}
+
+				var fromId uint = 0
+				user := User{}
+
+				if value := r.Context().Value("user"); value != nil {
+					fromId = uint(value.(*jwt.Token).Claims.(jwt.MapClaims)["id"].(float64))
+				}
+
+				question := UserQuestion{
+					Text:   params.Text,
+					FromId: fromId,
+				}
+
+				err := db.Find(&user, "id = ?", params.UserId).Association("UserQuestions").Append(&question).Error
+
+				if err != nil {
+					render.Render(w, r, ErrBadRequest(errors.New("User not found")))
+					return
+				}
+
+				render.Render(w, r, OKResponse{
+					Data: QuestionCreateResult{
+						Id: question.ID,
+						Text: question.Text,
+						FromId: question.FromId,
+						Timestamp: question.CreatedAt.Unix(),
+					},
 					Ok:   true,
 				})
 			})
