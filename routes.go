@@ -27,10 +27,10 @@ type ErrorInfo struct {
 }
 
 type ErrResponse struct {
-	Errs       []error     `json:"-"`
-	StatusCode int         `json:"-"`
-	Ok         bool        `json:"ok"`
-	Errors     []ErrorInfo `json:"errors"`
+	Err        error     `json:"-"`
+	StatusCode int       `json:"-"`
+	Ok         bool      `json:"ok"`
+	Error      ErrorInfo `json:"error"`
 }
 
 func (e ErrResponse) Render(w http.ResponseWriter, r *http.Request) error {
@@ -38,45 +38,39 @@ func (e ErrResponse) Render(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func ErrorsToErrorInfo(errs []error) []ErrorInfo {
-	var errsInfo []ErrorInfo
-
-	for _, err := range errs {
-		errsInfo = append(errsInfo, ErrorInfo{
-			Field: func(errText string) string {
-				text := strings.ToLower(errText)
-				fields := []string{
-					"username", "password", "email",
+func ErrorToErrorInfo(err error) ErrorInfo {
+	return ErrorInfo{
+		Field: func(errText string) string {
+			text := strings.ToLower(errText)
+			fields := []string{
+				"username", "password", "email",
+			}
+			for _, v := range fields {
+				if strings.Contains(text, v) {
+					return v
 				}
-				for _, v := range fields {
-					if strings.Contains(text, v) {
-						return v
-					}
-				}
-				return ""
-			}(err.Error()),
-			Detail: err.Error(),
-		})
+			}
+			return ""
+		}(err.Error()),
+		Detail: err.Error(),
 	}
-
-	return errsInfo
 }
 
-func ErrBadRequest(errs []error) render.Renderer {
+func ErrBadRequest(err error) render.Renderer {
 	return ErrResponse{
-		Errs:       errs,
+		Err:        err,
 		StatusCode: http.StatusBadRequest,
 		Ok:         false,
-		Errors:     ErrorsToErrorInfo(errs),
+		Error:      ErrorToErrorInfo(err),
 	}
 }
 
-func ErrInternalError(errs []error) render.Renderer {
+func ErrInternalError(err error) render.Renderer {
 	return ErrResponse{
-		Errs:       errs,
+		Err:        err,
 		StatusCode: http.StatusInternalServerError,
 		Ok:         false,
-		Errors:     ErrorsToErrorInfo(errs),
+		Error:      ErrorToErrorInfo(err),
 	}
 }
 
@@ -94,7 +88,7 @@ func init() {
 				var params UserCreateParams
 
 				if err := render.Bind(r, &params); err != nil {
-					render.Render(w, r, ErrBadRequest(append([]error{}, err)))
+					render.Render(w, r, ErrBadRequest(err))
 					return
 				}
 
@@ -104,17 +98,15 @@ func init() {
 					Email:    params.Email,
 				}
 
-				errs := db.Create(&user).GetErrors()
-
-				if len(errs) > 0 {
-					render.Render(w, r, ErrBadRequest(errs))
+				if err := db.Create(&user).Error; err != nil {
+					render.Render(w, r, ErrBadRequest(err))
 					return
 				}
 
 				token, err := user.Sign()
 
 				if err != nil {
-					render.Render(w, r, ErrInternalError(append([]error{}, err)))
+					render.Render(w, r, ErrInternalError(err))
 					return
 				}
 
@@ -130,7 +122,7 @@ func init() {
 				var params TokenCreateParams
 
 				if err := render.Bind(r, &params); err != nil {
-					render.Render(w, r, ErrBadRequest(append([]error{}, err)))
+					render.Render(w, r, ErrBadRequest(err))
 					return
 				}
 
@@ -138,19 +130,19 @@ func init() {
 				err := db.Find(&user, "username = ?", params.Username).Error
 
 				if err != nil {
-					render.Render(w, r, ErrBadRequest(append([]error{}, err)))
+					render.Render(w, r, ErrBadRequest(err))
 					return
 				}
 
 				if !user.ComparePassword(params.Password) {
-					render.Render(w, r, ErrBadRequest(append([]error{}, errors.New("Wrong password"))))
+					render.Render(w, r, ErrBadRequest(errors.New("Wrong password")))
 					return
 				}
 
 				token, err := user.Sign()
 
 				if err != nil {
-					render.Render(w, r, ErrInternalError(append([]error{}, err)))
+					render.Render(w, r, ErrInternalError(err))
 					return
 				}
 
