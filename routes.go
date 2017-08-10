@@ -9,7 +9,6 @@ import (
 	"strings"
 	"github.com/dgrijalva/jwt-go"
 	"strconv"
-	"golang.org/x/tools/go/gcimporter15/testdata"
 )
 
 var r *chi.Mux
@@ -321,6 +320,56 @@ func init() {
 						Timestamp: answer.CreatedAt.Unix(),
 					},
 					Ok:   true,
+				})
+			})
+
+			answers.Route("/{answer_id}", func(a chi.Router) {
+				a.Route("/comments", func(cmnts chi.Router) {
+					cmnts.Post("/", func(w http.ResponseWriter, r *http.Request) {
+						answerId, err := strconv.Atoi(chi.URLParam(r, "answer_id"))
+
+						if err != nil {
+							render.Render(w, r, ErrBadRequest(errors.New("Answer id must be integer")))
+							return
+						}
+
+						var params CommentCreateParams
+
+						if err := render.Bind(r, &params); err != nil {
+							render.Render(w, r, ErrBadRequest(err))
+							return
+						}
+
+						ctxUser := r.Context().Value("user")
+
+						if ctxUser == nil {
+							render.Render(w, r, ErrUnauthorized(errors.New("Token is not provided")))
+							return
+						}
+
+						userId := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
+						comment := AnswerComment{
+							UserId: uint(userId.(float64)),
+							Text:   params.Text,
+						}
+
+						err = db.Find(&UserAnswer{}, "id = ?", answerId).Association("AnswerComments").Append(&comment).Error
+
+						if err != nil {
+							render.Render(w, r, ErrNotFound(errors.New("Answer not found")))
+							return
+						}
+
+						render.Render(w, r, OKResponse{
+							Data: CommentCreateResult{
+								Id: comment.ID,
+								UserId: comment.UserId,
+								Text: comment.Text,
+								Timestamp: comment.CreatedAt.Unix(),
+							},
+							Ok: true,
+						})
+					})
 				})
 			})
 		})

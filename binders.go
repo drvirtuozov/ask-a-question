@@ -100,3 +100,31 @@ type AnswerCreateResult struct {
 func (acr *AnswerCreateResult) Bind(r *http.Request) error {
 	return nil
 }
+
+type CommentCreateParams struct {
+	AnswerId int    `json:"answer_id"`
+	Text     string `json:"text"`
+}
+
+func (ccp *CommentCreateParams) Bind(r *http.Request) error {
+	if ccp.AnswerId == 0 {
+		return errors.New("Answer id is required")
+	}
+
+	if ccp.Text == "" {
+		return errors.New("Text is required")
+	}
+
+	return nil
+}
+
+type CommentCreateResult struct {
+	Id        uint   `json:"id"`
+	Text      string `json:"text"`
+	UserId    uint   `json:"user_id"`
+	Timestamp int64  `json:"timestamp"`
+}
+
+func (ccr *CommentCreateResult) Bind(r *http.Request) error {
+	return nil
+}
