@@ -9,6 +9,7 @@ import (
 	"strings"
 	"github.com/dgrijalva/jwt-go"
 	"strconv"
+	"golang.org/x/tools/go/gcimporter15/testdata"
 )
 
 var r *chi.Mux
@@ -233,6 +234,34 @@ func init() {
 
 					if err != nil {
 						render.Render(w, r, ErrBadRequest(errors.New("Question not found")))
+						return
+					}
+
+					render.Render(w, r, OKResponse{
+						Ok: true,
+					})
+				})
+
+				q.Put("/", func(w http.ResponseWriter, r *http.Request) {
+					questionId, err := strconv.Atoi(chi.URLParam(r, "question_id"))
+
+					if err != nil {
+						render.Render(w, r, ErrBadRequest(errors.New("Question id must be integer")))
+						return
+					}
+
+					ctxUser := r.Context().Value("user")
+
+					if ctxUser == nil {
+						render.Render(w, r, ErrUnauthorized(errors.New("Token is not provided")))
+						return
+					}
+
+					userId := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
+					err = db.Model(&UserQuestion{}).Unscoped().Where("id = ? AND user_id = ?", questionId, userId).Update("deleted_at", nil).Error
+
+					if err != nil {
+						render.Render(w, r, ErrNotFound(errors.New("Question not found")))
 						return
 					}
 
