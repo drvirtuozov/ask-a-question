@@ -96,14 +96,14 @@ func ErrNotFound(err error) render.Renderer {
 func init() {
 	r = chi.NewRouter()
 	r.Use(middleware.Logger)
-	r.Route("/api", func(r chi.Router) {
-		r.Use(JWTMiddleware().Handler)
-		r.Route("/users", func(r chi.Router) {
-			r.Get("/{username}", func(w http.ResponseWriter, r *http.Request) {
+	r.Route("/api", func(api chi.Router) {
+		api.Use(JWTMiddleware().Handler)
+		api.Route("/users", func(users chi.Router) {
+			users.Get("/{username}", func(w http.ResponseWriter, r *http.Request) {
 
 			})
 
-			r.Post("/", func(w http.ResponseWriter, r *http.Request) {
+			users.Post("/", func(w http.ResponseWriter, r *http.Request) {
 				var params UserCreateParams
 
 				if err := render.Bind(r, &params); err != nil {
@@ -136,8 +136,8 @@ func init() {
 			})
 		})
 
-		r.Route("/tokens", func(r chi.Router) {
-			r.Post("/", func(w http.ResponseWriter, r *http.Request) {
+		api.Route("/tokens", func(tokens chi.Router) {
+			tokens.Post("/", func(w http.ResponseWriter, r *http.Request) {
 				var params TokenCreateParams
 
 				if err := render.Bind(r, &params); err != nil {
@@ -172,8 +172,8 @@ func init() {
 			})
 		})
 
-		r.Route("/questions", func(r chi.Router) {
-			r.Post("/", func(w http.ResponseWriter, r *http.Request) {
+		api.Route("/questions", func(questions chi.Router) {
+			questions.Post("/", func(w http.ResponseWriter, r *http.Request) {
 				var params QuestionCreateParams
 
 				if err := render.Bind(r, &params); err != nil {
@@ -210,10 +210,38 @@ func init() {
 					Ok:   true,
 				})
 			})
+
+			questions.Delete("/", func(w http.ResponseWriter, r *http.Request) {
+				var params QuestionDeleteParams
+
+				if err := render.Bind(r, &params); err != nil {
+					render.Render(w, r, ErrBadRequest(err))
+					return
+				}
+
+				ctxUser := r.Context().Value("user")
+
+				if ctxUser == nil {
+					render.Render(w, r, ErrUnauthorized(errors.New("Token is not provided")))
+					return
+				}
+
+				userId := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
+				err := db.Delete(UserQuestion{}, "id = ? AND user_id = ?", params.QuestionId, userId).Error
+
+				if err != nil {
+					render.Render(w, r, ErrBadRequest(errors.New("Question not found")))
+					return
+				}
+
+				render.Render(w, r, OKResponse{
+					Ok: true,
+				})
+			})
 		})
 
-		r.Route("/answers", func(r chi.Router) {
-			r.Post("/", func(w http.ResponseWriter, r *http.Request) {
+		api.Route("/answers", func(answers chi.Router) {
+			answers.Post("/", func(w http.ResponseWriter, r *http.Request) {
 				var params AnswerCreateParams
 
 				if err := render.Bind(r, &params); err != nil {
@@ -224,7 +252,7 @@ func init() {
 				ctxUser := r.Context().Value("user")
 
 				if ctxUser == nil {
-					render.Render(w, r, ErrUnauthorized(errors.New("Token not provided")))
+					render.Render(w, r, ErrUnauthorized(errors.New("Token is not provided")))
 					return
 				}
 
