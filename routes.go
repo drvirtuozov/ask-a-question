@@ -212,8 +212,8 @@ func init() {
 				})
 			})
 
-			questions.Route("/{question_id}", func(q chi.Router) {
-				q.Delete("/", func(w http.ResponseWriter, r *http.Request) {
+			questions.Route("/{question_id}", func(question chi.Router) {
+				question.Delete("/", func(w http.ResponseWriter, r *http.Request) {
 					questionId, err := strconv.Atoi(chi.URLParam(r, "question_id"))
 
 					if err != nil {
@@ -241,7 +241,7 @@ func init() {
 					})
 				})
 
-				q.Put("/", func(w http.ResponseWriter, r *http.Request) {
+				question.Put("/", func(w http.ResponseWriter, r *http.Request) { // undelete question
 					questionId, err := strconv.Atoi(chi.URLParam(r, "question_id"))
 
 					if err != nil {
@@ -323,9 +323,9 @@ func init() {
 				})
 			})
 
-			answers.Route("/{answer_id}", func(a chi.Router) {
-				a.Route("/comments", func(cmnts chi.Router) {
-					cmnts.Post("/", func(w http.ResponseWriter, r *http.Request) {
+			answers.Route("/{answer_id}", func(answer chi.Router) {
+				answer.Route("/comments", func(answerComments chi.Router) {
+					answerComments.Post("/", func(w http.ResponseWriter, r *http.Request) {
 						answerId, err := strconv.Atoi(chi.URLParam(r, "answer_id"))
 
 						if err != nil {
@@ -367,6 +367,41 @@ func init() {
 								Text: comment.Text,
 								Timestamp: comment.CreatedAt.Unix(),
 							},
+							Ok: true,
+						})
+					})
+				})
+
+				answer.Route("/likes", func(answerLikes chi.Router) {
+					answerLikes.Post("/", func(w http.ResponseWriter, r *http.Request) {
+						answerId, err := strconv.Atoi(chi.URLParam(r, "answer_id"))
+
+						if err != nil {
+							render.Render(w, r, ErrBadRequest(errors.New("Answer id must be integer")))
+							return
+						}
+
+						ctxUser := r.Context().Value("user")
+
+						if ctxUser == nil {
+							render.Render(w, r, ErrUnauthorized(errors.New("Token is not provided")))
+							return
+						}
+
+						userId := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
+
+						like := &AnswerLike{
+							UserId: uint(userId.(float64)),
+						}
+
+						err = db.Find(&UserAnswer{}, "id = ?", answerId).Association("AnswerLikes").Append(like).Error
+
+						if err != nil {
+							render.Render(w, r, ErrNotFound(errors.New("Answer not found")))
+							return
+						}
+
+						render.Render(w, r, OKResponse{
 							Ok: true,
 						})
 					})
