@@ -191,6 +191,41 @@ func init() {
 		})
 
 		api.Route("/questions", func(questions chi.Router) {
+			questions.Get("/", func(w http.ResponseWriter, r *http.Request) {
+				ctxUser := r.Context().Value("user")
+
+				if ctxUser == nil {
+					render.Render(w, r, ErrUnauthorized(errors.New("Token is not provided")))
+					return
+				}
+
+				userId := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
+				user := User{}
+				questions := []*UserQuestion{}
+				err := db.Order("id DESC").Find(&user, "id = ?", userId).Related(&questions).Error
+
+				if err != nil {
+					render.Render(w, r, ErrNotFound(errors.New("User not found")))
+					return
+				}
+
+				var mappedQuestions []QuestionResult
+
+				for _, question := range questions {
+					mappedQuestions = append(mappedQuestions, QuestionResult{
+						Id: question.ID,
+						Text: question.Text,
+						FromId: question.FromId,
+						Timestamp: question.CreatedAt.Unix(),
+					})
+				}
+
+				render.Render(w, r, OKResponse{
+					Ok: true,
+					Data: mappedQuestions,
+				})
+			})
+
 			questions.Post("/", func(w http.ResponseWriter, r *http.Request) {
 				var params QuestionCreateParams
 
@@ -219,7 +254,7 @@ func init() {
 				}
 
 				render.Render(w, r, OKResponse{
-					Data: QuestionCreateResult{
+					Data: QuestionResult{
 						Id: question.ID,
 						Text: question.Text,
 						FromId: question.FromId,
@@ -329,7 +364,7 @@ func init() {
 				db.Save(&question)
 
 				render.Render(w, r, OKResponse{
-					Data: AnswerCreateResult{
+					Data: AnswerResult{
 						Id: answer.ID,
 						Text: answer.Text,
 						UserId: answer.UserId,
@@ -378,7 +413,7 @@ func init() {
 						}
 
 						render.Render(w, r, OKResponse{
-							Data: CommentCreateResult{
+							Data: CommentResult{
 								Id: comment.ID,
 								UserId: comment.UserId,
 								Text: comment.Text,

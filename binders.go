@@ -68,15 +68,11 @@ func (qcp *QuestionCreateParams) Bind(r *http.Request) error {
 	return nil
 }
 
-type QuestionCreateResult struct {
+type QuestionResult struct {
 	Id        uint   `json:"id"`
 	Text      string `json:"text"`
 	FromId    uint   `json:"from_id,omitempty"`
 	Timestamp int64  `json:"timestamp"`
-}
-
-func (qcr *QuestionCreateResult) Bind(r *http.Request) error {
-	return nil
 }
 
 type AnswerCreateParams struct {
@@ -96,16 +92,12 @@ func (acp *AnswerCreateParams) Bind(r *http.Request) error {
 	return nil
 }
 
-type AnswerCreateResult struct {
+type AnswerResult struct {
 	Id         uint   `json:"id"`
 	Text       string `json:"text"`
 	UserId     uint   `json:"user_id"`
 	QuestionId uint   `json:"question_id"`
 	Timestamp  int64  `json:"timestamp"`
-}
-
-func (acr *AnswerCreateResult) Bind(r *http.Request) error {
-	return nil
 }
 
 type CommentCreateParams struct {
@@ -125,13 +117,9 @@ func (ccp *CommentCreateParams) Bind(r *http.Request) error {
 	return nil
 }
 
-type CommentCreateResult struct {
+type CommentResult struct {
 	Id        uint   `json:"id"`
 	Text      string `json:"text"`
 	UserId    uint   `json:"user_id"`
 	Timestamp int64  `json:"timestamp"`
-}
-
-func (ccr *CommentCreateResult) Bind(r *http.Request) error {
-	return nil
 }
