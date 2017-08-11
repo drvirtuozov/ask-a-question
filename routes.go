@@ -405,6 +405,34 @@ func init() {
 							Ok: true,
 						})
 					})
+
+					answerLikes.Delete("/", func(w http.ResponseWriter, r *http.Request) {
+						answerId, err := strconv.Atoi(chi.URLParam(r, "answer_id"))
+
+						if err != nil {
+							render.Render(w, r, ErrBadRequest(errors.New("Answer id must be integer")))
+							return
+						}
+
+						ctxUser := r.Context().Value("user")
+
+						if ctxUser == nil {
+							render.Render(w, r, ErrUnauthorized(errors.New("Token is not provided")))
+							return
+						}
+
+						userId := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
+						err = db.Delete(&AnswerLike{}, "user_id = ? AND user_answer_id = ?", userId, answerId).Error
+
+						if err != nil {
+							render.Render(w, r, ErrNotFound(errors.New("Answer not found")))
+							return
+						}
+
+						render.Render(w, r, OKResponse{
+							Ok: true,
+						})
+					})
 				})
 			})
 		})
