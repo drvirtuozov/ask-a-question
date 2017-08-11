@@ -101,7 +101,24 @@ func init() {
 		api.Use(JWTMiddleware().Handler)
 		api.Route("/users", func(users chi.Router) {
 			users.Get("/{username}", func(w http.ResponseWriter, r *http.Request) {
+				user := User{}
+				username := chi.URLParam(r, "username")
+				err := db.Find(&user, "username = ?", username).Error
 
+				if err != nil {
+					render.Render(w, r, ErrNotFound(errors.New("User not found")))
+					return
+				}
+
+				render.Render(w, r, OKResponse{
+					Data: UserResult{
+						Id: user.ID,
+						Username: user.Username,
+						FirstName: user.FirstName,
+						LastName: user.LastName,
+					},
+					Ok: true,
+				})
 			})
 
 			users.Post("/", func(w http.ResponseWriter, r *http.Request) {
@@ -390,11 +407,11 @@ func init() {
 
 						userId := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
 
-						like := &AnswerLike{
+						like := AnswerLike{
 							UserId: uint(userId.(float64)),
 						}
 
-						err = db.Find(&UserAnswer{}, "id = ?", answerId).Association("AnswerLikes").Append(like).Error
+						err = db.Find(&UserAnswer{}, "id = ?", answerId).Association("AnswerLikes").Append(&like).Error
 
 						if err != nil {
 							render.Render(w, r, ErrNotFound(errors.New("Answer not found")))

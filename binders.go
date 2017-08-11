@@ -27,6 +27,13 @@ func (ucp *UserCreateParams) Bind(r *http.Request) error {
 	return nil
 }
 
+type UserResult struct {
+	Id        uint   `json:"id"`
+	Username  string `json:"username"`
+	FirstName string `json:"first_name,omitempty"`
+	LastName  string `json:"last_name,omitempty"`
+}
+
 type TokenCreateParams struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
