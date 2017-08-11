@@ -2,13 +2,13 @@ package main
 
 import (
 	"errors"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/render"
 	"net/http"
-	"strings"
-	"github.com/dgrijalva/jwt-go"
 	"strconv"
+	"strings"
 )
 
 var r *chi.Mux
@@ -112,10 +112,10 @@ func init() {
 
 				render.Render(w, r, OKResponse{
 					Data: UserResult{
-						Id: user.ID,
-						Username: user.Username,
+						Id:        user.ID,
+						Username:  user.Username,
 						FirstName: user.FirstName,
-						LastName: user.LastName,
+						LastName:  user.LastName,
 					},
 					Ok: true,
 				})
@@ -213,15 +213,15 @@ func init() {
 
 				for _, question := range questions {
 					mappedQuestions = append(mappedQuestions, QuestionResult{
-						Id: question.ID,
-						Text: question.Text,
-						FromId: question.FromId,
+						Id:        question.ID,
+						Text:      question.Text,
+						FromId:    question.FromId,
 						Timestamp: question.CreatedAt.Unix(),
 					})
 				}
 
 				render.Render(w, r, OKResponse{
-					Ok: true,
+					Ok:   true,
 					Data: mappedQuestions,
 				})
 			})
@@ -255,12 +255,12 @@ func init() {
 
 				render.Render(w, r, OKResponse{
 					Data: QuestionResult{
-						Id: question.ID,
-						Text: question.Text,
-						FromId: question.FromId,
+						Id:        question.ID,
+						Text:      question.Text,
+						FromId:    question.FromId,
 						Timestamp: question.CreatedAt.Unix(),
 					},
-					Ok:   true,
+					Ok: true,
 				})
 			})
 
@@ -324,6 +324,41 @@ func init() {
 		})
 
 		api.Route("/answers", func(answers chi.Router) {
+			answers.Get("/", func(w http.ResponseWriter, r *http.Request) {
+				var params AnswersGetParams
+
+				if err := render.Bind(r, &params); err != nil {
+					render.Render(w, r, ErrBadRequest(err))
+					return
+				}
+
+				answers := []*UserAnswer{}
+				user := User{}
+				err := db.Order("id DESC").Find(&user, "id = ?", params.UserId).Related(&answers).Error
+
+				if err != nil {
+					render.Render(w, r, ErrNotFound(errors.New("User not found")))
+					return
+				}
+
+				var mappedAnswers []AnswerResult
+
+				for _, answer := range answers {
+					mappedAnswers = append(mappedAnswers, AnswerResult{
+						Id:         answer.ID,
+						Text:       answer.Text,
+						UserId:     answer.UserId,
+						QuestionId: answer.UserQuestionId,
+						Timestamp:  answer.CreatedAt.Unix(),
+					})
+				}
+
+				render.Render(w, r, OKResponse{
+					Ok:   true,
+					Data: mappedAnswers,
+				})
+			})
+
 			answers.Post("/", func(w http.ResponseWriter, r *http.Request) {
 				var params AnswerCreateParams
 
@@ -365,13 +400,13 @@ func init() {
 
 				render.Render(w, r, OKResponse{
 					Data: AnswerResult{
-						Id: answer.ID,
-						Text: answer.Text,
-						UserId: answer.UserId,
+						Id:         answer.ID,
+						Text:       answer.Text,
+						UserId:     answer.UserId,
 						QuestionId: question.ID,
-						Timestamp: answer.CreatedAt.Unix(),
+						Timestamp:  answer.CreatedAt.Unix(),
 					},
-					Ok:   true,
+					Ok: true,
 				})
 			})
 
@@ -414,9 +449,9 @@ func init() {
 
 						render.Render(w, r, OKResponse{
 							Data: CommentResult{
-								Id: comment.ID,
-								UserId: comment.UserId,
-								Text: comment.Text,
+								Id:        comment.ID,
+								UserId:    comment.UserId,
+								Text:      comment.Text,
 								Timestamp: comment.CreatedAt.Unix(),
 							},
 							Ok: true,

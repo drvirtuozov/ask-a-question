@@ -123,3 +123,15 @@ type CommentResult struct {
 	UserId    uint   `json:"user_id"`
 	Timestamp int64  `json:"timestamp"`
 }
+
+type AnswersGetParams struct {
+	UserId int `json:"user_id"`
+}
+
+func (agp *AnswersGetParams) Bind(r *http.Request) error {
+	if agp.UserId == 0 {
+		return errors.New("User id is required")
+	}
+
+	return nil
+}
