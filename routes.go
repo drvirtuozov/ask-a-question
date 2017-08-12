@@ -105,7 +105,7 @@ func init() {
 				user := User{}
 				userId := chi.URLParam(r, "user_id")
 
-				if _, err := strconv.Atoi(userId); err != nil {
+				if _, e := strconv.Atoi(userId); e != nil {
 					err = db.Find(&user, "username = ?", userId).Error
 				} else {
 					err = db.Find(&user, "id = ?", userId).Error
