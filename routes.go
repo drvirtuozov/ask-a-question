@@ -100,10 +100,16 @@ func init() {
 	r.Route("/api", func(api chi.Router) {
 		api.Use(JWTMiddleware().Handler)
 		api.Route("/users", func(users chi.Router) {
-			users.Get("/{username}", func(w http.ResponseWriter, r *http.Request) {
+			users.Get("/{user_id}", func(w http.ResponseWriter, r *http.Request) {
+				var err error
 				user := User{}
-				username := chi.URLParam(r, "username")
-				err := db.Find(&user, "username = ?", username).Error
+				userId := chi.URLParam(r, "user_id")
+
+				if _, err := strconv.Atoi(userId); err != nil {
+					err = db.Find(&user, "username = ?", userId).Error
+				} else {
+					err = db.Find(&user, "id = ?", userId).Error
+				}
 
 				if err != nil {
 					render.Render(w, r, ErrNotFound(errors.New("User not found")))
