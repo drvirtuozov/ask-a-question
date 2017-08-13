@@ -5,22 +5,35 @@ import (
 	"net/http"
 )
 
-type UserCreateParams struct {
+type UsersGetParams struct {
+	Username string `form:"username"`
+	UserID   int    `form:"user_id"`
+}
+
+func (ugp *UsersGetParams) Bind(r *http.Request) error {
+	if ugp.UserID == 0 && ugp.Username == "" {
+		return errors.New("User id or username is required")
+	}
+
+	return nil
+}
+
+type UsersPostParams struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 	Email    string `json:"email"`
 }
 
-func (ucp *UserCreateParams) Bind(r *http.Request) error {
-	if ucp.Username == "" {
+func (upp *UsersPostParams) Bind(r *http.Request) error {
+	if upp.Username == "" {
 		return errors.New("Username is required")
 	}
 
-	if ucp.Password == "" {
+	if upp.Password == "" {
 		return errors.New("Password is required")
 	}
 
-	if ucp.Email == "" {
+	if upp.Email == "" {
 		return errors.New("Email is required")
 	}
 
@@ -28,40 +41,40 @@ func (ucp *UserCreateParams) Bind(r *http.Request) error {
 }
 
 type UserResult struct {
-	Id        uint   `json:"id"`
+	ID        uint   `json:"id"`
 	Username  string `json:"username"`
 	FirstName string `json:"first_name,omitempty"`
 	LastName  string `json:"last_name,omitempty"`
 }
 
-type TokenCreateParams struct {
+type TokensPostParams struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
 
-func (tcp *TokenCreateParams) Bind(r *http.Request) error {
-	if tcp.Username == "" {
+func (tpp *TokensPostParams) Bind(r *http.Request) error {
+	if tpp.Username == "" {
 		return errors.New("Username is required")
 	}
 
-	if tcp.Password == "" {
+	if tpp.Password == "" {
 		return errors.New("Password is required")
 	}
 
 	return nil
 }
 
-type QuestionCreateParams struct {
-	UserId int    `json:"user_id"`
+type QuestionsPostParams struct {
+	UserID int    `json:"user_id"`
 	Text   string `json:"text"`
 }
 
-func (qcp *QuestionCreateParams) Bind(r *http.Request) error {
-	if qcp.UserId == 0 {
+func (qpp *QuestionsPostParams) Bind(r *http.Request) error {
+	if qpp.UserID == 0 {
 		return errors.New("User id is required")
 	}
 
-	if qcp.Text == "" {
+	if qpp.Text == "" {
 		return errors.New("Text is required")
 	}
 
@@ -69,23 +82,47 @@ func (qcp *QuestionCreateParams) Bind(r *http.Request) error {
 }
 
 type QuestionResult struct {
-	Id        uint   `json:"id"`
+	ID        uint   `json:"id"`
 	Text      string `json:"text"`
-	FromId    uint   `json:"from_id,omitempty"`
+	FromID    uint   `json:"from_id,omitempty"`
 	Timestamp int64  `json:"timestamp"`
 }
 
-type AnswerCreateParams struct {
-	QuestionId int    `json:"question_id"`
-	Text       string `json:"text"`
+type QuestionsDeleteParams struct {
+	QuestionID int `json:"question_id"`
 }
 
-func (acp *AnswerCreateParams) Bind(r *http.Request) error {
-	if acp.QuestionId == 0 {
+func (qdp *QuestionsDeleteParams) Bind(r *http.Request) error {
+	if qdp.QuestionID == 0 {
 		return errors.New("Question id is required")
 	}
 
-	if acp.Text == "" {
+	return nil
+}
+
+type QuestionsPutParams struct {
+	QuestionID int `json:"question_id"`
+}
+
+func (qpp *QuestionsPutParams) Bind(r *http.Request) error {
+	if qpp.QuestionID == 0 {
+		return errors.New("Question id is required")
+	}
+
+	return nil
+}
+
+type AnswersPostParams struct {
+	QuestionID int    `json:"question_id"`
+	Text       string `json:"text"`
+}
+
+func (app *AnswersPostParams) Bind(r *http.Request) error {
+	if app.QuestionID == 0 {
+		return errors.New("Question id is required")
+	}
+
+	if app.Text == "" {
 		return errors.New("Text is required")
 	}
 
@@ -93,24 +130,24 @@ func (acp *AnswerCreateParams) Bind(r *http.Request) error {
 }
 
 type AnswerResult struct {
-	Id         uint   `json:"id"`
+	ID         uint   `json:"id"`
 	Text       string `json:"text"`
-	UserId     uint   `json:"user_id"`
-	QuestionId uint   `json:"question_id"`
+	UserID     uint   `json:"user_id"`
+	QuestionID uint   `json:"question_id"`
 	Timestamp  int64  `json:"timestamp"`
 }
 
-type CommentCreateParams struct {
-	AnswerId int    `json:"answer_id"`
+type CommentsPostParams struct {
+	AnswerID int    `json:"answer_id"`
 	Text     string `json:"text"`
 }
 
-func (ccp *CommentCreateParams) Bind(r *http.Request) error {
-	if ccp.AnswerId == 0 {
+func (cpp *CommentsPostParams) Bind(r *http.Request) error {
+	if cpp.AnswerID == 0 {
 		return errors.New("Answer id is required")
 	}
 
-	if ccp.Text == "" {
+	if cpp.Text == "" {
 		return errors.New("Text is required")
 	}
 
@@ -120,17 +157,41 @@ func (ccp *CommentCreateParams) Bind(r *http.Request) error {
 type CommentResult struct {
 	Id        uint   `json:"id"`
 	Text      string `json:"text"`
-	UserId    uint   `json:"user_id"`
+	UserID    uint   `json:"user_id"`
 	Timestamp int64  `json:"timestamp"`
 }
 
 type AnswersGetParams struct {
-	UserId int `json:"user_id"`
+	UserID int `form:"user_id"`
 }
 
 func (agp *AnswersGetParams) Bind(r *http.Request) error {
-	if agp.UserId == 0 {
+	if agp.UserID == 0 {
 		return errors.New("User id is required")
+	}
+
+	return nil
+}
+
+type LikesPostParams struct {
+	AnswerID int `json:"answer_id"`
+}
+
+func (lpp *LikesPostParams) Bind(r *http.Request) error {
+	if lpp.AnswerID == 0 {
+		return errors.New("Answer id is required")
+	}
+
+	return nil
+}
+
+type LikesDeleteParams struct {
+	AnswerID int `json:"answer_id"`
+}
+
+func (ldp *LikesDeleteParams) Bind(r *http.Request) error {
+	if ldp.AnswerID == 0 {
+		return errors.New("Answer id is required")
 	}
 
 	return nil

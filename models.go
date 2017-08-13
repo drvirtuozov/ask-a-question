@@ -9,14 +9,14 @@ import (
 type AnswerComment struct {
 	gorm.Model
 	Text         string `gorm:"not null"`
-	UserId       uint
-	UserAnswerId uint
+	UserID       uint
+	UserAnswerID uint
 }
 
 type AnswerLike struct {
 	gorm.Model
-	UserId       uint
-	UserAnswerId uint
+	UserID       uint
+	UserAnswerID uint
 }
 
 type User struct {
@@ -84,9 +84,9 @@ func (user *User) AfterCreate(db *gorm.DB) {
 type UserAnswer struct {
 	gorm.Model
 	Text           string `gorm:"not null"`
-	UserId         uint
+	UserID         uint
 	UserQuestion   UserQuestion
-	UserQuestionId uint
+	UserQuestionID uint
 	AnswerComments []AnswerComment
 	AnswerLikes    []AnswerLike
 }
@@ -94,7 +94,7 @@ type UserAnswer struct {
 type UserQuestion struct {
 	gorm.Model
 	Text         string `gorm:"not null"`
-	UserId       uint
-	FromId       uint `sql:"DEFAULT:NULL"`
-	UserAnswerId uint `sql:"DEFAULT:NULL"`
+	UserID       uint
+	FromID       uint `sql:"DEFAULT:NULL"`
+	UserAnswerID uint `sql:"DEFAULT:NULL"`
 }

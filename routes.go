@@ -2,13 +2,13 @@ package main
 
 import (
 	"errors"
+	"net/http"
+	"strings"
+
 	"github.com/dgrijalva/jwt-go"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/render"
-	"net/http"
-	"strconv"
-	"strings"
 )
 
 var r *chi.Mux
@@ -95,20 +95,26 @@ func ErrNotFound(err error) render.Renderer {
 }
 
 func init() {
+	render.Decode = customDecoder
 	r = chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Route("/api", func(api chi.Router) {
 		api.Use(JWTMiddleware().Handler)
 		api.Route("/users", func(users chi.Router) {
-			users.Get("/{user_id}", func(w http.ResponseWriter, r *http.Request) {
+			users.Get("/", func(w http.ResponseWriter, r *http.Request) {
 				var err error
+				var params UsersGetParams
 				user := User{}
-				userId := chi.URLParam(r, "user_id")
 
-				if _, e := strconv.Atoi(userId); e != nil {
-					err = db.Find(&user, "username = ?", userId).Error
+				if err := render.Bind(r, &params); err != nil {
+					render.Render(w, r, ErrBadRequest(err))
+					return
+				}
+
+				if params.UserID != 0 {
+					err = db.Find(&user, "id = ?", params.UserID).Error
 				} else {
-					err = db.Find(&user, "id = ?", userId).Error
+					err = db.Find(&user, "username = ?", params.Username).Error
 				}
 
 				if err != nil {
@@ -118,7 +124,7 @@ func init() {
 
 				render.Render(w, r, OKResponse{
 					Data: UserResult{
-						Id:        user.ID,
+						ID:        user.ID,
 						Username:  user.Username,
 						FirstName: user.FirstName,
 						LastName:  user.LastName,
@@ -128,7 +134,7 @@ func init() {
 			})
 
 			users.Post("/", func(w http.ResponseWriter, r *http.Request) {
-				var params UserCreateParams
+				var params UsersPostParams
 
 				if err := render.Bind(r, &params); err != nil {
 					render.Render(w, r, ErrBadRequest(err))
@@ -162,7 +168,7 @@ func init() {
 
 		api.Route("/tokens", func(tokens chi.Router) {
 			tokens.Post("/", func(w http.ResponseWriter, r *http.Request) {
-				var params TokenCreateParams
+				var params TokensPostParams
 
 				if err := render.Bind(r, &params); err != nil {
 					render.Render(w, r, ErrBadRequest(err))
@@ -205,10 +211,10 @@ func init() {
 					return
 				}
 
-				userId := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
+				userID := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
 				user := User{}
 				questions := []*UserQuestion{}
-				err := db.Order("id DESC").Find(&user, "id = ?", userId).Related(&questions).Error
+				err := db.Order("id DESC").Find(&user, "id = ?", userID).Related(&questions).Error
 
 				if err != nil {
 					render.Render(w, r, ErrNotFound(errors.New("User not found")))
@@ -219,9 +225,9 @@ func init() {
 
 				for _, question := range questions {
 					mappedQuestions = append(mappedQuestions, QuestionResult{
-						Id:        question.ID,
+						ID:        question.ID,
 						Text:      question.Text,
-						FromId:    question.FromId,
+						FromID:    question.FromID,
 						Timestamp: question.CreatedAt.Unix(),
 					})
 				}
@@ -233,26 +239,26 @@ func init() {
 			})
 
 			questions.Post("/", func(w http.ResponseWriter, r *http.Request) {
-				var params QuestionCreateParams
+				var params QuestionsPostParams
 
 				if err := render.Bind(r, &params); err != nil {
 					render.Render(w, r, ErrBadRequest(err))
 					return
 				}
 
-				var fromId uint = 0
+				var fromID uint
 				user := User{}
 
 				if value := r.Context().Value("user"); value != nil {
-					fromId = uint(value.(*jwt.Token).Claims.(jwt.MapClaims)["id"].(float64))
+					fromID = uint(value.(*jwt.Token).Claims.(jwt.MapClaims)["id"].(float64))
 				}
 
 				question := UserQuestion{
 					Text:   params.Text,
-					FromId: fromId,
+					FromID: fromID,
 				}
 
-				err := db.Find(&user, "id = ?", params.UserId).Association("UserQuestions").Append(&question).Error
+				err := db.Find(&user, "id = ?", params.UserID).Association("UserQuestions").Append(&question).Error
 
 				if err != nil {
 					render.Render(w, r, ErrBadRequest(errors.New("User not found")))
@@ -261,70 +267,68 @@ func init() {
 
 				render.Render(w, r, OKResponse{
 					Data: QuestionResult{
-						Id:        question.ID,
+						ID:        question.ID,
 						Text:      question.Text,
-						FromId:    question.FromId,
+						FromID:    question.FromID,
 						Timestamp: question.CreatedAt.Unix(),
 					},
 					Ok: true,
 				})
 			})
 
-			questions.Route("/{question_id}", func(question chi.Router) {
-				question.Delete("/", func(w http.ResponseWriter, r *http.Request) {
-					questionId, err := strconv.Atoi(chi.URLParam(r, "question_id"))
+			questions.Delete("/", func(w http.ResponseWriter, r *http.Request) {
+				var params QuestionsDeleteParams
 
-					if err != nil {
-						render.Render(w, r, ErrBadRequest(errors.New("Question id must be integer")))
-						return
-					}
+				if err := render.Bind(r, &params); err != nil {
+					render.Render(w, r, ErrBadRequest(err))
+					return
+				}
 
-					ctxUser := r.Context().Value("user")
+				ctxUser := r.Context().Value("user")
 
-					if ctxUser == nil {
-						render.Render(w, r, ErrUnauthorized(errors.New("Token is not provided")))
-						return
-					}
+				if ctxUser == nil {
+					render.Render(w, r, ErrUnauthorized(errors.New("Token is not provided")))
+					return
+				}
 
-					userId := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
-					err = db.Delete(UserQuestion{}, "id = ? AND user_id = ?", questionId, userId).Error
+				userID := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
+				err := db.Delete(UserQuestion{}, "id = ? AND user_id = ?", params.QuestionID, userID).Error
 
-					if err != nil {
-						render.Render(w, r, ErrBadRequest(errors.New("Question not found")))
-						return
-					}
+				if err != nil {
+					render.Render(w, r, ErrBadRequest(errors.New("Question not found")))
+					return
+				}
 
-					render.Render(w, r, OKResponse{
-						Ok: true,
-					})
+				render.Render(w, r, OKResponse{
+					Ok: true,
 				})
+			})
 
-				question.Put("/", func(w http.ResponseWriter, r *http.Request) { // undelete question
-					questionId, err := strconv.Atoi(chi.URLParam(r, "question_id"))
+			questions.Put("/", func(w http.ResponseWriter, r *http.Request) { // undelete question
+				var params QuestionsPutParams
 
-					if err != nil {
-						render.Render(w, r, ErrBadRequest(errors.New("Question id must be integer")))
-						return
-					}
+				if err := render.Bind(r, &params); err != nil {
+					render.Render(w, r, ErrBadRequest(err))
+					return
+				}
 
-					ctxUser := r.Context().Value("user")
+				ctxUser := r.Context().Value("user")
 
-					if ctxUser == nil {
-						render.Render(w, r, ErrUnauthorized(errors.New("Token is not provided")))
-						return
-					}
+				if ctxUser == nil {
+					render.Render(w, r, ErrUnauthorized(errors.New("Token is not provided")))
+					return
+				}
 
-					userId := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
-					err = db.Model(&UserQuestion{}).Unscoped().Where("id = ? AND user_id = ?", questionId, userId).Update("deleted_at", nil).Error
+				userID := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
+				err := db.Model(&UserQuestion{}).Unscoped().Where("id = ? AND user_id = ?", params.QuestionID, userID).Update("deleted_at", nil).Error
 
-					if err != nil {
-						render.Render(w, r, ErrNotFound(errors.New("Question not found")))
-						return
-					}
+				if err != nil {
+					render.Render(w, r, ErrNotFound(errors.New("Question not found")))
+					return
+				}
 
-					render.Render(w, r, OKResponse{
-						Ok: true,
-					})
+				render.Render(w, r, OKResponse{
+					Ok: true,
 				})
 			})
 		})
@@ -340,7 +344,7 @@ func init() {
 
 				answers := []*UserAnswer{}
 				user := User{}
-				err := db.Order("id DESC").Find(&user, "id = ?", params.UserId).Related(&answers).Error
+				err := db.Order("id DESC").Find(&user, "id = ?", params.UserID).Related(&answers).Error
 
 				if err != nil {
 					render.Render(w, r, ErrNotFound(errors.New("User not found")))
@@ -351,10 +355,10 @@ func init() {
 
 				for _, answer := range answers {
 					mappedAnswers = append(mappedAnswers, AnswerResult{
-						Id:         answer.ID,
+						ID:         answer.ID,
 						Text:       answer.Text,
-						UserId:     answer.UserId,
-						QuestionId: answer.UserQuestionId,
+						UserID:     answer.UserID,
+						QuestionID: answer.UserQuestionID,
 						Timestamp:  answer.CreatedAt.Unix(),
 					})
 				}
@@ -366,7 +370,7 @@ func init() {
 			})
 
 			answers.Post("/", func(w http.ResponseWriter, r *http.Request) {
-				var params AnswerCreateParams
+				var params AnswersPostParams
 
 				if err := render.Bind(r, &params); err != nil {
 					render.Render(w, r, ErrBadRequest(err))
@@ -380,9 +384,9 @@ func init() {
 					return
 				}
 
-				userId := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
+				userID := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
 				question := UserQuestion{}
-				err := db.Find(&question, "id = ? AND user_answer_id IS NULL AND user_id = ?", params.QuestionId, userId).Error
+				err := db.Find(&question, "id = ? AND user_answer_id IS NULL AND user_id = ?", params.QuestionID, userID).Error
 
 				if err != nil {
 					render.Render(w, r, ErrBadRequest(errors.New("Question not found")))
@@ -392,140 +396,131 @@ func init() {
 				user := User{}
 				answer := UserAnswer{
 					Text:           params.Text,
-					UserQuestionId: question.ID,
+					UserQuestionID: question.ID,
 				}
 
-				err = db.Find(&user, "id = ?", userId).Association("UserAnswers").Append(&answer).Error
+				err = db.Find(&user, "id = ?", userID).Association("UserAnswers").Append(&answer).Error
 
 				if err != nil {
 					render.Render(w, r, ErrNotFound(errors.New("User not found")))
 				}
 
-				question.UserAnswerId = answer.ID
+				question.UserAnswerID = answer.ID
 				db.Save(&question)
 
 				render.Render(w, r, OKResponse{
 					Data: AnswerResult{
-						Id:         answer.ID,
+						ID:         answer.ID,
 						Text:       answer.Text,
-						UserId:     answer.UserId,
-						QuestionId: question.ID,
+						UserID:     answer.UserID,
+						QuestionID: question.ID,
 						Timestamp:  answer.CreatedAt.Unix(),
 					},
 					Ok: true,
 				})
 			})
+		})
 
-			answers.Route("/{answer_id}", func(answer chi.Router) {
-				answer.Route("/comments", func(answerComments chi.Router) {
-					answerComments.Post("/", func(w http.ResponseWriter, r *http.Request) {
-						answerId, err := strconv.Atoi(chi.URLParam(r, "answer_id"))
+		api.Route("/comments", func(comments chi.Router) {
+			comments.Post("/", func(w http.ResponseWriter, r *http.Request) {
+				var params CommentsPostParams
 
-						if err != nil {
-							render.Render(w, r, ErrBadRequest(errors.New("Answer id must be integer")))
-							return
-						}
+				if err := render.Bind(r, &params); err != nil {
+					render.Render(w, r, ErrBadRequest(err))
+					return
+				}
 
-						var params CommentCreateParams
+				ctxUser := r.Context().Value("user")
 
-						if err := render.Bind(r, &params); err != nil {
-							render.Render(w, r, ErrBadRequest(err))
-							return
-						}
+				if ctxUser == nil {
+					render.Render(w, r, ErrUnauthorized(errors.New("Token is not provided")))
+					return
+				}
 
-						ctxUser := r.Context().Value("user")
+				userID := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
+				comment := AnswerComment{
+					UserID: uint(userID.(float64)),
+					Text:   params.Text,
+				}
 
-						if ctxUser == nil {
-							render.Render(w, r, ErrUnauthorized(errors.New("Token is not provided")))
-							return
-						}
+				err := db.Find(&UserAnswer{}, "id = ?", params.AnswerID).Association("AnswerComments").Append(&comment).Error
 
-						userId := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
-						comment := AnswerComment{
-							UserId: uint(userId.(float64)),
-							Text:   params.Text,
-						}
+				if err != nil {
+					render.Render(w, r, ErrNotFound(errors.New("Answer not found")))
+					return
+				}
 
-						err = db.Find(&UserAnswer{}, "id = ?", answerId).Association("AnswerComments").Append(&comment).Error
-
-						if err != nil {
-							render.Render(w, r, ErrNotFound(errors.New("Answer not found")))
-							return
-						}
-
-						render.Render(w, r, OKResponse{
-							Data: CommentResult{
-								Id:        comment.ID,
-								UserId:    comment.UserId,
-								Text:      comment.Text,
-								Timestamp: comment.CreatedAt.Unix(),
-							},
-							Ok: true,
-						})
-					})
+				render.Render(w, r, OKResponse{
+					Data: CommentResult{
+						Id:        comment.ID,
+						UserID:    comment.UserID,
+						Text:      comment.Text,
+						Timestamp: comment.CreatedAt.Unix(),
+					},
+					Ok: true,
 				})
+			})
+		})
 
-				answer.Route("/likes", func(answerLikes chi.Router) {
-					answerLikes.Post("/", func(w http.ResponseWriter, r *http.Request) {
-						answerId, err := strconv.Atoi(chi.URLParam(r, "answer_id"))
+		api.Route("/likes", func(likes chi.Router) {
+			likes.Post("/", func(w http.ResponseWriter, r *http.Request) {
+				var params LikesPostParams
 
-						if err != nil {
-							render.Render(w, r, ErrBadRequest(errors.New("Answer id must be integer")))
-							return
-						}
+				if err := render.Bind(r, &params); err != nil {
+					render.Render(w, r, ErrBadRequest(err))
+					return
+				}
 
-						ctxUser := r.Context().Value("user")
+				ctxUser := r.Context().Value("user")
 
-						if ctxUser == nil {
-							render.Render(w, r, ErrUnauthorized(errors.New("Token is not provided")))
-							return
-						}
+				if ctxUser == nil {
+					render.Render(w, r, ErrUnauthorized(errors.New("Token is not provided")))
+					return
+				}
 
-						userId := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
+				userID := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
 
-						like := AnswerLike{
-							UserId: uint(userId.(float64)),
-						}
+				like := AnswerLike{
+					UserID: uint(userID.(float64)),
+				}
 
-						err = db.Find(&UserAnswer{}, "id = ?", answerId).Association("AnswerLikes").Append(&like).Error
+				err := db.Find(&UserAnswer{}, "id = ?", params.AnswerID).Association("AnswerLikes").Append(&like).Error
 
-						if err != nil {
-							render.Render(w, r, ErrNotFound(errors.New("Answer not found")))
-							return
-						}
+				if err != nil {
+					render.Render(w, r, ErrNotFound(errors.New("Answer not found")))
+					return
+				}
 
-						render.Render(w, r, OKResponse{
-							Ok: true,
-						})
-					})
+				render.Render(w, r, OKResponse{
+					Ok: true,
+				})
+			})
 
-					answerLikes.Delete("/", func(w http.ResponseWriter, r *http.Request) {
-						answerId, err := strconv.Atoi(chi.URLParam(r, "answer_id"))
+			likes.Delete("/", func(w http.ResponseWriter, r *http.Request) {
+				var params LikesDeleteParams
 
-						if err != nil {
-							render.Render(w, r, ErrBadRequest(errors.New("Answer id must be integer")))
-							return
-						}
+				if err := render.Bind(r, &params); err != nil {
+					render.Render(w, r, ErrBadRequest(err))
+					return
+				}
 
-						ctxUser := r.Context().Value("user")
+				ctxUser := r.Context().Value("user")
 
-						if ctxUser == nil {
-							render.Render(w, r, ErrUnauthorized(errors.New("Token is not provided")))
-							return
-						}
+				if ctxUser == nil {
+					render.Render(w, r, ErrUnauthorized(errors.New("Token is not provided")))
+					return
+				}
 
-						userId := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
-						err = db.Delete(&AnswerLike{}, "user_id = ? AND user_answer_id = ?", userId, answerId).Error
+				userID := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
+				err := db.Delete(&AnswerLike{}, "user_id = ? AND user_answer_id = ?", userID, params.AnswerID).Error
 
-						if err != nil {
-							render.Render(w, r, ErrNotFound(errors.New("Answer not found")))
-							return
-						}
+				if err != nil {
+					render.Render(w, r, ErrNotFound(errors.New("Answer not found")))
+					return
+				}
 
-						render.Render(w, r, OKResponse{
-							Ok: true,
-						})
-					})
+				render.Render(w, r, OKResponse{
+					Ok: true,
 				})
 			})
 		})
