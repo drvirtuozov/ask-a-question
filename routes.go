@@ -519,7 +519,9 @@ func init() {
 
 				userAnswer := UserAnswer{}
 				userAnswer.ID = uint(params.AnswerID)
-				err := db.Find(&userAnswer).Association("AnswerLikes").Append(&like).Error
+				var answerLikes []AnswerLike
+
+				err := db.Find(&userAnswer).Association("AnswerLikes").Append(&like).Find(&answerLikes).Error
 
 				if err != nil {
 					render.Render(w, r, ErrNotFound(errors.New("Answer not found")))
@@ -528,14 +530,14 @@ func init() {
 
 				var userIDs []uint
 
-				for _, like := range userAnswer.AnswerLikes {
+				for _, like := range answerLikes {
 					userIDs = append(userIDs, like.UserID)
 				}
 
 				render.Render(w, r, OKResponse{
 					Ok: true,
 					Data: LikesResult{
-						Count:   len(userAnswer.AnswerLikes),
+						Count:   len(answerLikes),
 						UserIDs: userIDs,
 					},
 				})
