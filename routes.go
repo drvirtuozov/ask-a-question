@@ -511,10 +511,10 @@ func init() {
 					return
 				}
 
-				userID := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
+				userID := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"].(float64)
 
 				like := AnswerLike{
-					UserID: uint(userID.(float64)),
+					UserID: uint(userID),
 				}
 
 				userAnswer := UserAnswer{}
@@ -558,16 +558,27 @@ func init() {
 					return
 				}
 
-				userID := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"].(int)
-				err := db.Delete(&AnswerLike{}, "user_id = ? AND user_answer_id = ?", userID, params.AnswerID).Error
+				userID := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
+				var answerLikes []AnswerLike
+				err := db.Delete(&AnswerLike{}, "user_id = ? AND user_answer_id = ?", userID, params.AnswerID).Find(&answerLikes).Error
 
 				if err != nil {
 					render.Render(w, r, ErrNotFound(errors.New("Answer not found")))
 					return
 				}
 
+				var userIDs []uint
+
+				for _, like := range answerLikes {
+					userIDs = append(userIDs, like.UserID)
+				}
+
 				render.Render(w, r, OKResponse{
 					Ok: true,
+					Data: LikesResult{
+						Count:   len(answerLikes),
+						UserIDs: userIDs,
+					},
 				})
 			})
 		})
