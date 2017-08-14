@@ -196,3 +196,20 @@ func (ldp *LikesDeleteParams) Bind(r *http.Request) error {
 
 	return nil
 }
+
+type LikesGetParams struct {
+	AnswerID int `form:"answer_id"`
+}
+
+func (lgp *LikesGetParams) Bind(r *http.Request) error {
+	if lgp.AnswerID == 0 {
+		return errors.New("Answer id is required")
+	}
+
+	return nil
+}
+
+type LikesResult struct {
+	Count   int    `json:"count"`
+	UserIDs []uint `json:"user_ids,omitempty"`
+}

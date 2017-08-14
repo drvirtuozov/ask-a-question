@@ -463,6 +463,39 @@ func init() {
 		})
 
 		api.Route("/likes", func(likes chi.Router) {
+			likes.Get("/", func(w http.ResponseWriter, r *http.Request) {
+				var params LikesGetParams
+
+				if err := render.Bind(r, &params); err != nil {
+					render.Render(w, r, ErrBadRequest(err))
+					return
+				}
+
+				answer := UserAnswer{}
+				answer.ID = uint(params.AnswerID)
+				likes := []*AnswerLike{}
+				err := db.Model(&answer).Related(&likes).Error
+
+				if err != nil {
+					render.Render(w, r, ErrNotFound(errors.New("Answer not found")))
+					return
+				}
+
+				var userIDs []uint
+
+				for _, like := range likes {
+					userIDs = append(userIDs, like.UserID)
+				}
+
+				render.Render(w, r, OKResponse{
+					Ok: true,
+					Data: LikesResult{
+						Count:   len(userIDs),
+						UserIDs: userIDs,
+					},
+				})
+			})
+
 			likes.Post("/", func(w http.ResponseWriter, r *http.Request) {
 				var params LikesPostParams
 
@@ -484,15 +517,27 @@ func init() {
 					UserID: uint(userID.(float64)),
 				}
 
-				err := db.Find(&UserAnswer{}, "id = ?", params.AnswerID).Association("AnswerLikes").Append(&like).Error
+				userAnswer := UserAnswer{}
+				userAnswer.ID = uint(params.AnswerID)
+				err := db.Find(&userAnswer).Association("AnswerLikes").Append(&like).Error
 
 				if err != nil {
 					render.Render(w, r, ErrNotFound(errors.New("Answer not found")))
 					return
 				}
 
+				var userIDs []uint
+
+				for _, like := range userAnswer.AnswerLikes {
+					userIDs = append(userIDs, like.UserID)
+				}
+
 				render.Render(w, r, OKResponse{
 					Ok: true,
+					Data: LikesResult{
+						Count:   len(userAnswer.AnswerLikes),
+						UserIDs: userIDs,
+					},
 				})
 			})
 
@@ -511,7 +556,7 @@ func init() {
 					return
 				}
 
-				userID := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
+				userID := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"].(int)
 				err := db.Delete(&AnswerLike{}, "user_id = ? AND user_answer_id = ?", userID, params.AnswerID).Error
 
 				if err != nil {

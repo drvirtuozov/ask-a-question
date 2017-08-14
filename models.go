@@ -65,20 +65,10 @@ func (user *User) Sign() (string, error) {
 }
 
 func (user *User) AfterCreate(db *gorm.DB) {
-	/*db.Model(user).Association("UserQuestions").Append([]*UserQuestion{
-		&UserQuestion{
-			Text:   "First random question from admin",
-			FromId: 1,
-		},
-		&UserQuestion{
-			Text:   "Second random question from admin",
-			FromId: 1,
-		},
-		&UserQuestion{
-			Text:   "Third random question from admin",
-			FromId: 1,
-		},
-	})*/
+	db.Model(user).Association("UserQuestions").Append(UserQuestion{
+		Text:   "First random question from admin",
+		FromID: 1,
+	})
 }
 
 type UserAnswer struct {
