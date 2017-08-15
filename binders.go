@@ -137,6 +137,18 @@ type AnswerResult struct {
 	Timestamp  int64  `json:"timestamp"`
 }
 
+type CommentsGetParams struct {
+	AnswerID int `json:"answer_id"`
+}
+
+func (cgp *CommentsGetParams) Bind(r *http.Request) error {
+	if cgp.AnswerID == 0 {
+		return errors.New("Answer id is required")
+	}
+
+	return nil
+}
+
 type CommentsPostParams struct {
 	AnswerID int    `json:"answer_id"`
 	Text     string `json:"text"`
@@ -155,7 +167,7 @@ func (cpp *CommentsPostParams) Bind(r *http.Request) error {
 }
 
 type CommentResult struct {
-	Id        uint   `json:"id"`
+	ID        uint   `json:"id"`
 	Text      string `json:"text"`
 	UserID    uint   `json:"user_id"`
 	Timestamp int64  `json:"timestamp"`

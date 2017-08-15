@@ -95,7 +95,7 @@ func ErrNotFound(err error) render.Renderer {
 }
 
 func init() {
-	render.Decode = customDecoder
+	render.Decode = customDecoder // hardcoded querystring decoder while default isn't implemented yet by its author
 	r = chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Route("/api", func(api chi.Router) {
@@ -422,6 +422,42 @@ func init() {
 		})
 
 		api.Route("/comments", func(comments chi.Router) {
+			comments.Get("/", func(w http.ResponseWriter, r *http.Request) {
+				var params CommentsGetParams
+
+				if err := render.Bind(r, &params); err != nil {
+					render.Render(w, r, ErrBadRequest(err))
+					return
+				}
+
+				answer := UserAnswer{}
+				answer.ID = uint(params.AnswerID)
+
+				var comments []AnswerComment
+				err := db.Model(&answer).Related(&comments).Error
+
+				if err != nil {
+					render.Render(w, r, ErrNotFound(errors.New("Answer not found")))
+					return
+				}
+
+				var mappedComments []CommentResult
+
+				for _, comment := range comments {
+					mappedComments = append(mappedComments, CommentResult{
+						ID:        comment.ID,
+						Text:      comment.Text,
+						UserID:    comment.UserID,
+						Timestamp: comment.CreatedAt.Unix(),
+					})
+				}
+
+				render.Render(w, r, OKResponse{
+					Ok:   true,
+					Data: mappedComments,
+				})
+			})
+
 			comments.Post("/", func(w http.ResponseWriter, r *http.Request) {
 				var params CommentsPostParams
 
@@ -452,7 +488,7 @@ func init() {
 
 				render.Render(w, r, OKResponse{
 					Data: CommentResult{
-						Id:        comment.ID,
+						ID:        comment.ID,
 						UserID:    comment.UserID,
 						Text:      comment.Text,
 						Timestamp: comment.CreatedAt.Unix(),
