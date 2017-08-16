@@ -138,7 +138,7 @@ type AnswerResult struct {
 }
 
 type CommentsGetParams struct {
-	AnswerID int `json:"answer_id"`
+	AnswerID int `form:"answer_id"`
 }
 
 func (cgp *CommentsGetParams) Bind(r *http.Request) error {
