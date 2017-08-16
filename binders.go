@@ -130,11 +130,12 @@ func (app *AnswersPostParams) Bind(r *http.Request) error {
 }
 
 type AnswerResult struct {
-	ID         uint   `json:"id"`
-	Text       string `json:"text"`
-	UserID     uint   `json:"user_id"`
-	QuestionID uint   `json:"question_id"`
-	Timestamp  int64  `json:"timestamp"`
+	ID         uint        `json:"id"`
+	Text       string      `json:"text"`
+	UserID     uint        `json:"user_id"`
+	QuestionID uint        `json:"question_id"`
+	Timestamp  int64       `json:"timestamp"`
+	Likes      LikesResult `json:"likes"`
 }
 
 type CommentsGetParams struct {

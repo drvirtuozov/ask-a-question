@@ -47,11 +47,13 @@ func ErrorToErrorInfo(err error) ErrorInfo {
 			fields := []string{
 				"username", "password", "email",
 			}
+
 			for _, v := range fields {
 				if strings.Contains(text, v) {
 					return v
 				}
 			}
+
 			return ""
 		}(err.Error()),
 		Detail: err.Error(),
@@ -342,9 +344,10 @@ func init() {
 					return
 				}
 
-				answers := []*UserAnswer{}
+				var answers []UserAnswer
 				user := User{}
-				err := db.Order("id DESC").Find(&user, "id = ?", params.UserID).Related(&answers).Error
+				user.ID = uint(params.UserID)
+				err := db.Order("id DESC").Model(&user).Related(&answers).Error
 
 				if err != nil {
 					render.Render(w, r, ErrNotFound(errors.New("User not found")))
@@ -360,6 +363,9 @@ func init() {
 						UserID:     answer.UserID,
 						QuestionID: answer.UserQuestionID,
 						Timestamp:  answer.CreatedAt.Unix(),
+						Likes: LikesResult{
+							Count: len(answer.AnswerLikes),
+						},
 					})
 				}
 
@@ -473,9 +479,9 @@ func init() {
 					return
 				}
 
-				userID := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
+				userID := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"].(float64)
 				comment := AnswerComment{
-					UserID: uint(userID.(float64)),
+					UserID: uint(userID),
 					Text:   params.Text,
 				}
 
@@ -509,7 +515,7 @@ func init() {
 
 				answer := UserAnswer{}
 				answer.ID = uint(params.AnswerID)
-				likes := []*AnswerLike{}
+				var likes []AnswerLike
 				err := db.Model(&answer).Related(&likes).Error
 
 				if err != nil {
