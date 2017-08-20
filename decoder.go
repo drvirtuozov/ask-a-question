@@ -88,6 +88,8 @@ func decodeForm(form url.Values, dst interface{}) error {
 				}
 
 				vf.Set(reflect.ValueOf(strings.Split(formVal, ",")))
+			default:
+				return fmt.Errorf("decoder's handler of type %s isn't implemented yet", reflect.TypeOf(vf.Interface()))
 			}
 		}
 
