@@ -1,15 +1,17 @@
 package main
 
 import (
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/postgres"
-	"github.com/qor/validations"
+	"database/sql"
+	"errors"
+
+	"github.com/lib/pq"
+	//"github.com/qor/validations"
 )
 
-var db *gorm.DB
+var db *sql.DB
 
 func init() {
-	conn, err := gorm.Open("postgres",
+	conn, err := sql.Open("postgres",
 		"postgres://rvuzfjit:SFyVOqvQA7ih4ey00VhPpsuVuVAo0G7G@horton.elephantsql.com:5432/rvuzfjit")
 
 	if err != nil {
@@ -17,7 +19,8 @@ func init() {
 	}
 
 	db = conn
-	db.DropTable(
+
+	/*db.DropTable(
 		&User{},
 		&UserQuestion{},
 		&UserAnswer{},
@@ -44,5 +47,35 @@ func init() {
 		Password:  "73217321",
 		Email:     "boratische@ya.ru",
 		FirstName: "Vlad",
-	})
+	})*/
+}
+
+func getUsersByParams(params UsersGetParams) ([]UserResult, error) {
+	rows, err := db.Query(`select id, username, first_name, last_name from users where id = any($1) or username = any($2)`, pq.Array(params.UserIDs), pq.Array(params.Usernames))
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+	var users []UserResult
+	var count int
+
+	for rows.Next() {
+		count++
+		user := UserResult{}
+		err := rows.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName)
+
+		if err != nil {
+			return nil, err
+		}
+
+		users = append(users, user)
+	}
+
+	if count == 0 {
+		return nil, errors.New("Users not found")
+	}
+
+	return users, nil
 }

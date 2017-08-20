@@ -59,7 +59,6 @@ func decodeForm(form url.Values, dst interface{}) error {
 
 				vf.SetInt(int64(i))
 			case []int:
-				fmt.Println("leenint", len(formVal))
 				if len(formVal) == 0 {
 					vf.Set(reflect.ValueOf([]int{}))
 					continue

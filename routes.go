@@ -1,11 +1,10 @@
 package main
 
 import (
-	"errors"
 	"net/http"
 	"strings"
 
-	"github.com/dgrijalva/jwt-go"
+	//"github.com/dgrijalva/jwt-go"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/render"
@@ -97,45 +96,34 @@ func ErrNotFound(err error) render.Renderer {
 }
 
 func init() {
-	render.Decode = customDecoder // hardcoded querystring decoder while default isn't implemented yet by its author
+	render.Decode = customDecoder // hardcoded querystring url decoder while default isn't implemented yet by its author
 	r = chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Route("/api", func(api chi.Router) {
 		api.Use(JWTMiddleware().Handler)
 		api.Route("/users", func(users chi.Router) {
 			users.Get("/", func(w http.ResponseWriter, r *http.Request) {
-				var err error
 				var params UsersGetParams
-				user := User{}
 
 				if err := render.Bind(r, &params); err != nil {
 					render.Render(w, r, ErrBadRequest(err))
 					return
 				}
 
-				if params.UserID != 0 {
-					err = db.Find(&user, "id = ?", params.UserID).Error
-				} else {
-					err = db.Find(&user, "username = ?", params.Username).Error
-				}
+				users, err := getUsersByParams(params)
 
 				if err != nil {
-					render.Render(w, r, ErrNotFound(errors.New("User not found")))
+					render.Render(w, r, ErrNotFound(err))
 					return
 				}
 
 				render.Render(w, r, OKResponse{
-					Data: UserResult{
-						ID:        user.ID,
-						Username:  user.Username,
-						FirstName: user.FirstName,
-						LastName:  user.LastName,
-					},
-					Ok: true,
+					Ok:   true,
+					Data: users,
 				})
 			})
 
-			users.Post("/", func(w http.ResponseWriter, r *http.Request) {
+			/*users.Post("/", func(w http.ResponseWriter, r *http.Request) {
 				var params UsersPostParams
 
 				if err := render.Bind(r, &params); err != nil {
@@ -165,10 +153,10 @@ func init() {
 					Data: token,
 					Ok:   true,
 				})
-			})
+			})*/
 		})
 
-		api.Route("/tokens", func(tokens chi.Router) {
+		/*api.Route("/tokens", func(tokens chi.Router) {
 			tokens.Post("/", func(w http.ResponseWriter, r *http.Request) {
 				var params TokensPostParams
 
@@ -623,6 +611,6 @@ func init() {
 					},
 				})
 			})
-		})
+		})*/
 	})
 }

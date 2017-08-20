@@ -6,13 +6,13 @@ import (
 )
 
 type UsersGetParams struct {
-	Username string `form:"username"`
-	UserID   int    `form:"user_id"`
+	Usernames []string `form:"usernames"`
+	UserIDs   []int    `form:"user_ids"`
 }
 
 func (ugp *UsersGetParams) Bind(r *http.Request) error {
-	if ugp.UserID == 0 && ugp.Username == "" {
-		return errors.New("User id or username is required")
+	if len(ugp.UserIDs) == 0 && len(ugp.Usernames) == 0 {
+		return errors.New("User ids or usernames are required")
 	}
 
 	return nil
