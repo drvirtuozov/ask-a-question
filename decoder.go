@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -41,25 +42,37 @@ func decodeForm(form url.Values, dst interface{}) error {
 			tf := t.Field(i)
 			vf := v.Field(i)
 			tag := tf.Tag.Get("form")
+			formVal := form.Get(tag)
 
 			switch vf.Interface().(type) {
 			case int:
-				i, err := strconv.Atoi(form.Get(tag))
+				if len(formVal) == 0 {
+					vf.SetInt(0)
+					continue
+				}
+
+				i, err := strconv.Atoi(formVal)
 
 				if err != nil {
-					return errors.New("non integer value in int type")
+					return fmt.Errorf("non integer value in %s", tag)
 				}
 
 				vf.SetInt(int64(i))
 			case []int:
-				sarr := strings.Split(form.Get(tag), ",")
+				fmt.Println("leenint", len(formVal))
+				if len(formVal) == 0 {
+					vf.Set(reflect.ValueOf([]int{}))
+					continue
+				}
+
+				sarr := strings.Split(formVal, ",")
 				var iarr []int
 
 				for _, v := range sarr {
 					i, err := strconv.Atoi(v)
 
 					if err != nil {
-						return errors.New("non integer value in []int")
+						return fmt.Errorf("non integer value in %s", tag)
 					}
 
 					iarr = append(iarr, i)
@@ -67,9 +80,14 @@ func decodeForm(form url.Values, dst interface{}) error {
 
 				vf.Set(reflect.ValueOf(iarr))
 			case string:
-				vf.SetString(form.Get(tag))
+				vf.SetString(formVal)
 			case []string:
-				vf.Set(reflect.ValueOf(strings.Split(form.Get(tag), ",")))
+				if len(formVal) == 0 {
+					vf.Set(reflect.ValueOf([]string{}))
+					continue
+				}
+
+				vf.Set(reflect.ValueOf(strings.Split(formVal, ",")))
 			}
 		}
 
