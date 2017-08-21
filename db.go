@@ -6,6 +6,8 @@ import (
 
 	"github.com/lib/pq"
 	//"github.com/qor/validations"
+	"github.com/dgrijalva/jwt-go"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var db *sql.DB
@@ -48,6 +50,25 @@ func init() {
 		Email:     "boratische@ya.ru",
 		FirstName: "Vlad",
 	})*/
+
+	_, err = db.Exec(`
+drop table users;
+create table users (
+	id serial primary key,
+	username text not null unique,
+	password text not null,
+	first_name text,
+	last_name text,
+	email text not null unique,
+	created_at timestamp default current_timestamp,
+	updated_at timestamp,
+	deleted_at timestamp
+);
+	`)
+
+	if err != nil {
+		panic(err)
+	}
 }
 
 func getUsersByParams(params UsersGetParams) ([]UserResult, error) {
@@ -78,4 +99,33 @@ func getUsersByParams(params UsersGetParams) ([]UserResult, error) {
 	}
 
 	return users, nil
+}
+
+func createUserByParams(params UsersPostParams) (token string, err error) {
+	hashedPass, err := bcrypt.GenerateFromPassword([]byte(params.Password), 8)
+
+	if err != nil {
+		return "", err
+	}
+
+	var userID int
+
+	err = db.QueryRow("insert into users (username, password, email) values ($1, $2, $3) returning id", params.Username, string(hashedPass), params.Email).Scan(&userID)
+
+	if err != nil {
+		return "", err
+	}
+
+	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"id":       userID,
+		"username": params.Username,
+	})
+
+	token, err = jwtToken.SignedString([]byte("secret"))
+
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
 }

@@ -123,7 +123,7 @@ func init() {
 				})
 			})
 
-			/*users.Post("/", func(w http.ResponseWriter, r *http.Request) {
+			users.Post("/", func(w http.ResponseWriter, r *http.Request) {
 				var params UsersPostParams
 
 				if err := render.Bind(r, &params); err != nil {
@@ -131,18 +131,7 @@ func init() {
 					return
 				}
 
-				user := User{
-					Username: params.Username,
-					Password: params.Password,
-					Email:    params.Email,
-				}
-
-				if err := db.Create(&user).Error; err != nil {
-					render.Render(w, r, ErrBadRequest(err))
-					return
-				}
-
-				token, err := user.Sign()
+				token, err := createUserByParams(params)
 
 				if err != nil {
 					render.Render(w, r, ErrInternalError(err))
@@ -153,7 +142,7 @@ func init() {
 					Data: token,
 					Ok:   true,
 				})
-			})*/
+			})
 		})
 
 		/*api.Route("/tokens", func(tokens chi.Router) {
