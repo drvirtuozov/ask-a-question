@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"net/http"
 	"strings"
 
@@ -169,7 +170,7 @@ func init() {
 		})
 
 		api.Route("/questions", func(questions chi.Router) {
-			/*questions.Get("/", func(w http.ResponseWriter, r *http.Request) {
+			questions.Get("/", func(w http.ResponseWriter, r *http.Request) {
 				ctxUser := r.Context().Value("user")
 
 				if ctxUser == nil {
@@ -177,32 +178,20 @@ func init() {
 					return
 				}
 
-				userID := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
-				user := User{}
-				questions := []*UserQuestion{}
-				err := db.Order("id DESC").Find(&user, "id = ?", userID).Related(&questions).Error
+				userID := int(ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"].(float64))
+
+				questions, err := getQuestionsByUserID(userID)
 
 				if err != nil {
-					render.Render(w, r, ErrNotFound(errors.New("User not found")))
+					render.Render(w, r, ErrInternalError(err))
 					return
-				}
-
-				var mappedQuestions []QuestionResult
-
-				for _, question := range questions {
-					mappedQuestions = append(mappedQuestions, QuestionResult{
-						ID:        question.ID,
-						Text:      question.Text,
-						FromID:    question.FromID,
-						Timestamp: question.CreatedAt.Unix(),
-					})
 				}
 
 				render.Render(w, r, OKResponse{
 					Ok:   true,
-					Data: mappedQuestions,
+					Data: questions,
 				})
-			})*/
+			})
 
 			questions.Post("/", func(w http.ResponseWriter, r *http.Request) {
 				var params QuestionsPostParams

@@ -194,3 +194,37 @@ func createQuestionByParams(params QuestionsPostParams) (QuestionResult, error) 
 		Timestamp: createdAt.Unix(),
 	}, nil
 }
+
+func getQuestionsByUserID(id int) ([]QuestionResult, error) {
+	rows, err := db.Query("select id, text, from_id, created_at from questions where user_id = $1", id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var questions []QuestionResult
+
+	for rows.Next() {
+		var (
+			id        int
+			text      string
+			fromID    int
+			createdAt time.Time
+		)
+
+		err := rows.Scan(&id, &text, &fromID, &createdAt)
+
+		if err != nil {
+			return nil, err
+		}
+
+		questions = append(questions, QuestionResult{
+			ID:        uint(id),
+			Text:      text,
+			FromID:    uint(fromID),
+			Timestamp: createdAt.Unix(),
+		})
+	}
+
+	return questions, nil
+}
