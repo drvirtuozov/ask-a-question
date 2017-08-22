@@ -196,7 +196,7 @@ func createQuestionByParams(params QuestionsPostParams) (QuestionResult, error) 
 }
 
 func getQuestionsByUserID(id int) ([]QuestionResult, error) {
-	rows, err := db.Query("select id, text, from_id, created_at from questions where user_id = $1 and answer_id = 0 and deleted_at is null", id)
+	rows, err := db.Query("select id, text, from_id, created_at from questions where user_id = $1 and answer_id = 0 and deleted_at is null order by id desc", id)
 
 	if err != nil {
 		return nil, err
