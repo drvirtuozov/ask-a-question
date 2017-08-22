@@ -218,7 +218,7 @@ func init() {
 				})
 			})
 
-			/*questions.Delete("/", func(w http.ResponseWriter, r *http.Request) {
+			questions.Delete("/", func(w http.ResponseWriter, r *http.Request) {
 				var params QuestionsDeleteParams
 
 				if err := render.Bind(r, &params); err != nil {
@@ -233,11 +233,11 @@ func init() {
 					return
 				}
 
-				userID := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
-				err := db.Delete(UserQuestion{}, "id = ? AND user_id = ?", params.QuestionID, userID).Error
+				userID := int(ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"].(float64))
+				err := deleteQuestionByID(params.QuestionID, userID)
 
 				if err != nil {
-					render.Render(w, r, ErrBadRequest(errors.New("Question not found")))
+					render.Render(w, r, ErrBadRequest(err))
 					return
 				}
 
@@ -246,7 +246,7 @@ func init() {
 				})
 			})
 
-			questions.Put("/", func(w http.ResponseWriter, r *http.Request) { // undelete question
+			/*questions.Put("/", func(w http.ResponseWriter, r *http.Request) { // undelete question
 				var params QuestionsPutParams
 
 				if err := render.Bind(r, &params); err != nil {
