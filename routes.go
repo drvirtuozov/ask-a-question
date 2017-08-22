@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	//"github.com/dgrijalva/jwt-go"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/render"
@@ -168,8 +168,8 @@ func init() {
 			})
 		})
 
-		/*api.Route("/questions", func(questions chi.Router) {
-			questions.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		api.Route("/questions", func(questions chi.Router) {
+			/*questions.Get("/", func(w http.ResponseWriter, r *http.Request) {
 				ctxUser := r.Context().Value("user")
 
 				if ctxUser == nil {
@@ -202,7 +202,7 @@ func init() {
 					Ok:   true,
 					Data: mappedQuestions,
 				})
-			})
+			})*/
 
 			questions.Post("/", func(w http.ResponseWriter, r *http.Request) {
 				var params QuestionsPostParams
@@ -212,37 +212,24 @@ func init() {
 					return
 				}
 
-				var fromID uint
-				user := User{}
-
 				if value := r.Context().Value("user"); value != nil {
-					fromID = uint(value.(*jwt.Token).Claims.(jwt.MapClaims)["id"].(float64))
+					params.FromID = int(value.(*jwt.Token).Claims.(jwt.MapClaims)["id"].(float64))
 				}
 
-				question := UserQuestion{
-					Text:   params.Text,
-					FromID: fromID,
-				}
-
-				err := db.Find(&user, "id = ?", params.UserID).Association("UserQuestions").Append(&question).Error
+				question, err := createQuestionByParams(params)
 
 				if err != nil {
-					render.Render(w, r, ErrBadRequest(errors.New("User not found")))
+					render.Render(w, r, ErrInternalError(err))
 					return
 				}
 
 				render.Render(w, r, OKResponse{
-					Data: QuestionResult{
-						ID:        question.ID,
-						Text:      question.Text,
-						FromID:    question.FromID,
-						Timestamp: question.CreatedAt.Unix(),
-					},
-					Ok: true,
+					Data: question,
+					Ok:   true,
 				})
 			})
 
-			questions.Delete("/", func(w http.ResponseWriter, r *http.Request) {
+			/*questions.Delete("/", func(w http.ResponseWriter, r *http.Request) {
 				var params QuestionsDeleteParams
 
 				if err := render.Bind(r, &params); err != nil {
@@ -296,10 +283,10 @@ func init() {
 				render.Render(w, r, OKResponse{
 					Ok: true,
 				})
-			})
+			})*/
 		})
 
-		api.Route("/answers", func(answers chi.Router) {
+		/*api.Route("/answers", func(answers chi.Router) {
 			answers.Get("/", func(w http.ResponseWriter, r *http.Request) {
 				var params AnswersGetParams
 

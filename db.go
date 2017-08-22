@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"errors"
+	"time"
 
 	"github.com/lib/pq"
 )
@@ -49,8 +50,7 @@ func init() {
 	})*/
 
 	_, err = db.Exec(`
-drop table users;
-create table users (
+create table if not exists users (
 	id serial primary key,
 	username text not null unique,
 	password text not null,
@@ -60,6 +60,30 @@ create table users (
 	created_at timestamp default current_timestamp,
 	updated_at timestamp,
 	deleted_at timestamp
+);
+
+create table if not exists questions (
+	id serial primary key,
+	text text not null,
+	user_id integer not null,
+	from_id integer default 0,
+	answer_id integer default 0,
+	created_at timestamp default current_timestamp,
+	updated_at timestamp,
+	deleted_at timestamp,
+	foreign key (user_id) references users (id)
+);
+
+create table if not exists answers (
+	id serial primary key,
+	text text not null,
+	user_id integer not null,
+	question_id integer not null,
+	created_at timestamp default current_timestamp,
+	updated_at timestamp,
+	deleted_at timestamp,
+	foreign key (user_id) references users (id),
+	foreign key (question_id) references questions (id)
 );
 	`)
 
@@ -145,4 +169,28 @@ func createTokenByParams(params TokensPostParams) (token string, err error) {
 	}
 
 	return signUser(int(user.ID), user.Username)
+}
+
+func createQuestionByParams(params QuestionsPostParams) (QuestionResult, error) {
+	var (
+		id        int
+		text      string
+		userID    int
+		fromID    sql.NullInt64
+		createdAt time.Time
+	)
+
+	err := db.QueryRow("insert into questions (text, user_id, from_id) values ($1, $2, $3) returning id, text, user_id, from_id, created_at",
+		params.Text, params.UserID, params.FromID).Scan(&id, &text, &userID, &fromID, &createdAt)
+
+	if err != nil {
+		return QuestionResult{}, err
+	}
+
+	return QuestionResult{
+		ID:        uint(id),
+		Text:      text,
+		FromID:    uint(fromID.Int64),
+		Timestamp: createdAt.Unix(),
+	}, nil
 }

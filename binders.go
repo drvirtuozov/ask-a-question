@@ -70,6 +70,7 @@ func (tpp *TokensPostParams) Bind(r *http.Request) error {
 type QuestionsPostParams struct {
 	UserID int    `json:"user_id"`
 	Text   string `json:"text"`
+	FromID int
 }
 
 func (qpp *QuestionsPostParams) Bind(r *http.Request) error {
