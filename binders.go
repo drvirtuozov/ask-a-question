@@ -19,9 +19,11 @@ func (ugp *UsersGetParams) Bind(r *http.Request) error {
 }
 
 type UsersPostParams struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Email    string `json:"email"`
+	Username  string `json:"username"`
+	Password  string `json:"password"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Email     string `json:"email"`
 }
 
 func (upp *UsersPostParams) Bind(r *http.Request) error {
@@ -45,6 +47,7 @@ type UserResult struct {
 	Username  string `json:"username"`
 	FirstName string `json:"first_name,omitempty"`
 	LastName  string `json:"last_name,omitempty"`
+	Password  string `json:"-"`
 }
 
 type TokensPostParams struct {

@@ -145,7 +145,7 @@ func init() {
 			})
 		})
 
-		/*api.Route("/tokens", func(tokens chi.Router) {
+		api.Route("/tokens", func(tokens chi.Router) {
 			tokens.Post("/", func(w http.ResponseWriter, r *http.Request) {
 				var params TokensPostParams
 
@@ -154,23 +154,10 @@ func init() {
 					return
 				}
 
-				user := User{}
-				err := db.Find(&user, "username = ?", params.Username).Error
+				token, err := createTokenByParams(params)
 
 				if err != nil {
 					render.Render(w, r, ErrBadRequest(err))
-					return
-				}
-
-				if !user.ComparePassword(params.Password) {
-					render.Render(w, r, ErrBadRequest(errors.New("Wrong password")))
-					return
-				}
-
-				token, err := user.Sign()
-
-				if err != nil {
-					render.Render(w, r, ErrInternalError(err))
 					return
 				}
 
@@ -181,7 +168,7 @@ func init() {
 			})
 		})
 
-		api.Route("/questions", func(questions chi.Router) {
+		/*api.Route("/questions", func(questions chi.Router) {
 			questions.Get("/", func(w http.ResponseWriter, r *http.Request) {
 				ctxUser := r.Context().Value("user")
 

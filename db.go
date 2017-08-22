@@ -5,9 +5,6 @@ import (
 	"errors"
 
 	"github.com/lib/pq"
-	//"github.com/qor/validations"
-	"github.com/dgrijalva/jwt-go"
-	"golang.org/x/crypto/bcrypt"
 )
 
 var db *sql.DB
@@ -72,7 +69,7 @@ create table users (
 }
 
 func getUsersByParams(params UsersGetParams) ([]UserResult, error) {
-	rows, err := db.Query(`select id, username, first_name, last_name from users where id = any($1) or username = any($2)`, pq.Array(params.UserIDs), pq.Array(params.Usernames))
+	rows, err := db.Query(`select id, username, first_name, last_name, password from users where id = any($1) or username = any($2)`, pq.Array(params.UserIDs), pq.Array(params.Usernames))
 
 	if err != nil {
 		return nil, err
@@ -84,14 +81,26 @@ func getUsersByParams(params UsersGetParams) ([]UserResult, error) {
 
 	for rows.Next() {
 		count++
-		user := UserResult{}
-		err := rows.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName)
+		var (
+			id        int
+			username  string
+			firstName sql.NullString
+			lastName  sql.NullString
+			password  string
+		)
+		err := rows.Scan(&id, &username, &firstName, &lastName, &password)
 
 		if err != nil {
 			return nil, err
 		}
 
-		users = append(users, user)
+		users = append(users, UserResult{
+			ID:        uint(id),
+			Username:  username,
+			FirstName: firstName.String,
+			LastName:  lastName.String,
+			Password:  password,
+		})
 	}
 
 	if count == 0 {
@@ -102,7 +111,7 @@ func getUsersByParams(params UsersGetParams) ([]UserResult, error) {
 }
 
 func createUserByParams(params UsersPostParams) (token string, err error) {
-	hashedPass, err := bcrypt.GenerateFromPassword([]byte(params.Password), 8)
+	hashedPass, err := hashPassword(params.Password)
 
 	if err != nil {
 		return "", err
@@ -110,22 +119,30 @@ func createUserByParams(params UsersPostParams) (token string, err error) {
 
 	var userID int
 
-	err = db.QueryRow("insert into users (username, password, email) values ($1, $2, $3) returning id", params.Username, string(hashedPass), params.Email).Scan(&userID)
+	err = db.QueryRow("insert into users (username, password, first_name, last_name, email) values ($1, $2, $3, $4, $5) returning id",
+		params.Username, hashedPass, params.FirstName, params.LastName, params.Email).Scan(&userID)
 
 	if err != nil {
 		return "", err
 	}
 
-	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"id":       userID,
-		"username": params.Username,
+	return signUser(userID, params.Username)
+}
+
+func createTokenByParams(params TokensPostParams) (token string, err error) {
+	users, err := getUsersByParams(UsersGetParams{
+		Usernames: []string{params.Username},
 	})
 
-	token, err = jwtToken.SignedString([]byte("secret"))
-
 	if err != nil {
 		return "", err
 	}
 
-	return token, nil
+	user := users[0]
+
+	if !compareHashAndPass(user.Password, params.Password) {
+		return "", errors.New("Wrong password")
+	}
+
+	return signUser(int(user.ID), user.Username)
 }
