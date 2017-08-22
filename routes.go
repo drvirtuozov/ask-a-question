@@ -246,7 +246,7 @@ func init() {
 				})
 			})
 
-			/*questions.Put("/", func(w http.ResponseWriter, r *http.Request) { // undelete question
+			questions.Put("/", func(w http.ResponseWriter, r *http.Request) { // undelete question
 				var params QuestionsPutParams
 
 				if err := render.Bind(r, &params); err != nil {
@@ -261,18 +261,18 @@ func init() {
 					return
 				}
 
-				userID := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
-				err := db.Model(&UserQuestion{}).Unscoped().Where("id = ? AND user_id = ?", params.QuestionID, userID).Update("deleted_at", nil).Error
+				userID := int(ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"].(float64))
+				err := undeleteQuestionByID(params.QuestionID, userID)
 
 				if err != nil {
-					render.Render(w, r, ErrNotFound(errors.New("Question not found")))
+					render.Render(w, r, ErrBadRequest(err))
 					return
 				}
 
 				render.Render(w, r, OKResponse{
 					Ok: true,
 				})
-			})*/
+			})
 		})
 
 		/*api.Route("/answers", func(answers chi.Router) {

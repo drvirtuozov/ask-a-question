@@ -249,3 +249,24 @@ func deleteQuestionByID(id int, userID int) error {
 
 	return nil
 }
+
+func undeleteQuestionByID(id int, userID int) error {
+	res, err := db.Exec("update questions set deleted_at = null where id = $1 and user_id = $2",
+		id, userID)
+
+	if err != nil {
+		return err
+	}
+
+	rowsCount, err := res.RowsAffected()
+
+	if err != nil {
+		return err
+	}
+
+	if rowsCount == 0 {
+		return errors.New("Question not found")
+	}
+
+	return nil
+}
