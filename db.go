@@ -270,3 +270,61 @@ func undeleteQuestionByID(id int, userID int) error {
 
 	return nil
 }
+
+func createAnswerByParams(params AnswersPostParams) (AnswerResult, error) {
+	var (
+		id         int
+		text       string
+		userID     int
+		questionID int
+		createdAt  time.Time
+	)
+
+	tx, err := db.Begin()
+
+	if err != nil {
+		return AnswerResult{}, err
+	}
+
+	{
+		stmt, err := tx.Prepare("insert into answers (text, user_id, question_id) select $1, user_id, id from questions where id = $2 and answer_id = 0 and deleted_at is null returning id, text, user_id, question_id, created_at")
+
+		if err != nil {
+			return AnswerResult{}, err
+		}
+
+		defer stmt.Close()
+		err = stmt.QueryRow(params.Text, params.QuestionID).Scan(&id, &text, &userID, &questionID, &createdAt)
+
+		if err != nil {
+			tx.Rollback()
+			return AnswerResult{}, errors.New("Question not found")
+		}
+	}
+
+	{
+		stmt, err := tx.Prepare("update questions set answer_id = $1 where id = $2")
+
+		if err != nil {
+			return AnswerResult{}, err
+		}
+
+		defer stmt.Close()
+		_, err = stmt.Exec(id, questionID)
+
+		if err != nil {
+			tx.Rollback()
+			return AnswerResult{}, err
+		}
+	}
+
+	tx.Commit()
+
+	return AnswerResult{
+		ID:         uint(id),
+		Text:       text,
+		UserID:     uint(userID),
+		QuestionID: uint(questionID),
+		Timestamp:  createdAt.Unix(),
+	}, nil
+}

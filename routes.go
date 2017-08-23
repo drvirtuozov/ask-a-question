@@ -275,8 +275,8 @@ func init() {
 			})
 		})
 
-		/*api.Route("/answers", func(answers chi.Router) {
-			answers.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		api.Route("/answers", func(answers chi.Router) {
+			/*answers.Get("/", func(w http.ResponseWriter, r *http.Request) {
 				var params AnswersGetParams
 
 				if err := render.Bind(r, &params); err != nil {
@@ -313,7 +313,7 @@ func init() {
 					Ok:   true,
 					Data: mappedAnswers,
 				})
-			})
+			})*/
 
 			answers.Post("/", func(w http.ResponseWriter, r *http.Request) {
 				var params AnswersPostParams
@@ -330,44 +330,21 @@ func init() {
 					return
 				}
 
-				userID := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
-				question := UserQuestion{}
-				err := db.Find(&question, "id = ? AND user_answer_id IS NULL AND user_id = ?", params.QuestionID, userID).Error
+				answer, err := createAnswerByParams(params)
 
 				if err != nil {
-					render.Render(w, r, ErrBadRequest(errors.New("Question not found")))
+					render.Render(w, r, ErrBadRequest(err))
 					return
 				}
 
-				user := User{}
-				answer := UserAnswer{
-					Text:           params.Text,
-					UserQuestionID: question.ID,
-				}
-
-				err = db.Find(&user, "id = ?", userID).Association("UserAnswers").Append(&answer).Error
-
-				if err != nil {
-					render.Render(w, r, ErrNotFound(errors.New("User not found")))
-				}
-
-				question.UserAnswerID = answer.ID
-				db.Save(&question)
-
 				render.Render(w, r, OKResponse{
-					Data: AnswerResult{
-						ID:         answer.ID,
-						Text:       answer.Text,
-						UserID:     answer.UserID,
-						QuestionID: question.ID,
-						Timestamp:  answer.CreatedAt.Unix(),
-					},
+					Data: answer,
 					Ok: true,
 				})
 			})
 		})
 
-		api.Route("/comments", func(comments chi.Router) {
+		/*api.Route("/comments", func(comments chi.Router) {
 			comments.Get("/", func(w http.ResponseWriter, r *http.Request) {
 				var params CommentsGetParams
 
