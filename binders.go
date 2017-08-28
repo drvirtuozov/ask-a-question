@@ -157,6 +157,7 @@ func (cgp *CommentsGetParams) Bind(r *http.Request) error {
 type CommentsPostParams struct {
 	AnswerID int    `json:"answer_id"`
 	Text     string `json:"text"`
+	UserID   int
 }
 
 func (cpp *CommentsPostParams) Bind(r *http.Request) error {

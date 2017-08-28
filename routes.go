@@ -276,7 +276,7 @@ func init() {
 		})
 
 		api.Route("/answers", func(answers chi.Router) {
-			/*answers.Get("/", func(w http.ResponseWriter, r *http.Request) {
+			answers.Get("/", func(w http.ResponseWriter, r *http.Request) {
 				var params AnswersGetParams
 
 				if err := render.Bind(r, &params); err != nil {
@@ -284,36 +284,18 @@ func init() {
 					return
 				}
 
-				var answers []UserAnswer
-				user := User{}
-				user.ID = uint(params.UserID)
-				err := db.Order("id DESC").Model(&user).Related(&answers).Error
+				answers, err := getAnswersByUserID(params.UserID)
 
 				if err != nil {
-					render.Render(w, r, ErrNotFound(errors.New("User not found")))
+					render.Render(w, r, ErrBadRequest(err))
 					return
-				}
-
-				var mappedAnswers []AnswerResult
-
-				for _, answer := range answers {
-					mappedAnswers = append(mappedAnswers, AnswerResult{
-						ID:         answer.ID,
-						Text:       answer.Text,
-						UserID:     answer.UserID,
-						QuestionID: answer.UserQuestionID,
-						Timestamp:  answer.CreatedAt.Unix(),
-						Likes: LikesResult{
-							Count: len(answer.AnswerLikes),
-						},
-					})
 				}
 
 				render.Render(w, r, OKResponse{
 					Ok:   true,
-					Data: mappedAnswers,
+					Data: answers,
 				})
-			})*/
+			})
 
 			answers.Post("/", func(w http.ResponseWriter, r *http.Request) {
 				var params AnswersPostParams
@@ -339,13 +321,13 @@ func init() {
 
 				render.Render(w, r, OKResponse{
 					Data: answer,
-					Ok: true,
+					Ok:   true,
 				})
 			})
 		})
 
-		/*api.Route("/comments", func(comments chi.Router) {
-			comments.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		api.Route("/comments", func(comments chi.Router) {
+			/*comments.Get("/", func(w http.ResponseWriter, r *http.Request) {
 				var params CommentsGetParams
 
 				if err := render.Bind(r, &params); err != nil {
@@ -379,7 +361,7 @@ func init() {
 					Ok:   true,
 					Data: mappedComments,
 				})
-			})
+			})*/
 
 			comments.Post("/", func(w http.ResponseWriter, r *http.Request) {
 				var params CommentsPostParams
@@ -396,32 +378,22 @@ func init() {
 					return
 				}
 
-				userID := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"].(float64)
-				comment := AnswerComment{
-					UserID: uint(userID),
-					Text:   params.Text,
-				}
-
-				err := db.Find(&UserAnswer{}, "id = ?", params.AnswerID).Association("AnswerComments").Append(&comment).Error
+				params.UserID = int(ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"].(float64))
+				comment, err := createCommentByParams(params)
 
 				if err != nil {
-					render.Render(w, r, ErrNotFound(errors.New("Answer not found")))
+					render.Render(w, r, ErrInternalError(err))
 					return
 				}
 
 				render.Render(w, r, OKResponse{
-					Data: CommentResult{
-						ID:        comment.ID,
-						UserID:    comment.UserID,
-						Text:      comment.Text,
-						Timestamp: comment.CreatedAt.Unix(),
-					},
-					Ok: true,
+					Data: comment,
+					Ok:   true,
 				})
 			})
 		})
 
-		api.Route("/likes", func(likes chi.Router) {
+		/*api.Route("/likes", func(likes chi.Router) {
 			likes.Get("/", func(w http.ResponseWriter, r *http.Request) {
 				var params LikesGetParams
 

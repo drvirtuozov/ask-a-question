@@ -85,6 +85,18 @@ create table if not exists answers (
 	foreign key (user_id) references users (id),
 	foreign key (question_id) references questions (id)
 );
+
+create table if not exists comments (
+	id serial primary key,
+	text text not null,
+	answer_id integer not null,
+	user_id integer not null,
+	created_at timestamp default current_timestamp,
+	updated_at timestamp,
+	deleted_at timestamp,
+	foreign key (answer_id) references answers (id),
+	foreign key (user_id) references users (id)
+);
 	`)
 
 	if err != nil {
@@ -326,5 +338,64 @@ func createAnswerByParams(params AnswersPostParams) (AnswerResult, error) {
 		UserID:     uint(userID),
 		QuestionID: uint(questionID),
 		Timestamp:  createdAt.Unix(),
+	}, nil
+}
+
+func getAnswersByUserID(id int) ([]AnswerResult, error) {
+	rows, err := db.Query("select id, text, user_id, question_id, created_at from answers where user_id = $1 order by id desc", id)
+
+	if err != nil {
+		return nil, errors.New("User not found")
+	}
+
+	var answers []AnswerResult
+
+	for rows.Next() {
+		var (
+			id         int
+			text       string
+			userID     int
+			questionID int
+			createdAt  time.Time
+		)
+
+		err := rows.Scan(&id, &text, &userID, &questionID, &createdAt)
+
+		if err != nil {
+			return nil, err
+		}
+
+		answers = append(answers, AnswerResult{
+			ID:         uint(id),
+			Text:       text,
+			UserID:     uint(userID),
+			QuestionID: uint(questionID),
+			Timestamp:  createdAt.Unix(),
+		})
+	}
+
+	return answers, nil
+}
+
+func createCommentByParams(params CommentsPostParams) (CommentResult, error) {
+	var (
+		id        int
+		text      string
+		userID    int
+		createdAt time.Time
+	)
+
+	err := db.QueryRow("insert into comments (answer_id, user_id, text) select id, $2, $3 from answers where id = $1 returning id, text, user_id, created_at",
+		params.AnswerID, params.UserID, params.Text).Scan(&id, &text, &userID, &createdAt)
+
+	if err != nil {
+		return CommentResult{}, err
+	}
+
+	return CommentResult{
+		ID:        uint(id),
+		Text:      text,
+		UserID:    uint(userID),
+		Timestamp: createdAt.Unix(),
 	}, nil
 }
