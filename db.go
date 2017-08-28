@@ -117,26 +117,14 @@ func getUsersByParams(params UsersGetParams) ([]UserResult, error) {
 
 	for rows.Next() {
 		count++
-		var (
-			id        int
-			username  string
-			firstName sql.NullString
-			lastName  sql.NullString
-			password  string
-		)
-		err := rows.Scan(&id, &username, &firstName, &lastName, &password)
+		var user UserResult
+		err := rows.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName, &user.Password)
 
 		if err != nil {
 			return nil, err
 		}
 
-		users = append(users, UserResult{
-			ID:        uint(id),
-			Username:  username,
-			FirstName: firstName.String,
-			LastName:  lastName.String,
-			Password:  password,
-		})
+		users = append(users, user)
 	}
 
 	if count == 0 {
@@ -184,27 +172,18 @@ func createTokenByParams(params TokensPostParams) (token string, err error) {
 }
 
 func createQuestionByParams(params QuestionsPostParams) (QuestionResult, error) {
-	var (
-		id        int
-		text      string
-		userID    int
-		fromID    sql.NullInt64
-		createdAt time.Time
-	)
+	var question QuestionResult
+	var createdAt time.Time
 
-	err := db.QueryRow("insert into questions (text, user_id, from_id) values ($1, $2, $3) returning id, text, user_id, from_id, created_at",
-		params.Text, params.UserID, params.FromID).Scan(&id, &text, &userID, &fromID, &createdAt)
+	err := db.QueryRow("insert into questions (text, user_id, from_id) values ($1, $2, $3) returning id, text, from_id, created_at",
+		params.Text, params.UserID, params.FromID).Scan(&question.ID, &question.Text, &question.FromID, &createdAt)
 
 	if err != nil {
-		return QuestionResult{}, err
+		return question, err
 	}
 
-	return QuestionResult{
-		ID:        uint(id),
-		Text:      text,
-		FromID:    uint(fromID.Int64),
-		Timestamp: createdAt.Unix(),
-	}, nil
+	question.Timestamp = createdAt.Unix()
+	return question, nil
 }
 
 func getQuestionsByUserID(id int) ([]QuestionResult, error) {
@@ -217,25 +196,16 @@ func getQuestionsByUserID(id int) ([]QuestionResult, error) {
 	var questions []QuestionResult
 
 	for rows.Next() {
-		var (
-			id        int
-			text      string
-			fromID    int
-			createdAt time.Time
-		)
-
-		err := rows.Scan(&id, &text, &fromID, &createdAt)
+		var question QuestionResult
+		var createdAt time.Time
+		err := rows.Scan(&question.ID, &question.Text, &question.FromID, &createdAt)
 
 		if err != nil {
 			return nil, err
 		}
 
-		questions = append(questions, QuestionResult{
-			ID:        uint(id),
-			Text:      text,
-			FromID:    uint(fromID),
-			Timestamp: createdAt.Unix(),
-		})
+		question.Timestamp = createdAt.Unix()
+		questions = append(questions, question)
 	}
 
 	return questions, nil
@@ -284,33 +254,28 @@ func undeleteQuestionByID(id int, userID int) error {
 }
 
 func createAnswerByParams(params AnswersPostParams) (AnswerResult, error) {
-	var (
-		id         int
-		text       string
-		userID     int
-		questionID int
-		createdAt  time.Time
-	)
+	var answer AnswerResult
+	var createdAt time.Time
 
 	tx, err := db.Begin()
 
 	if err != nil {
-		return AnswerResult{}, err
+		return answer, err
 	}
 
 	{
 		stmt, err := tx.Prepare("insert into answers (text, user_id, question_id) select $1, user_id, id from questions where id = $2 and answer_id = 0 and deleted_at is null returning id, text, user_id, question_id, created_at")
 
 		if err != nil {
-			return AnswerResult{}, err
+			return answer, err
 		}
 
 		defer stmt.Close()
-		err = stmt.QueryRow(params.Text, params.QuestionID).Scan(&id, &text, &userID, &questionID, &createdAt)
+		err = stmt.QueryRow(params.Text, params.QuestionID).Scan(&answer.ID, &answer.Text, &answer.UserID, &answer.QuestionID, &createdAt)
 
 		if err != nil {
 			tx.Rollback()
-			return AnswerResult{}, errors.New("Question not found")
+			return answer, errors.New("Question not found")
 		}
 	}
 
@@ -318,11 +283,11 @@ func createAnswerByParams(params AnswersPostParams) (AnswerResult, error) {
 		stmt, err := tx.Prepare("update questions set answer_id = $1 where id = $2")
 
 		if err != nil {
-			return AnswerResult{}, err
+			return answer, err
 		}
 
 		defer stmt.Close()
-		_, err = stmt.Exec(id, questionID)
+		_, err = stmt.Exec(answer.ID, answer.QuestionID)
 
 		if err != nil {
 			tx.Rollback()
@@ -331,14 +296,8 @@ func createAnswerByParams(params AnswersPostParams) (AnswerResult, error) {
 	}
 
 	tx.Commit()
-
-	return AnswerResult{
-		ID:         uint(id),
-		Text:       text,
-		UserID:     uint(userID),
-		QuestionID: uint(questionID),
-		Timestamp:  createdAt.Unix(),
-	}, nil
+	answer.Timestamp = createdAt.Unix()
+	return answer, nil
 }
 
 func getAnswersByUserID(id int) ([]AnswerResult, error) {
@@ -351,51 +310,64 @@ func getAnswersByUserID(id int) ([]AnswerResult, error) {
 	var answers []AnswerResult
 
 	for rows.Next() {
-		var (
-			id         int
-			text       string
-			userID     int
-			questionID int
-			createdAt  time.Time
-		)
-
-		err := rows.Scan(&id, &text, &userID, &questionID, &createdAt)
+		var answer AnswerResult
+		var createdAt time.Time
+		err := rows.Scan(&answer.ID, &answer.Text, &answer.UserID, &answer.QuestionID, &createdAt)
 
 		if err != nil {
 			return nil, err
 		}
 
-		answers = append(answers, AnswerResult{
-			ID:         uint(id),
-			Text:       text,
-			UserID:     uint(userID),
-			QuestionID: uint(questionID),
-			Timestamp:  createdAt.Unix(),
-		})
+		answer.Timestamp = createdAt.Unix()
+		answers = append(answers, answer)
 	}
 
 	return answers, nil
 }
 
 func createCommentByParams(params CommentsPostParams) (CommentResult, error) {
-	var (
-		id        int
-		text      string
-		userID    int
-		createdAt time.Time
-	)
+	var comment CommentResult
+	var createdAt time.Time
 
 	err := db.QueryRow("insert into comments (answer_id, user_id, text) select id, $2, $3 from answers where id = $1 returning id, text, user_id, created_at",
-		params.AnswerID, params.UserID, params.Text).Scan(&id, &text, &userID, &createdAt)
+		params.AnswerID, params.UserID, params.Text).Scan(&comment.ID, &comment.Text, &comment.UserID, &createdAt)
 
 	if err != nil {
-		return CommentResult{}, err
+		return comment, err
 	}
 
-	return CommentResult{
-		ID:        uint(id),
-		Text:      text,
-		UserID:    uint(userID),
-		Timestamp: createdAt.Unix(),
-	}, nil
+	comment.Timestamp = createdAt.Unix()
+	return comment, nil
+}
+
+func getCommentsByAnswerID(id int) ([]CommentResult, error) {
+	var comments []CommentResult
+
+	rows, err := db.Query("select id, text, user_id, created_at from comments where answer_id = $1", id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var count int
+
+	for rows.Next() {
+		count++
+		var comment CommentResult
+		var createdAt time.Time
+		err := rows.Scan(&comment.ID, &comment.Text, &comment.UserID, &createdAt)
+
+		if err != nil {
+			return nil, err
+		}
+
+		comment.Timestamp = createdAt.Unix()
+		comments = append(comments, comment)
+	}
+
+	if count == 0 {
+		return nil, errors.New("Answer not found")
+	}
+
+	return comments, nil
 }

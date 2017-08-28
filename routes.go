@@ -140,8 +140,8 @@ func init() {
 				}
 
 				render.Render(w, r, OKResponse{
-					Data: token,
 					Ok:   true,
+					Data: token,
 				})
 			})
 		})
@@ -163,8 +163,8 @@ func init() {
 				}
 
 				render.Render(w, r, OKResponse{
-					Data: token,
 					Ok:   true,
+					Data: token,
 				})
 			})
 		})
@@ -213,8 +213,8 @@ func init() {
 				}
 
 				render.Render(w, r, OKResponse{
-					Data: question,
 					Ok:   true,
+					Data: question,
 				})
 			})
 
@@ -320,14 +320,14 @@ func init() {
 				}
 
 				render.Render(w, r, OKResponse{
-					Data: answer,
 					Ok:   true,
+					Data: answer,
 				})
 			})
 		})
 
 		api.Route("/comments", func(comments chi.Router) {
-			/*comments.Get("/", func(w http.ResponseWriter, r *http.Request) {
+			comments.Get("/", func(w http.ResponseWriter, r *http.Request) {
 				var params CommentsGetParams
 
 				if err := render.Bind(r, &params); err != nil {
@@ -335,33 +335,18 @@ func init() {
 					return
 				}
 
-				answer := UserAnswer{}
-				answer.ID = uint(params.AnswerID)
-
-				var comments []AnswerComment
-				err := db.Model(&answer).Related(&comments).Error
+				comments, err := getCommentsByAnswerID(params.AnswerID)
 
 				if err != nil {
-					render.Render(w, r, ErrNotFound(errors.New("Answer not found")))
+					render.Render(w, r, ErrNotFound(err))
 					return
-				}
-
-				var mappedComments []CommentResult
-
-				for _, comment := range comments {
-					mappedComments = append(mappedComments, CommentResult{
-						ID:        comment.ID,
-						Text:      comment.Text,
-						UserID:    comment.UserID,
-						Timestamp: comment.CreatedAt.Unix(),
-					})
 				}
 
 				render.Render(w, r, OKResponse{
 					Ok:   true,
-					Data: mappedComments,
+					Data: comments,
 				})
-			})*/
+			})
 
 			comments.Post("/", func(w http.ResponseWriter, r *http.Request) {
 				var params CommentsPostParams
@@ -387,8 +372,8 @@ func init() {
 				}
 
 				render.Render(w, r, OKResponse{
-					Data: comment,
 					Ok:   true,
+					Data: comment,
 				})
 			})
 		})
