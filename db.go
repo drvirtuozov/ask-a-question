@@ -340,7 +340,7 @@ func createCommentByParams(params CommentsPostParams) (CommentResult, error) {
 	var comment CommentResult
 	var createdAt time.Time
 
-	err := db.QueryRow("insert into comments (answer_id, user_id, text) select id, $2, $3 from answers where id = $1 returning id, text, user_id, created_at",
+	err := db.QueryRow("insert into comments (answer_id, user_id, text) values ($1, $2, $3) returning id, text, user_id, created_at",
 		params.AnswerID, params.UserID, params.Text).Scan(&comment.ID, &comment.Text, &comment.UserID, &createdAt)
 
 	if err != nil {
