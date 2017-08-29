@@ -379,7 +379,7 @@ func init() {
 		})
 
 		api.Route("/likes", func(likes chi.Router) {
-			/*likes.Get("/", func(w http.ResponseWriter, r *http.Request) {
+			likes.Get("/", func(w http.ResponseWriter, r *http.Request) {
 				var params LikesGetParams
 
 				if err := render.Bind(r, &params); err != nil {
@@ -387,30 +387,18 @@ func init() {
 					return
 				}
 
-				answer := UserAnswer{}
-				answer.ID = uint(params.AnswerID)
-				var likes []AnswerLike
-				err := db.Model(&answer).Related(&likes).Error
+				likes, err := getLikesByAnswerID(params.AnswerID)
 
 				if err != nil {
-					render.Render(w, r, ErrNotFound(errors.New("Answer not found")))
+					render.Render(w, r, ErrNotFound(err))
 					return
 				}
 
-				var userIDs []uint
-
-				for _, like := range likes {
-					userIDs = append(userIDs, like.UserID)
-				}
-
 				render.Render(w, r, OKResponse{
-					Ok: true,
-					Data: LikesResult{
-						Count:   len(userIDs),
-						UserIDs: userIDs,
-					},
+					Ok:   true,
+					Data: likes,
 				})
-			})*/
+			})
 
 			likes.Post("/", func(w http.ResponseWriter, r *http.Request) {
 				var params LikesPostParams

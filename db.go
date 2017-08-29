@@ -385,7 +385,7 @@ func getCommentsByAnswerID(id int) ([]CommentResult, error) {
 
 func createLikeByParams(params LikesPostParams) (LikesResult, error) {
 	var likes LikesResult
-	_, err := db.Exec("insert into likes (answer_id, user_id) select $1, $2 where not exists (select id from likes where answer_id = $1)", params.AnswerID, params.UserID)
+	_, err := db.Exec("insert into likes (answer_id, user_id) select $1, $2 where not exists (select id from likes where answer_id = $1 and deleted_at is null)", params.AnswerID, params.UserID)
 
 	if err != nil {
 		return likes, errors.New("Answer not found")
@@ -399,5 +399,32 @@ func createLikeByParams(params LikesPostParams) (LikesResult, error) {
 	}
 
 	likes.Count = count
+	return likes, nil
+}
+
+func getLikesByAnswerID(id int) (LikesResult, error) {
+	var likes LikesResult
+	var userIDs []int
+	rows, err := db.Query("select user_id from likes where answer_id = $1 and deleted_at is null", id)
+
+	if err != nil {
+		return likes, err
+	}
+
+	var count int
+
+	for rows.Next() {
+		count++
+		var userID int
+		rows.Scan(&userID)
+		userIDs = append(userIDs, userID)
+	}
+
+	if count == 0 {
+		return likes, errors.New("Answer not found")
+	}
+
+	likes.Count = count
+	likes.UserIDs = userIDs
 	return likes, nil
 }

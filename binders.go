@@ -229,6 +229,6 @@ func (lgp *LikesGetParams) Bind(r *http.Request) error {
 }
 
 type LikesResult struct {
-	Count   int    `json:"count"`
-	UserIDs []uint `json:"user_ids,omitempty"`
+	Count   int   `json:"count"`
+	UserIDs []int `json:"user_ids,omitempty"`
 }
