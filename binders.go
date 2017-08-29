@@ -193,6 +193,7 @@ func (agp *AnswersGetParams) Bind(r *http.Request) error {
 
 type LikesPostParams struct {
 	AnswerID int `json:"answer_id"`
+	UserID   int
 }
 
 func (lpp *LikesPostParams) Bind(r *http.Request) error {

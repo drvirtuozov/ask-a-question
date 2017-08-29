@@ -97,6 +97,17 @@ create table if not exists comments (
 	foreign key (answer_id) references answers (id),
 	foreign key (user_id) references users (id)
 );
+
+create table if not exists likes (
+	id serial primary key,
+	user_id integer not null,
+	answer_id integer not null,
+	created_at timestamp default current_timestamp,
+	updated_at timestamp,
+	deleted_at timestamp,
+	foreign key (user_id) references users (id),
+	foreign key (answer_id) references answers (id)
+);
 	`)
 
 	if err != nil {
@@ -370,4 +381,23 @@ func getCommentsByAnswerID(id int) ([]CommentResult, error) {
 	}
 
 	return comments, nil
+}
+
+func createLikeByParams(params LikesPostParams) (LikesResult, error) {
+	var likes LikesResult
+	_, err := db.Exec("insert into likes (answer_id, user_id) select $1, $2 where not exists (select id from likes where answer_id = $1)", params.AnswerID, params.UserID)
+
+	if err != nil {
+		return likes, errors.New("Answer not found")
+	}
+
+	var count int
+	err = db.QueryRow("select count(id) from likes where answer_id = $1", params.AnswerID).Scan(&count)
+
+	if err != nil {
+		return likes, err
+	}
+
+	likes.Count = count
+	return likes, nil
 }
