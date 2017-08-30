@@ -43,7 +43,7 @@ func (upp *UsersPostParams) Bind(r *http.Request) error {
 }
 
 type UserResult struct {
-	ID        uint   `json:"id"`
+	ID        int    `json:"id"`
 	Username  string `json:"username"`
 	FirstName string `json:"first_name,omitempty"`
 	LastName  string `json:"last_name,omitempty"`
@@ -86,9 +86,9 @@ func (qpp *QuestionsPostParams) Bind(r *http.Request) error {
 }
 
 type QuestionResult struct {
-	ID        uint   `json:"id"`
+	ID        int    `json:"id"`
 	Text      string `json:"text"`
-	FromID    uint   `json:"from_id,omitempty"`
+	FromID    int    `json:"from_id,omitempty"`
 	Timestamp int64  `json:"timestamp"`
 }
 
@@ -134,10 +134,10 @@ func (app *AnswersPostParams) Bind(r *http.Request) error {
 }
 
 type AnswerResult struct {
-	ID         uint        `json:"id"`
+	ID         int         `json:"id"`
 	Text       string      `json:"text"`
-	UserID     uint        `json:"user_id"`
-	QuestionID uint        `json:"question_id"`
+	UserID     int         `json:"user_id"`
+	QuestionID int         `json:"question_id"`
 	Timestamp  int64       `json:"timestamp"`
 	Likes      LikesResult `json:"likes"`
 }
@@ -173,9 +173,9 @@ func (cpp *CommentsPostParams) Bind(r *http.Request) error {
 }
 
 type CommentResult struct {
-	ID        uint   `json:"id"`
+	ID        int    `json:"id"`
 	Text      string `json:"text"`
-	UserID    uint   `json:"user_id"`
+	UserID    int    `json:"user_id"`
 	Timestamp int64  `json:"timestamp"`
 }
 
@@ -206,6 +206,7 @@ func (lpp *LikesPostParams) Bind(r *http.Request) error {
 
 type LikesDeleteParams struct {
 	AnswerID int `json:"answer_id"`
+	UserID   int
 }
 
 func (ldp *LikesDeleteParams) Bind(r *http.Request) error {
