@@ -69,7 +69,6 @@ create table if not exists questions (
 	from_id integer default 0,
 	answer_id integer default 0,
 	created_at timestamp default current_timestamp,
-	updated_at timestamp,
 	deleted_at timestamp,
 	foreign key (user_id) references users (id)
 );
@@ -80,8 +79,6 @@ create table if not exists answers (
 	user_id integer not null,
 	question_id integer not null,
 	created_at timestamp default current_timestamp,
-	updated_at timestamp,
-	deleted_at timestamp,
 	foreign key (user_id) references users (id),
 	foreign key (question_id) references questions (id)
 );
@@ -103,8 +100,6 @@ create table if not exists likes (
 	user_id integer not null,
 	answer_id integer not null,
 	created_at timestamp default current_timestamp,
-	updated_at timestamp,
-	deleted_at timestamp,
 	foreign key (user_id) references users (id),
 	foreign key (answer_id) references answers (id)
 );
@@ -385,7 +380,7 @@ func getCommentsByAnswerID(id int) ([]CommentResult, error) {
 
 func createLikeByParams(params LikesPostParams) (LikesResult, error) {
 	var likes LikesResult
-	_, err := db.Exec("insert into likes (answer_id, user_id) select $1, $2 where not exists (select id from likes where answer_id = $1 and deleted_at is null)", params.AnswerID, params.UserID)
+	_, err := db.Exec("insert into likes (answer_id, user_id) select $1, $2 where not exists (select id from likes where answer_id = $1)", params.AnswerID, params.UserID)
 
 	if err != nil {
 		return likes, errors.New("Answer not found")
@@ -405,7 +400,7 @@ func createLikeByParams(params LikesPostParams) (LikesResult, error) {
 func getLikesByAnswerID(id int) (LikesResult, error) {
 	var likes LikesResult
 	var userIDs []int
-	rows, err := db.Query("select user_id from likes where answer_id = $1 and deleted_at is null", id)
+	rows, err := db.Query("select user_id from likes where answer_id = $1", id)
 
 	if err != nil {
 		return likes, err
@@ -426,5 +421,24 @@ func getLikesByAnswerID(id int) (LikesResult, error) {
 
 	likes.Count = count
 	likes.UserIDs = userIDs
+	return likes, nil
+}
+
+func deleteLikeByParams(params LikesDeleteParams) (LikesResult, error) {
+	var likes LikesResult
+	_, err := db.Exec("delete from likes where answer_id = $1 and user_id = $2", params.AnswerID, params.UserID)
+
+	if err != nil {
+		return likes, err
+	}
+
+	var count int
+	err = db.QueryRow("select count(id) from likes where answer_id = $1", params.AnswerID).Scan(&count)
+
+	if err != nil {
+		return likes, err
+	}
+
+	likes.Count = count
 	return likes, nil
 }

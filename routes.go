@@ -430,7 +430,7 @@ func init() {
 				})
 			})
 
-			/*likes.Delete("/", func(w http.ResponseWriter, r *http.Request) {
+			likes.Delete("/", func(w http.ResponseWriter, r *http.Request) {
 				var params LikesDeleteParams
 
 				if err := render.Bind(r, &params); err != nil {
@@ -445,29 +445,20 @@ func init() {
 					return
 				}
 
-				userID := ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"]
-				var answerLikes []AnswerLike
-				err := db.Delete(&AnswerLike{}, "user_id = ? AND user_answer_id = ?", userID, params.AnswerID).Find(&answerLikes).Error
+				userID := int(ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"].(float64))
+				params.UserID = userID
+				likes, err := deleteLikeByParams(params)
 
 				if err != nil {
-					render.Render(w, r, ErrNotFound(errors.New("Answer not found")))
+					render.Render(w, r, ErrNotFound(err))
 					return
 				}
 
-				var userIDs []uint
-
-				for _, like := range answerLikes {
-					userIDs = append(userIDs, like.UserID)
-				}
-
 				render.Render(w, r, OKResponse{
-					Ok: true,
-					Data: LikesResult{
-						Count:   len(answerLikes),
-						UserIDs: userIDs,
-					},
+					Ok:   true,
+					Data: likes,
 				})
-			})*/
+			})
 		})
 	})
 }
