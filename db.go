@@ -20,35 +20,6 @@ func init() {
 
 	db = conn
 
-	/*db.DropTable(
-		&User{},
-		&UserQuestion{},
-		&UserAnswer{},
-		&AnswerLike{},
-		&AnswerComment{},
-	)
-	db.AutoMigrate(
-		&User{},
-		&UserQuestion{},
-		&UserAnswer{},
-		&AnswerLike{},
-		&AnswerComment{},
-	)
-	db.LogMode(true)
-	validations.RegisterCallbacks(db)
-	db.Create(&User{
-		Username:  "drvirtuozov",
-		Password:  "73217321",
-		Email:     "dr.virtuozov@ya.ru",
-		FirstName: "Vlad",
-	})
-	db.Create(&User{
-		Username:  "boratische",
-		Password:  "73217321",
-		Email:     "boratische@ya.ru",
-		FirstName: "Vlad",
-	})*/
-
 	_, err = db.Exec(`
 create table if not exists users (
 	id serial primary key,
@@ -307,7 +278,9 @@ func createAnswerByParams(params AnswersPostParams) (AnswerResult, error) {
 }
 
 func getAnswersByUserID(id int) ([]AnswerResult, error) {
-	rows, err := db.Query("select id, text, user_id, question_id, created_at from answers where user_id = $1 order by id desc", id)
+	rows, err := db.Query(`
+		select a.id, a.text, a.user_id, a.question_id, a.created_at, count(l) as likes_count from answers a \
+		left join likes l on (a.id = l.answer_id) where a.user_id = $1 group by a.id order by a.id desc`, id)
 
 	if err != nil {
 		return nil, errors.New("User not found")
@@ -318,7 +291,7 @@ func getAnswersByUserID(id int) ([]AnswerResult, error) {
 	for rows.Next() {
 		var answer AnswerResult
 		var createdAt time.Time
-		err := rows.Scan(&answer.ID, &answer.Text, &answer.UserID, &answer.QuestionID, &createdAt)
+		err := rows.Scan(&answer.ID, &answer.Text, &answer.UserID, &answer.QuestionID, &createdAt, &answer.Likes.Count)
 
 		if err != nil {
 			return nil, err
