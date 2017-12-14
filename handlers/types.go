@@ -1,29 +1,29 @@
 package handlers
 
-type okResponse struct {
+type OKResponse struct {
 	Ok   bool        `json:"ok"`
 	Data interface{} `json:"data,omitempty"`
 }
 
-func newOKResponse(data interface{}) okResponse {
-	return okResponse{
+func NewOKResponse(data interface{}) *OKResponse {
+	return &OKResponse{
 		Ok:   true,
 		Data: data,
 	}
 }
 
-type errResponse struct {
+type ErrResponse struct {
 	Ok          bool   `json:"ok"`
 	Description string `json:"description"`
 }
 
-func newErrResponse(err error) errResponse {
-	return errResponse{
+func NewErrResponse(err error) *ErrResponse {
+	return &ErrResponse{
 		Ok:          false,
 		Description: err.Error(),
 	}
 }
 
-type userGetParams struct {
+type UserGetParams struct {
 	Username string `json:"username" form:"username" query:"username" validate:"required"`
 }

@@ -16,5 +16,6 @@ func main() {
 	api := e.Group("/api/")
 	user := api.Group("user.")
 	user.Any("get", handlers.UserGet)
+	user.Any("create", handlers.UserCreate)
 	e.Logger.Fatal(e.Start(":3000"))
 }
