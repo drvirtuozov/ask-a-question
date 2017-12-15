@@ -7,3 +7,8 @@ type UserCreateParams struct {
 	LastName  string `json:"last_name" form:"last_name" query:"last_name"`
 	Email     string `json:"email" form:"email" query:"email" validate:"required,email"`
 }
+
+type TokenCreateParams struct {
+	Username string `json:"username" form:"username" query:"username" validate:"required"`
+	Password string `json:"password" form:"password" query:"password" validate:"required"`
+}

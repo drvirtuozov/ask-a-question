@@ -17,5 +17,7 @@ func main() {
 	user := api.Group("user.")
 	user.Any("get", handlers.UserGet)
 	user.Any("create", handlers.UserCreate)
+	token := api.Group("token.")
+	token.Any("create", handlers.TokenCreate)
 	e.Logger.Fatal(e.Start(":3000"))
 }
