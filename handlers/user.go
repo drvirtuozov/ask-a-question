@@ -37,7 +37,7 @@ func UserCreate(ctx echo.Context) error {
 		return err
 	}
 
-	if err := ctx.Validate(&params); err != nil {
+	if err := ctx.Validate(params); err != nil {
 		return ctx.JSON(http.StatusBadRequest, NewErrResponse(err))
 	}
 

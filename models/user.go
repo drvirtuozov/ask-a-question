@@ -17,7 +17,8 @@ type User struct {
 	Password  string `json:"-"`
 }
 
-func (u *User) hashPassword() error {
+// HashPassword hashes instance's plain password
+func (u *User) HashPassword() error {
 	hashedPass, err := bcrypt.GenerateFromPassword([]byte(u.Password), 8)
 
 	if err != nil {
@@ -28,13 +29,21 @@ func (u *User) hashPassword() error {
 	return nil
 }
 
-func (u *User) sign() (token string, err error) {
+// Sign generates a JWT token by user instance data
+func (u *User) Sign() (token *Token, err error) {
 	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id":       u.ID,
 		"username": u.Username,
 	})
 
-	return jwtToken.SignedString([]byte("secret"))
+	tokenStr, err := jwtToken.SignedString([]byte("secret"))
+
+	if err != nil {
+		return token, err
+	}
+
+	t := Token(tokenStr)
+	return &t, nil
 }
 
 // NewUser creates a new user instance
@@ -55,14 +64,14 @@ func (u *User) GetByUsername(username string) error {
 }
 
 // Create saves a user into db
-func (u *User) Create(params shared.UserCreateParams) (token string, err error) {
+func (u *User) Create(params shared.UserCreateParams) (token *Token, err error) {
 	u.Username = params.Username
 	u.FirstName = params.FirstName
 	u.LastName = params.LastName
 	u.Email = params.Email
 	u.Password = params.Password
 
-	if err := u.hashPassword(); err != nil {
+	if err := u.HashPassword(); err != nil {
 		return token, err
 	}
 
@@ -73,5 +82,14 @@ func (u *User) Create(params shared.UserCreateParams) (token string, err error) 
 		return token, err
 	}
 
-	return u.sign()
+	return u.Sign()
+}
+
+// CompareHashAndPass compares instance's hashed password and plain one
+func (u *User) CompareHashAndPass(password string) bool {
+	if err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password)); err != nil {
+		return false
+	}
+
+	return true
 }
