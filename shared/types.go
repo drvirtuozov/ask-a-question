@@ -12,3 +12,10 @@ type TokenCreateParams struct {
 	Username string `json:"username" form:"username" query:"username" validate:"required"`
 	Password string `json:"password" form:"password" query:"password" validate:"required"`
 }
+
+type QuestionCreateParams struct {
+	UserID int    `json:"user_id" form:"user_id" query:"user_id" validate:"required"`
+	Text   string `json:"text" form:"text" query:"text" validate:"required"`
+	Anon   bool   `json:"anon" form:"anon" query:"anon"`
+	FromID int
+}
