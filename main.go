@@ -7,27 +7,33 @@ import (
 	"gopkg.in/go-playground/validator.v9"
 )
 
-func NewOptionalJWTMiddleware() echo.MiddlewareFunc {
+func NewOptionalJWTMiddleware(skipper func(echo.Context) bool) echo.MiddlewareFunc {
 	cfg := middleware.DefaultJWTConfig
 	cfg.SigningKey = []byte("secret")
-	cfg.Skipper = func(ctx echo.Context) bool {
-		var params struct {
-			Anon bool `json:"anon" form:"anon" query:"anon"`
-		}
+	cfg.Skipper = skipper
+	return middleware.JWTWithConfig(cfg)
+}
 
-		if err := ctx.Bind(&params); err != nil {
-			panic(err)
-		}
+var optionalAuth = NewOptionalJWTMiddleware(func(ctx echo.Context) bool {
+	var params struct {
+		Anon bool `json:"anon" form:"anon" query:"anon"`
+	}
 
-		if params.Anon {
-			return true
-		}
+	if err := ctx.Bind(&params); err != nil {
+		panic(err)
+	}
 
+	if err := ctx.Validate(params); err != nil {
+		ctx.JSON(400, handlers.NewErrResponse(err))
 		return false
 	}
 
-	return middleware.JWTWithConfig(cfg)
-}
+	if params.Anon {
+		return true
+	}
+
+	return false
+})
 
 func main() {
 	e := echo.New()
@@ -35,7 +41,6 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	//auth := middleware.JWT([]byte("secret"))
-	optionalAuth := NewOptionalJWTMiddleware()
 	api := e.Group("/api/")
 	user := api.Group("user.")
 	user.Any("get", handlers.UserGet)
