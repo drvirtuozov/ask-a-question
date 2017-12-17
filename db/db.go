@@ -35,8 +35,8 @@ create table if not exists questions (
 	id serial primary key,
 	text text not null,
 	user_id integer not null,
-	from_id integer default 0,
-	answer_id integer default 0,
+	from_id integer default null,
+	answer_id integer default null,
 	created_at timestamp default current_timestamp,
 	deleted_at timestamp,
 	foreign key (user_id) references users (id)

@@ -40,7 +40,7 @@ func main() {
 	e.Validator = &customValidator{validator: validator.New()}
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
-	//auth := middleware.JWT([]byte("secret"))
+	auth := middleware.JWT([]byte("secret"))
 	api := e.Group("/api/")
 	user := api.Group("user.")
 	user.Any("get", handlers.UserGet)
@@ -50,5 +50,7 @@ func main() {
 	questions := api.Group("questions.")
 	questions.Use(optionalAuth)
 	questions.Any("create", handlers.QuestionsCreate)
+	questions.Use(auth)
+	questions.Any("get", handlers.QuestionsGet)
 	e.Logger.Fatal(e.Start(":3000"))
 }

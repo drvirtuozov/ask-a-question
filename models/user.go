@@ -1,6 +1,8 @@
 package models
 
 import (
+	"time"
+
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/drvirtuozov/ask-a-question/db"
 	"github.com/drvirtuozov/ask-a-question/shared"
@@ -9,12 +11,13 @@ import (
 
 // User defines a model for a user
 type User struct {
-	ID        int    `json:"id"`
-	Username  string `json:"username"`
-	FirstName string `json:"first_name,omitempty"`
-	LastName  string `json:"last_name,omitempty"`
-	Email     string `json:"-"`
-	Password  string `json:"-"`
+	ID        int        `json:"id"`
+	Username  string     `json:"username"`
+	FirstName string     `json:"first_name,omitempty"`
+	LastName  string     `json:"last_name,omitempty"`
+	Email     string     `json:"-"`
+	Password  string     `json:"-"`
+	Questions []Question `json:"-"`
 }
 
 // HashPassword hashes instance's plain password
@@ -92,4 +95,29 @@ func (u *User) CompareHashAndPass(password string) bool {
 	}
 
 	return true
+}
+
+// GetQuestions fetchs user questions by instance's id
+func (u *User) GetQuestions() error {
+	rows, err := db.Conn.Query("select id, text, from_id, created_at from questions where user_id = $1 and answer_id is null and deleted_at is null order by id desc",
+		u.ID)
+
+	if err != nil {
+		return err
+	}
+
+	for rows.Next() {
+		var question Question
+		var createdAt time.Time
+		err := rows.Scan(&question.ID, &question.Text, &question.FromID, &createdAt)
+
+		if err != nil {
+			return err
+		}
+
+		question.Timestamp = createdAt.Unix()
+		u.Questions = append(u.Questions, question)
+	}
+
+	return nil
 }

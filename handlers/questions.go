@@ -9,6 +9,18 @@ import (
 	"github.com/labstack/echo"
 )
 
+func QuestionsGet(ctx echo.Context) error {
+	ctxUser := ctx.Get("user")
+	user := models.NewUser()
+	user.ID = int(ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"].(float64))
+
+	if err := user.GetQuestions(); err != nil {
+		return err
+	}
+
+	return ctx.JSON(http.StatusOK, NewOKResponse(user.Questions))
+}
+
 func QuestionsCreate(ctx echo.Context) error {
 	var params shared.QuestionCreateParams
 
