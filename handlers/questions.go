@@ -21,7 +21,8 @@ func QuestionsCreate(ctx echo.Context) error {
 	}
 
 	if user := ctx.Get("user"); user != nil {
-		params.FromID = int(user.(*jwt.Token).Claims.(jwt.MapClaims)["id"].(float64))
+		id := int(user.(*jwt.Token).Claims.(jwt.MapClaims)["id"].(float64))
+		params.FromID = &id
 	}
 
 	question := models.NewQuestion()
