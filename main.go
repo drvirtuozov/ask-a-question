@@ -56,5 +56,7 @@ func main() {
 	questions.Any("restore", handlers.QuestionsRestore)
 	answers := api.Group("answers.")
 	answers.Any("get", handlers.AnswersGet)
+	answers.Use(auth)
+	answers.Any("create", handlers.AnswersCreate)
 	e.Logger.Fatal(e.Start(":3000"))
 }

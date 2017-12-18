@@ -27,6 +27,11 @@ type QuestionRestoreParams struct {
 	QuestionDeleteParams
 }
 
+type AnswerCreateParams struct {
+	QuestionID int    `json:"question_id" form:"question_id" query:"question_id" validate:"required"`
+	Text       string `json:"text" form:"text" query:"text" validate:"required"`
+}
+
 type AnswersGetParams struct {
 	UserID int `json:"user_id" form:"user_id" query:"user_id" validate:"required"`
 }
