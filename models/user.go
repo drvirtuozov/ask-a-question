@@ -18,6 +18,7 @@ type User struct {
 	Email     string     `json:"-"`
 	Password  string     `json:"-"`
 	Questions []Question `json:"-"`
+	Answers   []Answer   `json:"-"`
 }
 
 // HashPassword hashes instance's plain password
@@ -117,6 +118,31 @@ func (u *User) GetQuestions() error {
 
 		question.Timestamp = createdAt.Unix()
 		u.Questions = append(u.Questions, question)
+	}
+
+	return nil
+}
+
+func (u *User) GetAnswers() error {
+	rows, err := db.Conn.Query(`
+		select a.id, a.text, a.user_id, a.question_id, a.created_at, count(l) as likes_count from answers a left join likes l on (a.id = l.answer_id) where a.user_id = $1 group by a.id order by a.id desc`, u.ID)
+
+	if err != nil {
+		return err
+	}
+
+	for rows.Next() {
+		var a Answer
+		var createdAt time.Time
+		var count int // temporary
+		err := rows.Scan(&a.ID, &a.Text, &a.UserID, &a.QuestionID, &createdAt, &count /*, &a.Likes.Count*/)
+
+		if err != nil {
+			return err
+		}
+
+		a.Timestamp = createdAt.Unix()
+		u.Answers = append(u.Answers, a)
 	}
 
 	return nil

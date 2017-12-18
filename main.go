@@ -54,5 +54,7 @@ func main() {
 	questions.Any("get", handlers.QuestionsGet)
 	questions.Any("delete", handlers.QuestionsDelete)
 	questions.Any("restore", handlers.QuestionsRestore)
+	answers := api.Group("answers.")
+	answers.Any("get", handlers.AnswersGet)
 	e.Logger.Fatal(e.Start(":3000"))
 }
