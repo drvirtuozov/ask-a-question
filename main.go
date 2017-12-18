@@ -52,5 +52,6 @@ func main() {
 	questions.Any("create", handlers.QuestionsCreate)
 	questions.Use(auth)
 	questions.Any("get", handlers.QuestionsGet)
+	questions.Any("delete", handlers.QuestionsDelete)
 	e.Logger.Fatal(e.Start(":3000"))
 }

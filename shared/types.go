@@ -18,3 +18,7 @@ type QuestionCreateParams struct {
 	Text   string `json:"text" form:"text" query:"text" validate:"required"`
 	FromID *int
 }
+
+type QuestionDeleteParams struct {
+	ID int `json:"id" form:"id" query:"id" validate:"required"`
+}
