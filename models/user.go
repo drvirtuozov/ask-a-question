@@ -99,7 +99,7 @@ func (u *User) CompareHashAndPass(password string) bool {
 
 // GetQuestions fetchs user questions by instance's id
 func (u *User) GetQuestions() error {
-	rows, err := db.Conn.Query("select id, text, from_id, created_at from questions where user_id = $1 and answer_id is null and deleted_at is null order by id desc",
+	rows, err := db.Conn.Query("select id, text, user_id, from_id, created_at from questions where user_id = $1 and answer_id is null and deleted_at is null order by id desc",
 		u.ID)
 
 	if err != nil {
@@ -109,7 +109,7 @@ func (u *User) GetQuestions() error {
 	for rows.Next() {
 		var question Question
 		var createdAt time.Time
-		err := rows.Scan(&question.ID, &question.Text, &question.FromID, &createdAt)
+		err := rows.Scan(&question.ID, &question.Text, &question.UserID, &question.FromID, &createdAt)
 
 		if err != nil {
 			return err

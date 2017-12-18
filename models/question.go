@@ -53,3 +53,24 @@ func (q *Question) Delete() error {
 
 	return nil
 }
+
+func (q *Question) Restore() error {
+	res, err := db.Conn.Exec("update questions set deleted_at = null where id = $1 and user_id = $2 and deleted_at is not null",
+		q.ID, q.UserID)
+
+	if err != nil {
+		return err
+	}
+
+	rowsCount, err := res.RowsAffected()
+
+	if err != nil {
+		return err
+	}
+
+	if rowsCount == 0 {
+		return errors.New("Question not found")
+	}
+
+	return nil
+}

@@ -22,3 +22,7 @@ type QuestionCreateParams struct {
 type QuestionDeleteParams struct {
 	ID int `json:"id" form:"id" query:"id" validate:"required"`
 }
+
+type QuestionRestoreParams struct {
+	QuestionDeleteParams
+}

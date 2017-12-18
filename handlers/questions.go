@@ -67,3 +67,25 @@ func QuestionsDelete(ctx echo.Context) error {
 
 	return ctx.JSON(http.StatusOK, NewOKResponse(nil))
 }
+
+func QuestionsRestore(ctx echo.Context) error {
+	var params shared.QuestionDeleteParams
+
+	if err := ctx.Bind(&params); err != nil {
+		return err
+	}
+
+	if err := ctx.Validate(params); err != nil {
+		return ctx.JSON(http.StatusBadRequest, NewErrResponse(err))
+	}
+
+	question := models.NewQuestion()
+	question.ID = params.ID
+	question.UserID = int(ctx.Get("user").(*jwt.Token).Claims.(jwt.MapClaims)["id"].(float64))
+
+	if err := question.Restore(); err != nil {
+		return ctx.JSON(http.StatusBadRequest, NewErrResponse(err))
+	}
+
+	return ctx.JSON(http.StatusOK, NewOKResponse(nil))
+}
