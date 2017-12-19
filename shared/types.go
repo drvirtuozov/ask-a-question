@@ -39,3 +39,8 @@ type AnswersGetParams struct {
 type CommentsGetParams struct {
 	AnswerID int `json:"answer_id" form:"answer_id" query:"answer_id" validate:"required"`
 }
+
+type CommentCreateParams struct {
+	AnswerID int    `json:"answer_id" form:"answer_id" query:"answer_id" validate:"required"`
+	Text     string `json:"text" form:"text" query:"text" validate:"required"`
+}

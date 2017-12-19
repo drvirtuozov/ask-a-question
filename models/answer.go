@@ -68,7 +68,7 @@ func (a *Answer) Create() error {
 }
 
 func (a *Answer) GetComments() error {
-	rows, err := db.Conn.Query("select id, text, user_id, created_at from comments where answer_id = $1", a.ID)
+	rows, err := db.Conn.Query("select id, text, user_id, answer_id, created_at from comments where answer_id = $1", a.ID)
 
 	if err != nil {
 		return err
@@ -77,7 +77,7 @@ func (a *Answer) GetComments() error {
 	for rows.Next() {
 		var c Comment
 		var createdAt time.Time
-		err := rows.Scan(&c.ID, &c.Text, &c.UserID, &createdAt)
+		err := rows.Scan(&c.ID, &c.Text, &c.UserID, &c.AnswerID, &createdAt)
 
 		if err != nil {
 			return err

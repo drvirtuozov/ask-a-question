@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/drvirtuozov/ask-a-question/models"
 
 	"github.com/drvirtuozov/ask-a-question/shared"
@@ -28,4 +29,27 @@ func CommentsGet(ctx echo.Context) error {
 	}
 
 	return ctx.JSON(http.StatusOK, NewOKResponse(answer.Comments))
+}
+
+func CommentsCreate(ctx echo.Context) error {
+	var params shared.CommentCreateParams
+
+	if err := ctx.Bind(&params); err != nil {
+		return err
+	}
+
+	if err := ctx.Validate(params); err != nil {
+		return ctx.JSON(http.StatusBadRequest, NewErrResponse(err))
+	}
+
+	comment := models.NewComment()
+	comment.Text = params.Text
+	comment.AnswerID = params.AnswerID
+	comment.UserID = int(ctx.Get("user").(*jwt.Token).Claims.(jwt.MapClaims)["id"].(float64))
+
+	if err := comment.Create(); err != nil {
+		return err
+	}
+
+	return ctx.JSON(http.StatusOK, NewOKResponse(comment))
 }
