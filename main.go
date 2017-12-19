@@ -58,5 +58,7 @@ func main() {
 	answers.Any("get", handlers.AnswersGet)
 	answers.Use(auth)
 	answers.Any("create", handlers.AnswersCreate)
+	comments := api.Group("comments.")
+	comments.Any("get", handlers.CommentsGet)
 	e.Logger.Fatal(e.Start(":3000"))
 }

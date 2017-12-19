@@ -12,6 +12,7 @@ type Answer struct {
 	UserID     int    `json:"user_id"`
 	QuestionID int    `json:"question_id"`
 	Timestamp  int64  `json:"timestamp"`
+	Comments   []Comment
 	// Likes      LikesResult `json:"likes"`
 }
 
@@ -63,5 +64,28 @@ func (a *Answer) Create() error {
 
 	tx.Commit()
 	a.Timestamp = createdAt.Unix()
+	return nil
+}
+
+func (a *Answer) GetComments() error {
+	rows, err := db.Conn.Query("select id, text, user_id, created_at from comments where answer_id = $1", a.ID)
+
+	if err != nil {
+		return err
+	}
+
+	for rows.Next() {
+		var c Comment
+		var createdAt time.Time
+		err := rows.Scan(&c.ID, &c.Text, &c.UserID, &createdAt)
+
+		if err != nil {
+			return err
+		}
+
+		c.Timestamp = createdAt.Unix()
+		a.Comments = append(a.Comments, c)
+	}
+
 	return nil
 }

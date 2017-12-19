@@ -35,3 +35,7 @@ type AnswerCreateParams struct {
 type AnswersGetParams struct {
 	UserID int `json:"user_id" form:"user_id" query:"user_id" validate:"required"`
 }
+
+type CommentsGetParams struct {
+	AnswerID int `json:"answer_id" form:"answer_id" query:"answer_id" validate:"required"`
+}
