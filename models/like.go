@@ -24,3 +24,14 @@ func (l *Like) Create() error {
 
 	return nil
 }
+
+func (l *Like) Delete() error {
+	_, err := db.Conn.Exec("delete from likes where answer_id = $1 and user_id = $2",
+		l.AnswerID, l.UserID)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

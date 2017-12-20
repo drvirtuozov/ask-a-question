@@ -66,5 +66,6 @@ func main() {
 	likes.Any("get", handlers.LikesGet)
 	likes.Use(auth)
 	likes.Any("create", handlers.LikesCreate)
+	likes.Any("delete", handlers.LikesDelete)
 	e.Logger.Fatal(e.Start(":3000"))
 }
