@@ -13,7 +13,7 @@ type Answer struct {
 	QuestionID int    `json:"question_id"`
 	Timestamp  int64  `json:"timestamp"`
 	Comments   []Comment
-	// Likes      LikesResult `json:"likes"`
+	Likes      []Like `json:"likes"`
 }
 
 func NewAnswer() *Answer {
@@ -85,6 +85,22 @@ func (a *Answer) GetComments() error {
 
 		c.Timestamp = createdAt.Unix()
 		a.Comments = append(a.Comments, c)
+	}
+
+	return nil
+}
+
+func (a *Answer) GetLikes() error {
+	rows, err := db.Conn.Query("select user_id from likes where answer_id = $1", a.ID)
+
+	if err != nil {
+		return err
+	}
+
+	for rows.Next() {
+		var like Like
+		rows.Scan(&like.UserID)
+		a.Likes = append(a.Likes, like)
 	}
 
 	return nil

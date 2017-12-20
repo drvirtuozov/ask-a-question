@@ -44,3 +44,7 @@ type CommentCreateParams struct {
 	AnswerID int    `json:"answer_id" form:"answer_id" query:"answer_id" validate:"required"`
 	Text     string `json:"text" form:"text" query:"text" validate:"required"`
 }
+
+type LikesGetParams struct {
+	AnswerID int `json:"answer_id" form:"answer_id" query:"answer_id" validate:"required"`
+}
