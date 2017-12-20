@@ -64,5 +64,7 @@ func main() {
 	comments.Any("create", handlers.CommentsCreate)
 	likes := api.Group("likes.")
 	likes.Any("get", handlers.LikesGet)
+	likes.Use(auth)
+	likes.Any("create", handlers.LikesCreate)
 	e.Logger.Fatal(e.Start(":3000"))
 }

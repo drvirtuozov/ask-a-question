@@ -23,9 +23,7 @@ type QuestionDeleteParams struct {
 	ID int `json:"id" form:"id" query:"id" validate:"required"`
 }
 
-type QuestionRestoreParams struct {
-	QuestionDeleteParams
-}
+type QuestionRestoreParams QuestionDeleteParams
 
 type AnswerCreateParams struct {
 	QuestionID int    `json:"question_id" form:"question_id" query:"question_id" validate:"required"`
@@ -48,3 +46,6 @@ type CommentCreateParams struct {
 type LikesGetParams struct {
 	AnswerID int `json:"answer_id" form:"answer_id" query:"answer_id" validate:"required"`
 }
+
+type LikeCreateParams LikesGetParams
+type LikeDeleteParams LikesGetParams
