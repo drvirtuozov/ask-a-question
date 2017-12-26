@@ -11,7 +11,7 @@ import (
 type Question struct {
 	ID        int    `json:"id"`
 	Text      string `json:"text"`
-	UserID    int    `json:"user_id"`
+	UserID    int    `json:"-"`
 	FromID    *int   `json:"from_id,omitempty"`
 	Timestamp int64  `json:"timestamp"`
 }

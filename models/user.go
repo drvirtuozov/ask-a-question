@@ -125,7 +125,11 @@ func (u *User) GetQuestions() error {
 
 func (u *User) GetAnswers() error {
 	rows, err := db.Conn.Query(`
-		select a.id, a.text, a.user_id, a.question_id, a.created_at, count(l) as likes_count from answers a left join likes l on (a.id = l.answer_id) where a.user_id = $1 group by a.id order by a.id desc`, u.ID)
+		select a.id, a.text, a.user_id, a.created_at, question_id, q.text as question_text, q.from_id as 
+		question_from_id, q.created_at as question_created_at, (select count(id) from likes where answer_id=a.id) 
+		as like_count, (select count(id) from comments where answer_id=a.id) as comment_count from answers as a 
+		left join questions as q on q.answer_id = a.id where a.user_id = $1 group by a.id, q.id order by a.id desc`, 
+		u.ID)
 
 	if err != nil {
 		return err
@@ -134,14 +138,17 @@ func (u *User) GetAnswers() error {
 	for rows.Next() {
 		var a Answer
 		var createdAt time.Time
-		var count int // temporary
-		err := rows.Scan(&a.ID, &a.Text, &a.UserID, &a.QuestionID, &createdAt, &count /*, &a.Likes.Count*/)
+		var qCreatedAt time.Time
+		err := rows.Scan(&a.ID, &a.Text, &a.UserID, &createdAt, &a.Question.ID, &a.Question.Text, &a.Question.FromID,
+			&qCreatedAt, &a.LikeCount, &a.CommentCount)
 
 		if err != nil {
 			return err
 		}
 
 		a.Timestamp = createdAt.Unix()
+		a.Question.Timestamp = qCreatedAt.Unix()
+		a.Question.UserID = a.UserID
 		u.Answers = append(u.Answers, a)
 	}
 

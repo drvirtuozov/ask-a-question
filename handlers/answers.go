@@ -23,7 +23,7 @@ func AnswersCreate(ctx echo.Context) error {
 
 	answer := models.NewAnswer()
 	answer.Text = params.Text
-	answer.QuestionID = params.QuestionID
+	answer.Question.ID = params.QuestionID
 	answer.UserID = int(ctx.Get("user").(*jwt.Token).Claims.(jwt.MapClaims)["id"].(float64))
 
 	if err := answer.Create(); err != nil {

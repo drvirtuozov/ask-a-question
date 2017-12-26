@@ -7,13 +7,15 @@ import (
 )
 
 type Answer struct {
-	ID         int    `json:"id"`
-	Text       string `json:"text"`
-	UserID     int    `json:"user_id"`
-	QuestionID int    `json:"question_id"`
-	Timestamp  int64  `json:"timestamp"`
-	Comments   []Comment
-	Likes      []Like `json:"likes"`
+	ID           int       `json:"id"`
+	Text         string    `json:"text"`
+	UserID       int       `json:"-"`
+	Question     Question  `json:"question"`
+	Timestamp    int64     `json:"timestamp"`
+	CommentCount int       `json:"comment_count"`
+	Comments     []Comment `json:"comments,omitempty"`
+	LikeCount    int       `json:"like_count"`
+	Likes        []Like    `json:"likes,omitempty"`
 }
 
 func NewAnswer() *Answer {
@@ -37,8 +39,8 @@ func (a *Answer) Create() error {
 		}
 
 		defer stmt.Close()
-		err = stmt.QueryRow(a.Text, a.QuestionID, a.UserID).
-			Scan(&a.ID, &a.Text, &a.UserID, &a.QuestionID, &createdAt)
+		err = stmt.QueryRow(a.Text, a.Question.ID, a.UserID).
+			Scan(&a.ID, &a.Text, &a.UserID, &a.Question.ID, &createdAt)
 
 		if err != nil {
 			tx.Rollback()
@@ -54,7 +56,7 @@ func (a *Answer) Create() error {
 		}
 
 		defer stmt.Close()
-		_, err = stmt.Exec(a.ID, a.QuestionID)
+		_, err = stmt.Exec(a.ID, a.Question.ID)
 
 		if err != nil {
 			tx.Rollback()
