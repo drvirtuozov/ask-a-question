@@ -11,10 +11,10 @@ import (
 
 // User defines a model for a user
 type User struct {
-	ID        int        `json:"id"`
-	Username  string     `json:"username"`
-	FirstName string     `json:"first_name,omitempty"`
-	LastName  string     `json:"last_name,omitempty"`
+	ID        *int       `json:"id"`
+	Username  *string    `json:"username"`
+	FirstName *string    `json:"first_name,omitempty"`
+	LastName  *string    `json:"last_name,omitempty"`
 	Email     string     `json:"-"`
 	Password  string     `json:"-"`
 	Questions []Question `json:"-"`
@@ -69,9 +69,9 @@ func (u *User) GetByUsername(username string) error {
 
 // Create saves a user into db
 func (u *User) Create(params shared.UserCreateParams) (token *Token, err error) {
-	u.Username = params.Username
-	u.FirstName = params.FirstName
-	u.LastName = params.LastName
+	u.Username = &params.Username
+	u.FirstName = &params.FirstName
+	u.LastName = &params.LastName
 	u.Email = params.Email
 	u.Password = params.Password
 
@@ -110,7 +110,7 @@ func (u *User) GetQuestions() error {
 	for rows.Next() {
 		var question Question
 		var createdAt time.Time
-		err := rows.Scan(&question.ID, &question.Text, &question.UserID, &question.FromID, &createdAt)
+		err := rows.Scan(&question.ID, &question.Text, &question.UserID, &question.From.ID, &createdAt)
 
 		if err != nil {
 			return err
@@ -126,9 +126,10 @@ func (u *User) GetQuestions() error {
 func (u *User) GetAnswers() error {
 	rows, err := db.Conn.Query(`
 		select a.id, a.text, a.user_id, a.created_at, question_id, q.text as question_text, q.from_id as 
-		question_from_id, q.created_at as question_created_at, (select count(id) from likes where answer_id=a.id) 
-		as like_count, (select count(id) from comments where answer_id=a.id) as comment_count from answers as a 
-		left join questions as q on q.answer_id = a.id where a.user_id = $1 group by a.id, q.id order by a.id desc`, 
+		question_from_id, f.username as question_from_username, q.created_at as question_created_at, 
+		(select count(id) from likes where answer_id=a.id) as like_count, (select count(id) from comments where answer_id=a.id) 
+		as comment_count from answers as a left join questions as q on q.answer_id = a.id left join users as f 
+		on f.id = q.from_id where a.user_id = $1 group by a.id, q.id, f.id order by a.id desc`,
 		u.ID)
 
 	if err != nil {
@@ -139,11 +140,16 @@ func (u *User) GetAnswers() error {
 		var a Answer
 		var createdAt time.Time
 		var qCreatedAt time.Time
-		err := rows.Scan(&a.ID, &a.Text, &a.UserID, &createdAt, &a.Question.ID, &a.Question.Text, &a.Question.FromID,
+		from := NewUser()
+		err := rows.Scan(&a.ID, &a.Text, &a.UserID, &createdAt, &a.Question.ID, &a.Question.Text, &from.ID, &from.Username,
 			&qCreatedAt, &a.LikeCount, &a.CommentCount)
 
 		if err != nil {
 			return err
+		}
+
+		if from.ID != nil {
+			a.Question.From = from
 		}
 
 		a.Timestamp = createdAt.Unix()

@@ -12,7 +12,8 @@ import (
 func QuestionsGet(ctx echo.Context) error {
 	ctxUser := ctx.Get("user")
 	user := models.NewUser()
-	user.ID = int(ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"].(float64))
+	userID := int(ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"].(float64))
+	user.ID = &userID
 
 	if err := user.GetQuestions(); err != nil {
 		return err
@@ -58,7 +59,7 @@ func QuestionsDelete(ctx echo.Context) error {
 	}
 
 	question := models.NewQuestion()
-	question.ID = params.ID
+	question.ID = &params.ID
 	question.UserID = int(ctx.Get("user").(*jwt.Token).Claims.(jwt.MapClaims)["id"].(float64))
 
 	if err := question.Delete(); err != nil {
@@ -80,7 +81,7 @@ func QuestionsRestore(ctx echo.Context) error {
 	}
 
 	question := models.NewQuestion()
-	question.ID = params.ID
+	question.ID = &params.ID
 	question.UserID = int(ctx.Get("user").(*jwt.Token).Claims.(jwt.MapClaims)["id"].(float64))
 
 	if err := question.Restore(); err != nil {
