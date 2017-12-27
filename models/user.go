@@ -100,7 +100,10 @@ func (u *User) CompareHashAndPass(password string) bool {
 
 // GetQuestions fetchs user questions by instance's id
 func (u *User) GetQuestions() error {
-	rows, err := db.Conn.Query("select id, text, user_id, from_id, created_at from questions where user_id = $1 and answer_id is null and deleted_at is null order by id desc",
+	rows, err := db.Conn.Query(`
+		select q.id, q.text, q.user_id, f.id as from_id, f.username as from_username, q.created_at from 
+		questions as q left join users as f on f.id = q.from_id where q.user_id = $1 and q.answer_id is null 
+		and q.deleted_at is null group by q.id, f.id order by q.id desc`,
 		u.ID)
 
 	if err != nil {
@@ -110,10 +113,15 @@ func (u *User) GetQuestions() error {
 	for rows.Next() {
 		var question Question
 		var createdAt time.Time
-		err := rows.Scan(&question.ID, &question.Text, &question.UserID, &question.From.ID, &createdAt)
+		from := NewUser()
+		err := rows.Scan(&question.ID, &question.Text, &question.UserID, &from.ID, &from.Username, &createdAt)
 
 		if err != nil {
 			return err
+		}
+
+		if from.ID != nil {
+			question.From = from
 		}
 
 		question.Timestamp = createdAt.Unix()
