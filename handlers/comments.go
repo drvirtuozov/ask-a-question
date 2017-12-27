@@ -45,7 +45,8 @@ func CommentsCreate(ctx echo.Context) error {
 	comment := models.NewComment()
 	comment.Text = params.Text
 	comment.AnswerID = params.AnswerID
-	comment.UserID = int(ctx.Get("user").(*jwt.Token).Claims.(jwt.MapClaims)["id"].(float64))
+	userID := int(ctx.Get("user").(*jwt.Token).Claims.(jwt.MapClaims)["id"].(float64))
+	comment.User.ID = &userID
 
 	if err := comment.Create(); err != nil {
 		return err
