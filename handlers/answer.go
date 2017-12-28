@@ -10,7 +10,7 @@ import (
 	"github.com/labstack/echo"
 )
 
-func AnswersCreate(ctx echo.Context) error {
+func AnswerCreate(ctx echo.Context) error {
 	var params shared.AnswerCreateParams
 
 	if err := ctx.Bind(&params); err != nil {
@@ -33,8 +33,8 @@ func AnswersCreate(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, NewOKResponse(answer))
 }
 
-func AnswersGet(ctx echo.Context) error {
-	var params shared.AnswersGetParams
+func AnswerGetComments(ctx echo.Context) error {
+	var params shared.AnswerGetCommentsParams
 
 	if err := ctx.Bind(&params); err != nil {
 		return err
@@ -44,12 +44,12 @@ func AnswersGet(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, NewErrResponse(err))
 	}
 
-	user := models.NewUser()
-	user.ID = &params.UserID
+	answer := models.NewAnswer()
+	answer.ID = params.AnswerID
 
-	if err := user.GetAnswers(); err != nil {
+	if err := answer.GetComments(); err != nil {
 		return ctx.JSON(http.StatusBadRequest, NewErrResponse(err))
 	}
 
-	return ctx.JSON(http.StatusOK, NewOKResponse(user.Answers))
+	return ctx.JSON(http.StatusOK, NewOKResponse(answer.Comments))
 }

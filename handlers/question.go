@@ -9,20 +9,7 @@ import (
 	"github.com/labstack/echo"
 )
 
-func QuestionsGet(ctx echo.Context) error {
-	ctxUser := ctx.Get("user")
-	user := models.NewUser()
-	userID := int(ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"].(float64))
-	user.ID = &userID
-
-	if err := user.GetQuestions(); err != nil {
-		return err
-	}
-
-	return ctx.JSON(http.StatusOK, NewOKResponse(user.Questions))
-}
-
-func QuestionsCreate(ctx echo.Context) error {
+func QuestionCreate(ctx echo.Context) error {
 	var params shared.QuestionCreateParams
 
 	if err := ctx.Bind(&params); err != nil {
@@ -47,7 +34,7 @@ func QuestionsCreate(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, NewOKResponse(question))
 }
 
-func QuestionsDelete(ctx echo.Context) error {
+func QuestionDelete(ctx echo.Context) error {
 	var params shared.QuestionDeleteParams
 
 	if err := ctx.Bind(&params); err != nil {
@@ -69,8 +56,8 @@ func QuestionsDelete(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, NewOKResponse(nil))
 }
 
-func QuestionsRestore(ctx echo.Context) error {
-	var params shared.QuestionDeleteParams
+func QuestionRestore(ctx echo.Context) error {
+	var params shared.QuestionRestoreParams
 
 	if err := ctx.Bind(&params); err != nil {
 		return err

@@ -30,11 +30,11 @@ type AnswerCreateParams struct {
 	Text       string `json:"text" form:"text" query:"text" validate:"required"`
 }
 
-type AnswersGetParams struct {
+type UserGetAnswersParams struct {
 	UserID int `json:"user_id" form:"user_id" query:"user_id" validate:"required"`
 }
 
-type CommentsGetParams struct {
+type AnswerGetCommentsParams struct {
 	AnswerID int `json:"answer_id" form:"answer_id" query:"answer_id" validate:"required"`
 }
 
