@@ -33,6 +33,27 @@ func AnswerCreate(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, NewOKResponse(answer))
 }
 
+func AnswerGet(ctx echo.Context) error {
+	var params shared.AnswerGetParams
+
+	if err := ctx.Bind(&params); err != nil {
+		return err
+	}
+
+	if err := ctx.Validate(params); err != nil {
+		return ctx.JSON(http.StatusBadRequest, NewErrResponse(err))
+	}
+
+	answer := models.NewAnswer()
+	answer.ID = params.AnswerID
+
+	if err := answer.Get(); err != nil {
+		return err
+	}
+
+	return ctx.JSON(http.StatusOK, NewOKResponse(answer))
+}
+
 func AnswerGetComments(ctx echo.Context) error {
 	var params shared.AnswerGetCommentsParams
 

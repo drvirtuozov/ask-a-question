@@ -57,6 +57,7 @@ func main() {
 	question.Any("delete", handlers.QuestionDelete)
 	question.Any("restore", handlers.QuestionRestore)
 	answer := api.Group("answer.")
+	answer.Any("get", handlers.AnswerGet)
 	answer.Any("getComments", handlers.AnswerGetComments)
 	answer.Use(auth)
 	answer.Any("create", handlers.AnswerCreate)
