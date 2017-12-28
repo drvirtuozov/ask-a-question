@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/drvirtuozov/ask-a-question/db"
-	"github.com/drvirtuozov/ask-a-question/shared"
 )
 
 type Question struct {
@@ -16,14 +15,10 @@ type Question struct {
 	Timestamp int64  `json:"timestamp"`
 }
 
-func NewQuestion() *Question {
-	return &Question{}
-}
-
-func (q *Question) Create(params shared.QuestionCreateParams) error {
+func (q *Question) Create() error {
 	var createdAt time.Time
 	err := db.Conn.QueryRow("insert into questions (text, user_id, from_id) values ($1, $2, $3) returning id, text, user_id, from_id, created_at",
-		params.Text, params.UserID, params.FromID).Scan(&q.ID, &q.Text, &q.UserID, &q.From.ID, &createdAt)
+		q.Text, q.UserID, q.From.ID).Scan(&q.ID, &q.Text, &q.UserID, &q.From.ID, &createdAt)
 
 	if err != nil {
 		return err

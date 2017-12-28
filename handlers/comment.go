@@ -6,12 +6,11 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/drvirtuozov/ask-a-question/models"
 
-	"github.com/drvirtuozov/ask-a-question/shared"
 	"github.com/labstack/echo"
 )
 
 func CommentCreate(ctx echo.Context) error {
-	var params shared.CommentCreateParams
+	var params CommentCreateParams
 
 	if err := ctx.Bind(&params); err != nil {
 		return err
@@ -21,9 +20,12 @@ func CommentCreate(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, NewErrResponse(err))
 	}
 
-	comment := models.NewComment()
-	comment.Text = params.Text
-	comment.AnswerID = params.AnswerID
+	comment := models.Comment{
+		Text:     params.Text,
+		AnswerID: params.AnswerID,
+		User:     models.User{},
+	}
+
 	userID := int(ctx.Get("user").(*jwt.Token).Claims.(jwt.MapClaims)["id"].(float64))
 	comment.User.ID = &userID
 

@@ -5,7 +5,6 @@ import (
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/drvirtuozov/ask-a-question/db"
-	"github.com/drvirtuozov/ask-a-question/shared"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -50,15 +49,10 @@ func (u *User) Sign() (token *Token, err error) {
 	return &t, nil
 }
 
-// NewUser creates a new user instance
-func NewUser() *User {
-	return &User{}
-}
-
 // GetByUsername fetchs a user and sets it into the instance
-func (u *User) GetByUsername(username string) error {
-	err := db.Conn.QueryRow(`select id, username, first_name, last_name, password from users where username = $1`, username).
-		Scan(&u.ID, &u.Username, &u.FirstName, &u.LastName, &u.Password)
+func (u *User) GetByUsername() error {
+	err := db.Conn.QueryRow(`select id, first_name, last_name, password from users where username = $1`, u.Username).
+		Scan(&u.ID, &u.FirstName, &u.LastName, &u.Password)
 
 	if err != nil {
 		return err
@@ -68,13 +62,7 @@ func (u *User) GetByUsername(username string) error {
 }
 
 // Create saves a user into db
-func (u *User) Create(params shared.UserCreateParams) (token *Token, err error) {
-	u.Username = &params.Username
-	u.FirstName = &params.FirstName
-	u.LastName = &params.LastName
-	u.Email = params.Email
-	u.Password = params.Password
-
+func (u *User) Create() (token *Token, err error) {
 	if err := u.HashPassword(); err != nil {
 		return token, err
 	}
@@ -113,7 +101,7 @@ func (u *User) GetQuestions() error {
 	for rows.Next() {
 		var question Question
 		var createdAt time.Time
-		from := NewUser()
+		from := User{}
 		err := rows.Scan(&question.ID, &question.Text, &question.UserID, &from.ID, &from.Username, &createdAt)
 
 		if err != nil {
@@ -121,7 +109,7 @@ func (u *User) GetQuestions() error {
 		}
 
 		if from.ID != nil {
-			question.From = from
+			question.From = &from
 		}
 
 		question.Timestamp = createdAt.Unix()
@@ -148,7 +136,7 @@ func (u *User) GetAnswers() error {
 		var a Answer
 		var createdAt time.Time
 		var qCreatedAt time.Time
-		from := NewUser()
+		from := User{}
 		err := rows.Scan(&a.ID, &a.Text, &a.UserID, &createdAt, &a.Question.ID, &a.Question.Text, &from.ID, &from.Username,
 			&qCreatedAt, &a.LikeCount, &a.CommentCount)
 
@@ -157,7 +145,7 @@ func (u *User) GetAnswers() error {
 		}
 
 		if from.ID != nil {
-			a.Question.From = from
+			a.Question.From = &from
 		}
 
 		a.Timestamp = createdAt.Unix()

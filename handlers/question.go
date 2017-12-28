@@ -5,12 +5,11 @@ import (
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/drvirtuozov/ask-a-question/models"
-	"github.com/drvirtuozov/ask-a-question/shared"
 	"github.com/labstack/echo"
 )
 
 func QuestionCreate(ctx echo.Context) error {
-	var params shared.QuestionCreateParams
+	var params QuestionCreateParams
 
 	if err := ctx.Bind(&params); err != nil {
 		return err
@@ -25,9 +24,15 @@ func QuestionCreate(ctx echo.Context) error {
 		params.FromID = &id
 	}
 
-	question := models.NewQuestion()
+	question := models.Question{
+		UserID: params.UserID,
+		Text:   params.Text,
+		From: &models.User{
+			ID: params.FromID,
+		},
+	}
 
-	if err := question.Create(params); err != nil {
+	if err := question.Create(); err != nil {
 		return err
 	}
 
@@ -35,7 +40,7 @@ func QuestionCreate(ctx echo.Context) error {
 }
 
 func QuestionDelete(ctx echo.Context) error {
-	var params shared.QuestionDeleteParams
+	var params QuestionDeleteParams
 
 	if err := ctx.Bind(&params); err != nil {
 		return err
@@ -45,9 +50,10 @@ func QuestionDelete(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, NewErrResponse(err))
 	}
 
-	question := models.NewQuestion()
-	question.ID = &params.ID
-	question.UserID = int(ctx.Get("user").(*jwt.Token).Claims.(jwt.MapClaims)["id"].(float64))
+	question := models.Question{
+		ID:     &params.ID,
+		UserID: int(ctx.Get("user").(*jwt.Token).Claims.(jwt.MapClaims)["id"].(float64)),
+	}
 
 	if err := question.Delete(); err != nil {
 		return ctx.JSON(http.StatusBadRequest, NewErrResponse(err))
@@ -57,7 +63,7 @@ func QuestionDelete(ctx echo.Context) error {
 }
 
 func QuestionRestore(ctx echo.Context) error {
-	var params shared.QuestionRestoreParams
+	var params QuestionRestoreParams
 
 	if err := ctx.Bind(&params); err != nil {
 		return err
@@ -67,9 +73,10 @@ func QuestionRestore(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, NewErrResponse(err))
 	}
 
-	question := models.NewQuestion()
-	question.ID = &params.ID
-	question.UserID = int(ctx.Get("user").(*jwt.Token).Claims.(jwt.MapClaims)["id"].(float64))
+	question := models.Question{
+		ID:     &params.ID,
+		UserID: int(ctx.Get("user").(*jwt.Token).Claims.(jwt.MapClaims)["id"].(float64)),
+	}
 
 	if err := question.Restore(); err != nil {
 		return ctx.JSON(http.StatusBadRequest, NewErrResponse(err))

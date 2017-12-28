@@ -18,10 +18,6 @@ type Answer struct {
 	Likes        []Like    `json:"likes,omitempty"`
 }
 
-func NewAnswer() *Answer {
-	return &Answer{}
-}
-
 func (a *Answer) Create() error {
 	var createdAt time.Time
 
@@ -82,7 +78,7 @@ func (a *Answer) Get() error {
 		join questions as q on q.id = a.question_id left join users as f on f.id = q.from_id where a.id = $1	
 	`, a.ID)
 
-	from := NewUser()
+	from := User{}
 	err := row.Scan(&a.ID, &a.Text, &a.UserID, &a.Question.ID, &a.Question.Text, &from.ID,
 		&from.Username, &qCreatedAt, &createdAt)
 
@@ -91,7 +87,7 @@ func (a *Answer) Get() error {
 	}
 
 	if from.ID != nil {
-		a.Question.From = from
+		a.Question.From = &from
 	}
 
 	if err := a.GetComments(); err != nil {

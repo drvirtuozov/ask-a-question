@@ -6,12 +6,11 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/drvirtuozov/ask-a-question/models"
 
-	"github.com/drvirtuozov/ask-a-question/shared"
 	"github.com/labstack/echo"
 )
 
 func AnswerCreate(ctx echo.Context) error {
-	var params shared.AnswerCreateParams
+	var params AnswerCreateParams
 
 	if err := ctx.Bind(&params); err != nil {
 		return err
@@ -21,10 +20,13 @@ func AnswerCreate(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, NewErrResponse(err))
 	}
 
-	answer := models.NewAnswer()
-	answer.Text = params.Text
-	answer.Question.ID = &params.QuestionID
-	answer.UserID = int(ctx.Get("user").(*jwt.Token).Claims.(jwt.MapClaims)["id"].(float64))
+	answer := models.Answer{
+		Text:   params.Text,
+		UserID: int(ctx.Get("user").(*jwt.Token).Claims.(jwt.MapClaims)["id"].(float64)),
+		Question: models.Question{
+			ID: &params.QuestionID,
+		},
+	}
 
 	if err := answer.Create(); err != nil {
 		return ctx.JSON(http.StatusBadRequest, NewErrResponse(err))
@@ -34,7 +36,7 @@ func AnswerCreate(ctx echo.Context) error {
 }
 
 func AnswerGet(ctx echo.Context) error {
-	var params shared.AnswerGetParams
+	var params AnswerGetParams
 
 	if err := ctx.Bind(&params); err != nil {
 		return err
@@ -44,8 +46,9 @@ func AnswerGet(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, NewErrResponse(err))
 	}
 
-	answer := models.NewAnswer()
-	answer.ID = params.AnswerID
+	answer := models.Answer{
+		ID: params.AnswerID,
+	}
 
 	if err := answer.Get(); err != nil {
 		return err
@@ -55,7 +58,7 @@ func AnswerGet(ctx echo.Context) error {
 }
 
 func AnswerGetComments(ctx echo.Context) error {
-	var params shared.AnswerGetCommentsParams
+	var params AnswerGetCommentsParams
 
 	if err := ctx.Bind(&params); err != nil {
 		return err
@@ -65,8 +68,9 @@ func AnswerGetComments(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, NewErrResponse(err))
 	}
 
-	answer := models.NewAnswer()
-	answer.ID = params.AnswerID
+	answer := models.Answer{
+		ID: params.AnswerID,
+	}
 
 	if err := answer.GetComments(); err != nil {
 		return ctx.JSON(http.StatusBadRequest, NewErrResponse(err))

@@ -11,10 +11,6 @@ type Like struct {
 	Username string `json:"username"`
 }
 
-func NewLike() *Like {
-	return &Like{}
-}
-
 func (l *Like) Create() error {
 	_, err := db.Conn.Exec(`
 		insert into likes (answer_id, user_id) select $1, $2 where not exists 

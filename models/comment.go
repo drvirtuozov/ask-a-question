@@ -14,10 +14,6 @@ type Comment struct {
 	Timestamp int64  `json:"timestamp"`
 }
 
-func NewComment() *Comment {
-	return &Comment{}
-}
-
 func (c *Comment) Create() error {
 	var createdAt time.Time
 

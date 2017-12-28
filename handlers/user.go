@@ -5,7 +5,6 @@ import (
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/drvirtuozov/ask-a-question/models"
-	"github.com/drvirtuozov/ask-a-question/shared"
 	"github.com/labstack/echo"
 )
 
@@ -21,9 +20,11 @@ func UserGet(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, NewErrResponse(err))
 	}
 
-	user := models.NewUser()
+	user := models.User{
+		Username: &params.Username,
+	}
 
-	if err := user.GetByUsername(params.Username); err != nil {
+	if err := user.GetByUsername(); err != nil {
 		return ctx.JSON(http.StatusNotFound, NewErrResponse(err))
 	}
 
@@ -32,7 +33,7 @@ func UserGet(ctx echo.Context) error {
 
 // UserCreate is a creating user endpoint
 func UserCreate(ctx echo.Context) error {
-	var params shared.UserCreateParams
+	var params UserCreateParams
 
 	if err := ctx.Bind(&params); err != nil {
 		return err
@@ -42,8 +43,15 @@ func UserCreate(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, NewErrResponse(err))
 	}
 
-	user := models.NewUser()
-	token, err := user.Create(params)
+	user := models.User{
+		Username:  &params.Username,
+		Password:  params.Password,
+		FirstName: &params.FirstName,
+		LastName:  &params.LastName,
+		Email:     params.Email,
+	}
+
+	token, err := user.Create()
 
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, NewErrResponse(err))
@@ -53,7 +61,7 @@ func UserCreate(ctx echo.Context) error {
 }
 
 func UserGetAnswers(ctx echo.Context) error {
-	var params shared.UserGetAnswersParams
+	var params UserGetAnswersParams
 
 	if err := ctx.Bind(&params); err != nil {
 		return err
@@ -63,8 +71,9 @@ func UserGetAnswers(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, NewErrResponse(err))
 	}
 
-	user := models.NewUser()
-	user.ID = &params.UserID
+	user := models.User{
+		ID: &params.UserID,
+	}
 
 	if err := user.GetAnswers(); err != nil {
 		return ctx.JSON(http.StatusBadRequest, NewErrResponse(err))
@@ -75,7 +84,7 @@ func UserGetAnswers(ctx echo.Context) error {
 
 func UserGetQuestions(ctx echo.Context) error {
 	ctxUser := ctx.Get("user")
-	user := models.NewUser()
+	user := models.User{}
 	userID := int(ctxUser.(*jwt.Token).Claims.(jwt.MapClaims)["id"].(float64))
 	user.ID = &userID
 

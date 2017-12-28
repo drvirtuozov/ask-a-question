@@ -4,13 +4,12 @@ import (
 	"net/http"
 
 	"github.com/drvirtuozov/ask-a-question/models"
-	"github.com/drvirtuozov/ask-a-question/shared"
 	"github.com/labstack/echo"
 )
 
 // TokenCreate is a creating token endpoint
 func TokenCreate(ctx echo.Context) error {
-	var params shared.TokenCreateParams
+	var params TokenCreateParams
 
 	if err := ctx.Bind(&params); err != nil {
 		return err
@@ -20,9 +19,13 @@ func TokenCreate(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, NewErrResponse(err))
 	}
 
-	token := models.NewToken()
+	var token models.Token
+	user := models.User{
+		Username: &params.Username,
+		Password: params.Password,
+	}
 
-	if err := token.Create(params); err != nil {
+	if err := token.Create(user); err != nil {
 		return ctx.JSON(http.StatusUnauthorized, NewErrResponse(err))
 	}
 
