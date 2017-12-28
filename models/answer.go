@@ -32,7 +32,11 @@ func (a *Answer) Create() error {
 	}
 
 	{
-		stmt, err := tx.Prepare("insert into answers (text, user_id, question_id) select $1, user_id, id from questions where id = $2 and answer_id is null and user_id = $3 and deleted_at is null returning id, text, user_id, question_id, created_at")
+		stmt, err := tx.Prepare(`
+			insert into answers (text, user_id, question_id) select $1, user_id, id from questions 
+			where id = $2 and answer_id is null and user_id = $3 and deleted_at is null returning 
+			id, text, user_id, question_id, created_at
+		`)
 
 		if err != nil {
 			return err
@@ -72,8 +76,8 @@ func (a *Answer) Create() error {
 func (a *Answer) GetComments() error {
 	rows, err := db.Conn.Query(`
 		select c.id, c.text, c.user_id, u.username as user_username, c.answer_id, c.created_at from 
-		comments as c join users as u on u.id = c.user_id where c.answer_id = $1 and c.deleted_at is null`,
-		a.ID)
+		comments as c join users as u on u.id = c.user_id where c.answer_id = $1 and c.deleted_at is null
+	`, a.ID)
 
 	if err != nil {
 		return err
@@ -96,7 +100,9 @@ func (a *Answer) GetComments() error {
 }
 
 func (a *Answer) GetLikes() error {
-	rows, err := db.Conn.Query("select user_id from likes where answer_id = $1", a.ID)
+	rows, err := db.Conn.Query(`
+		select l.user_id, u.username from likes as l join users as u on u.id = l.user_id where answer_id = $1
+	`, a.ID)
 
 	if err != nil {
 		return err
@@ -104,7 +110,7 @@ func (a *Answer) GetLikes() error {
 
 	for rows.Next() {
 		var like Like
-		rows.Scan(&like.UserID)
+		rows.Scan(&like.UserID, &like.Username)
 		a.Likes = append(a.Likes, like)
 	}
 
