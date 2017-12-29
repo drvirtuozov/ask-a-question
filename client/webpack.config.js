@@ -1,51 +1,78 @@
-const path = require('path');
-const webpack = require('webpack');
-
+var path = require('path')
+var webpack = require('webpack')
 
 module.exports = {
-  entry: [
-    'react-hot-loader/patch',
-    'webpack-dev-server/client?http://localhost:3000',
-    'webpack/hot/only-dev-server',
-    './index.jsx',
-  ],
+  entry: './src/main.js',
   output: {
-    filename: 'bundle.js',
-    path: path.resolve(__dirname, 'dist'),
-    publicPath: '/',
-  },
-  context: path.resolve(__dirname, 'src'),
-  devtool: 'inline-source-map',
-  devServer: {
-    hot: true,
-    contentBase: path.resolve(__dirname, 'dist'),
-    publicPath: '/',
-    historyApiFallback: true,
-    proxy: {
-      '/api': 'http://localhost:3001',
-      // '/socket.io': 'http://localhost:3001',
-    },
-    port: 3000,
+    path: path.resolve(__dirname, './dist'),
+    publicPath: '/dist/',
+    filename: 'build.js'
   },
   module: {
     rules: [
       {
-        test: /\.jsx?$/,
-        exclude: /node_modules/,
-        include: [path.join(__dirname)],
-        loader: 'babel-loader',
+        test: /\.css$/,
+        use: [
+          'vue-style-loader',
+          'css-loader'
+        ],
+      },      {
+        test: /\.vue$/,
+        loader: 'vue-loader',
         options: {
-          presets: [['es2015', { modules: false }], 'es2017', 'react'],
-          plugins: ['transform-runtime', 'react-hot-loader/babel'],
-        },
+          loaders: {
+          }
+          // other vue-loader options go here
+        }
       },
-    ],
+      {
+        test: /\.js$/,
+        loader: 'babel-loader',
+        exclude: /node_modules/
+      },
+      {
+        test: /\.(png|jpg|gif|svg)$/,
+        loader: 'file-loader',
+        options: {
+          name: '[name].[ext]?[hash]'
+        }
+      }
+    ]
   },
   resolve: {
-    extensions: ['.js', '.jsx', '.json'],
+    alias: {
+      'vue$': 'vue/dist/vue.esm.js'
+    },
+    extensions: ['*', '.js', '.vue', '.json']
   },
-  plugins: [
-    new webpack.HotModuleReplacementPlugin(),
-    new webpack.NamedModulesPlugin(),
-  ],
-};
+  devServer: {
+    historyApiFallback: true,
+    noInfo: true,
+    overlay: true
+  },
+  performance: {
+    hints: false
+  },
+  devtool: '#eval-source-map'
+}
+
+if (process.env.NODE_ENV === 'production') {
+  module.exports.devtool = '#source-map'
+  // http://vue-loader.vuejs.org/en/workflow/production.html
+  module.exports.plugins = (module.exports.plugins || []).concat([
+    new webpack.DefinePlugin({
+      'process.env': {
+        NODE_ENV: '"production"'
+      }
+    }),
+    new webpack.optimize.UglifyJsPlugin({
+      sourceMap: true,
+      compress: {
+        warnings: false
+      }
+    }),
+    new webpack.LoaderOptionsPlugin({
+      minimize: true
+    })
+  ])
+}
