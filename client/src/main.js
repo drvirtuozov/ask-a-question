@@ -7,7 +7,9 @@ import App from './App.vue';
 
 Vue.use(BootstrapVue);
 
-Vue({
+const vue = new Vue({
   el: '#app',
   render: h => h(App),
 });
+
+export default vue;

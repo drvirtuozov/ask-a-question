@@ -1,22 +1,22 @@
 <template>
   <div id="app">
-    <navigation-bar></navigation-bar>
+    <navigation-bar />
   </div>
 </template>
 
 <script>
-import NavigationBar from './components/NavigationBar.vue'
+import NavigationBar from './components/NavigationBar.vue';
 
 
 export default {
-  name: 'app',
-  data () {
-    return {
-      msg: 'Welcome to Your Vue.js App'
-    }
-  },
+  name: 'App',
   components: {
-    NavigationBar
-  }
-}
+    NavigationBar,
+  },
+  data() {
+    return {
+      msg: 'Welcome to Your Vue.js App',
+    };
+  },
+};
 </script>
