@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div>
     <navigation-bar />
   </div>
 </template>
@@ -12,11 +12,6 @@ export default {
   name: 'App',
   components: {
     NavigationBar,
-  },
-  data() {
-    return {
-      msg: 'Welcome to Your Vue.js App',
-    };
   },
 };
 </script>

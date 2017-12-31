@@ -45,6 +45,9 @@ module.exports = {
     historyApiFallback: true,
     noInfo: true,
     overlay: true,
+    proxy: {
+      '/api': 'http://localhost:3000',
+    },
   },
   performance: {
     hints: false,
