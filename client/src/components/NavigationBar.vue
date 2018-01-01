@@ -21,42 +21,19 @@
       <b-navbar-nav
         class="ml-auto"
         v-else>
-        <b-nav-form @submit.prevent="login">
-          <b-form-input
-            size="sm"
-            class="mr-sm-2"
-            :class="form.usernameClassname"
-            type="text"
-            placeholder="Username"
-            required
-            v-model="form.username" />
-          <b-form-input
-            size="sm"
-            class="mr-sm-2"
-            :class="form.passwordClassname"
-            type="password"
-            placeholder="Password"
-            required
-            v-model="form.password" />
-          <b-button
-            size="sm"
-            class="my-2 my-sm-0"
-            type="submit"
-            :disabled="form.isLoading">Log In</b-button>
-        </b-nav-form>
+        <sign-in navbar />
       </b-navbar-nav>
     </b-collapse>
   </b-navbar>
 </template>
 
 <script>
+import SignIn from './SignIn.vue';
+
+
 export default {
   name: 'NavigationBar',
-  data() {
-    return {
-      form: this.getDefaultFormState(),
-    };
-  },
+  components: { SignIn },
   computed: {
     username() {
       return this.$store.state.user.username;
@@ -68,40 +45,7 @@ export default {
       return this.$store.getters.getQuestionsCount;
     },
   },
-  watch: {
-    isAuthenticated() {
-      this.form = this.getDefaultFormState();
-    },
-  },
   methods: {
-    getDefaultFormState() {
-      return {
-        username: '',
-        password: '',
-        usernameClassname: '',
-        passwordClassname: '',
-        isLoading: false,
-      };
-    },
-    async login() {
-      this.form.isLoading = true;
-
-      try {
-        await this.$store.dispatch('login', {
-          username: this.form.username,
-          password: this.form.password,
-        });
-      } catch (e) {
-        if (e.description.includes('password')) {
-          this.form.passwordClassname = 'is-invalid';
-          this.form.usernameClassname = 'is-valid';
-        } else {
-          this.form.usernameClassname = 'is-invalid';
-        }
-      }
-
-      this.form.isLoading = false;
-    },
     logout() {
       this.$store.dispatch('logout');
     },
