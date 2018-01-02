@@ -7,11 +7,16 @@ import 'bootstrap-vue/dist/bootstrap-vue.css';
 import App from './App.vue';
 import SignIn from './components/SignIn.vue';
 import SignUp from './components/SignUp.vue';
+import Questions from './components/Questions.vue';
 import store from './store';
 
 
 Vue.use(VueRouter);
 Vue.use(BootstrapVue);
+
+if (localStorage.getItem('token')) {
+  store.commit('setUser', jwtDecode(localStorage.getItem('token')));
+}
 
 const vue = new Vue({
   el: '#app',
@@ -23,14 +28,51 @@ const vue = new Vue({
   router: new VueRouter({
     mode: 'history',
     routes: [
-      { path: '/signin', component: SignIn },
-      { path: '/signup', component: SignUp },
+      {
+        path: '/',
+        redirect() {
+          if (store.state.isAuthenticated) {
+            return '/questions';
+          }
+
+          return '/signup';
+        },
+      },
+      {
+        path: '/signin',
+        component: SignIn,
+        beforeEnter(to, from, next) {
+          if (store.state.isAuthenticated) {
+            next('/');
+          }
+
+          return next();
+        },
+      },
+      {
+        path: '/signup',
+        component: SignUp,
+        beforeEnter(to, from, next) {
+          if (store.state.isAuthenticated) {
+            next('/');
+          }
+
+          return next();
+        },
+      },
+      {
+        path: '/questions',
+        component: Questions,
+        beforeEnter(to, from, next) {
+          if (!store.state.isAuthenticated) {
+            next('/');
+          }
+
+          return next();
+        },
+      },
     ],
   }),
 });
-
-if (localStorage.getItem('token')) {
-  store.commit('setUser', jwtDecode(localStorage.getItem('token')));
-}
 
 export default vue;

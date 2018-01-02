@@ -1,13 +1,10 @@
 <template>
-  <div>
-    <h3>Sign Up</h3>
-    <router-link to="/signin">sign in</router-link>
-  </div>
+  <div><h1>Questions</h1></div>
 </template>
 
 <script>
 export default {
-  name: 'SignUp',
+  name: 'Questions',
   computed: {
     isAuthenticated() {
       return this.$store.state.isAuthenticated;
@@ -20,3 +17,4 @@ export default {
   },
 };
 </script>
+

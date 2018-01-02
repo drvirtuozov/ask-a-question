@@ -79,6 +79,7 @@ export default {
   watch: {
     isAuthenticated() {
       this.form = this.getDefaultFormState();
+      this.$router.push('/');
     },
   },
   methods: {

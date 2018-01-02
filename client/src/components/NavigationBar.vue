@@ -4,7 +4,9 @@
     type="dark"
     variant="info">
     <b-navbar-toggle target="nav_collapse" />
-    <b-navbar-brand href="#">Ask a Question</b-navbar-brand>
+    <router-link to="/">
+      <b-navbar-brand>Ask a Question</b-navbar-brand>
+    </router-link>
     <b-collapse
       is-nav
       id="nav_collapse">
