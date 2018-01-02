@@ -1,8 +1,9 @@
-export async function postapi(method = '', body = {}) {
+export async function postapi(method = '', body = {}, token = '') {
   const res = await fetch(`/api/${method}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      Authorization: token && `Bearer ${token}`,
     },
     body: JSON.stringify(body),
   });

@@ -5,7 +5,7 @@ import jwtDecode from 'jwt-decode';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
 import App from './App.vue';
-import SignIn from './components/SignIn.vue';
+import LogIn from './components/LogIn.vue';
 import SignUp from './components/SignUp.vue';
 import Questions from './components/Questions.vue';
 import store from './store';
@@ -39,8 +39,8 @@ const vue = new Vue({
         },
       },
       {
-        path: '/signin',
-        component: SignIn,
+        path: '/login',
+        component: LogIn,
         beforeEnter(to, from, next) {
           if (store.state.isAuthenticated) {
             next('/');

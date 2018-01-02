@@ -59,7 +59,7 @@
 
 <script>
 export default {
-  name: 'SignIn',
+  name: 'LogIn',
   props: {
     navbar: {
       type: Boolean,
