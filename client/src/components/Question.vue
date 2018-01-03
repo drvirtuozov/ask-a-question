@@ -27,7 +27,9 @@
           rows="3"
           max-rows="6" />
       </b-form-group>
-      <b-button>Reply</b-button>
+      <b-button
+        @click="reply"
+        :disabled="!answer">Reply</b-button>
     </b-form>
   </b-card>
 
@@ -42,7 +44,7 @@
 </template>
 
 <script>
-import { DELETE_QUESTION, RESTORE_QUESTION } from '../store/types';
+import { DELETE_QUESTION, RESTORE_QUESTION, REPLY_QUESTION } from '../store/types';
 
 
 export default {
@@ -75,11 +77,17 @@ export default {
     };
   },
   methods: {
-    async deleteQuestion() {
-      await this.$store.dispatch(DELETE_QUESTION, this.id);
+    deleteQuestion() {
+      this.$store.dispatch(DELETE_QUESTION, this.id);
     },
-    async restoreQuestion() {
-      await this.$store.dispatch(RESTORE_QUESTION, this.id);
+    restoreQuestion() {
+      this.$store.dispatch(RESTORE_QUESTION, this.id);
+    },
+    reply() {
+      this.$store.dispatch(REPLY_QUESTION, {
+        id: this.id,
+        text: this.answer,
+      });
     },
   },
 };

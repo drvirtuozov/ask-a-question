@@ -5,3 +5,5 @@ export const DELETE_QUESTION = 'DELETE_QUESTION';
 export const RESTORE_QUESTION = 'RESTORE_QUESTION';
 export const LOGIN = 'LOGIN';
 export const LOGOUT = 'LOGOUT';
+export const REPLY_QUESTION = 'REPLY_QUESTION';
+export const DESTROY_QUESTION = 'DESTROY_QUESTION';

@@ -9,13 +9,14 @@ import LogIn from './components/LogIn.vue';
 import SignUp from './components/SignUp.vue';
 import Questions from './components/Questions.vue';
 import store from './store';
+import { SET_USER } from './store/types';
 
 
 Vue.use(VueRouter);
 Vue.use(BootstrapVue);
 
 if (localStorage.getItem('token')) {
-  store.commit('setUser', jwtDecode(localStorage.getItem('token')));
+  store.commit(SET_USER, jwtDecode(localStorage.getItem('token')));
 }
 
 const vue = new Vue({

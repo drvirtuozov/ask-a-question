@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import {
-  DELETE_QUESTION, RESTORE_QUESTION, SET_USER, SET_QUESTIONS,
+  DELETE_QUESTION, RESTORE_QUESTION, SET_USER, SET_QUESTIONS, DESTROY_QUESTION,
 } from './types';
 
 function alterQuestion(state, id, key = '', value) {
@@ -28,5 +28,8 @@ export default {
   },
   [RESTORE_QUESTION](state, id) {
     alterQuestion(state, id, 'isDeleted', false);
+  },
+  [DESTROY_QUESTION](state, id) {
+    Vue.set(state, 'questions', state.questions.filter(q => q.id !== id));
   },
 };
