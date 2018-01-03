@@ -56,6 +56,7 @@ export default {
   },
 };
 </script>
+
 <style>
   .question {
     margin-top: 20px;

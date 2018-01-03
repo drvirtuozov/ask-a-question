@@ -1,4 +1,7 @@
 export default {
+  getUser(state) {
+    return state.user;
+  },
   getQuestions(state) {
     return state.questions;
   },

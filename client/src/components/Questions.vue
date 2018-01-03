@@ -30,7 +30,7 @@ export default {
       return this.$store.state.isAuthenticated;
     },
     questions() {
-      return this.$store.state.questions;
+      return this.$store.getters.getQuestions;
     },
   },
   watch: {

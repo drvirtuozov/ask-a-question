@@ -18,7 +18,7 @@
         </router-link>
         <b-nav-item-dropdown right>
           <template slot="button-content">{{ username }}</template>
-          <b-dropdown-item>Profile</b-dropdown-item>
+          <b-dropdown-item @click="goToProfile">Profile</b-dropdown-item>
           <b-dropdown-item @click="logout">Log Out</b-dropdown-item>
         </b-nav-item-dropdown>
       </b-navbar-nav>
@@ -41,7 +41,7 @@ export default {
   components: { LogIn },
   computed: {
     username() {
-      return this.$store.state.user.username;
+      return this.$store.getters.getUser.username;
     },
     isAuthenticated() {
       return this.$store.state.isAuthenticated;
@@ -53,6 +53,9 @@ export default {
   methods: {
     logout() {
       this.$store.dispatch('logout');
+    },
+    goToProfile() {
+      this.$router.push(`/${this.username}`);
     },
   },
 };
