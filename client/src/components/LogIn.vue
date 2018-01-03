@@ -58,6 +58,8 @@
 </template>
 
 <script>
+import { LOGIN } from '../store/types';
+
 export default {
   name: 'LogIn',
   props: {
@@ -100,7 +102,7 @@ export default {
       this.form.isLoading = true;
 
       try {
-        await this.$store.dispatch('login', {
+        await this.$store.dispatch(LOGIN, {
           username: this.form.username,
           password: this.form.password,
         });

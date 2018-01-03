@@ -14,7 +14,7 @@
         class="ml-auto"
         v-if="isAuthenticated">
         <router-link to="/questions">
-          <h3 v-if="questionsCount"><b-badge variant="light">{{ questionsCount }}</b-badge></h3>
+          <h3 v-if="questionCount"><b-badge variant="light">{{ questionCount }}</b-badge></h3>
         </router-link>
         <b-nav-item-dropdown right>
           <template slot="button-content">{{ username }}</template>
@@ -33,6 +33,7 @@
 </template>
 
 <script>
+import { LOGOUT } from '../store/types';
 import LogIn from './LogIn.vue';
 
 
@@ -46,13 +47,13 @@ export default {
     isAuthenticated() {
       return this.$store.state.isAuthenticated;
     },
-    questionsCount() {
-      return this.$store.getters.getQuestionsCount;
+    questionCount() {
+      return this.$store.getters.getQuestionCount;
     },
   },
   methods: {
     logout() {
-      this.$store.dispatch('logout');
+      this.$store.dispatch(LOGOUT);
     },
     goToProfile() {
       this.$router.push(`/${this.username}`);

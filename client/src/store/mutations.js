@@ -1,9 +1,32 @@
+import Vue from 'vue';
+import {
+  DELETE_QUESTION, RESTORE_QUESTION, SET_USER, SET_QUESTIONS,
+} from './types';
+
+function alterQuestion(state, id, key = '', value) {
+  const questions = state.questions.map((q) => {
+    if (q.id === id) {
+      Vue.set(q, key, value);
+    }
+
+    return q;
+  });
+
+  Vue.set(state, 'questions', questions);
+}
+
 export default {
-  setUser(state, user) {
-    state.user = user;
-    state.isAuthenticated = !!user;
+  [SET_USER](state, user) {
+    Vue.set(state, 'user', user);
+    Vue.set(state, 'isAuthenticated', !!user);
   },
-  setQuestions(state, questions) {
-    state.questions = questions || [];
+  [SET_QUESTIONS](state, questions) {
+    Vue.set(state, 'questions', questions || []);
+  },
+  [DELETE_QUESTION](state, id) {
+    alterQuestion(state, id, 'isDeleted', true);
+  },
+  [RESTORE_QUESTION](state, id) {
+    alterQuestion(state, id, 'isDeleted', false);
   },
 };

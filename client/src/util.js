@@ -1,4 +1,5 @@
-export async function postapi(method = '', body = {}, token = '') {
+export async function postapi(method = '', body = {}) {
+  const token = localStorage.getItem('token');
   const res = await fetch(`/api/${method}`, {
     method: 'POST',
     headers: {

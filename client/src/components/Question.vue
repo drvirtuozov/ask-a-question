@@ -1,5 +1,7 @@
 <template>
-  <b-card class="question">
+  <b-card
+    v-if="!isDeleted"
+    class="question">
     <div slot="header">
       <div class="d-inline-flex">
         <router-link
@@ -12,7 +14,9 @@
           :title="timestamp"
           class="text-muted">&nbsp;{{ timestamp }}</time>
       </div>
-      <button class="close">&times;</button>
+      <button
+        class="close"
+        @click="deleteQuestion">&times;</button>
     </div>
     <p class="card-text">{{ text }}</p>
     <b-form>
@@ -26,9 +30,21 @@
       <b-button>Reply</b-button>
     </b-form>
   </b-card>
+
+  <b-card
+    v-else
+    class="question">
+    <p class="card-text">The question has been deleted. <a
+      href="#"
+      @click.prevent="restoreQuestion">Restore</a>
+    </p>
+  </b-card>
 </template>
 
 <script>
+import { DELETE_QUESTION, RESTORE_QUESTION } from '../store/types';
+
+
 export default {
   name: 'Question',
   props: {
@@ -48,11 +64,23 @@ export default {
       type: Object,
       default: () => ({}),
     },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {
       answer: '',
     };
+  },
+  methods: {
+    async deleteQuestion() {
+      await this.$store.dispatch(DELETE_QUESTION, this.id);
+    },
+    async restoreQuestion() {
+      await this.$store.dispatch(RESTORE_QUESTION, this.id);
+    },
   },
 };
 </script>

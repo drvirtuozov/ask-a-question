@@ -1,8 +1,8 @@
 import { postapi } from '../util';
 
 
-async function getQuestions(token) {
-  const res = await postapi('user.getQuestions', null, token);
+async function getQuestions() {
+  const res = await postapi('user.getQuestions');
   return res.data;
 }
 
