@@ -11,8 +11,8 @@
           v-else
           class="text-muted">Anonymous</span>
         <time
-          :title="timestamp"
-          class="text-muted">&nbsp;{{ timestamp }}</time>
+          :title="moment.calendar()"
+          class="text-muted">&nbsp;{{ moment.fromNow() }}</time>
       </div>
       <button
         class="close"
@@ -36,7 +36,7 @@
   <b-card
     v-else
     class="question">
-    <p class="card-text">The question has been deleted. <a
+    <p class="card-text text-center">The question has been deleted. <a
       href="#"
       @click.prevent="restoreQuestion">Restore</a>
     </p>
@@ -44,6 +44,7 @@
 </template>
 
 <script>
+import moment from 'moment';
 import { DELETE_QUESTION, RESTORE_QUESTION, REPLY_QUESTION } from '../store/types';
 
 
@@ -74,9 +75,23 @@ export default {
   data() {
     return {
       answer: '',
+      moment: this.getMoment(),
     };
   },
+  computed: {
+    momentTick() {
+      return this.$store.state.momentTick;
+    },
+  },
+  watch: {
+    momentTick() {
+      this.moment = this.getMoment();
+    },
+  },
   methods: {
+    getMoment() {
+      return moment.unix(this.timestamp);
+    },
     deleteQuestion() {
       this.$store.dispatch(DELETE_QUESTION, this.id);
     },
@@ -95,7 +110,7 @@ export default {
 
 <style>
   .question {
-    margin-top: 20px;
+    margin-bottom: 20px;
   }
 </style>
 

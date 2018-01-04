@@ -49,14 +49,14 @@ export default {
       this.$router.push('/');
     },
   },
+  created() {
+    this.getQuestions();
+  },
   methods: {
     async getQuestions() {
       await this.$store.dispatch(GET_QUESTIONS);
       this.isLoading = false;
     },
-  },
-  beforeRouteEnter(to, from, next) {
-    next(vm => vm.getQuestions());
   },
 };
 </script>

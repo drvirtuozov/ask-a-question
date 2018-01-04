@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import {
-  DELETE_QUESTION, RESTORE_QUESTION, SET_USER, SET_QUESTIONS, DESTROY_QUESTION,
+  DELETE_QUESTION, RESTORE_QUESTION, SET_USER, SET_QUESTIONS, DESTROY_QUESTION, TICK_MOMENT,
 } from './types';
 
 function alterQuestion(state, id, key = '', value) {
@@ -31,5 +31,8 @@ export default {
   },
   [DESTROY_QUESTION](state, id) {
     Vue.set(state, 'questions', state.questions.filter(q => q.id !== id));
+  },
+  [TICK_MOMENT](state, ms) {
+    Vue.set(state, 'momentTick', ms);
   },
 };

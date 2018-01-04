@@ -7,3 +7,4 @@ export const LOGIN = 'LOGIN';
 export const LOGOUT = 'LOGOUT';
 export const REPLY_QUESTION = 'REPLY_QUESTION';
 export const DESTROY_QUESTION = 'DESTROY_QUESTION';
+export const TICK_MOMENT = 'TICK_MOMENT';
