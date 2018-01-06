@@ -53,7 +53,11 @@
         :disabled="form.isLoading">Log In</b-button>
     </b-form>
     <hr>
-    <small>Don't have an account? <router-link to="/signup">Sign Up</router-link></small>
+    <p class="text-center">
+      <small>Don't have an account?
+        <router-link to="/signup">Sign Up</router-link>
+      </small>
+    </p>
   </div>
 </template>
 

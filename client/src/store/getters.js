@@ -8,4 +8,7 @@ export default {
   getQuestionCount(state, getters) {
     return getters.getQuestions.filter(q => !q.isDeleted).length;
   },
+  getProfile(state) {
+    return state.profile;
+  },
 };

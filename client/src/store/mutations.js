@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import {
   DELETE_QUESTION, RESTORE_QUESTION, SET_USER, SET_QUESTIONS, DESTROY_QUESTION, TICK_MOMENT,
+  SET_PROFILE, SET_QUESTIONS_LOADING, SET_ANSWERS,
 } from './types';
 
 function alterQuestion(state, id, key = '', value) {
@@ -17,7 +18,7 @@ function alterQuestion(state, id, key = '', value) {
 
 export default {
   [SET_USER](state, user) {
-    Vue.set(state, 'user', user);
+    Vue.set(state, 'user', user || {});
     Vue.set(state, 'isAuthenticated', !!user);
   },
   [SET_QUESTIONS](state, questions) {
@@ -34,5 +35,14 @@ export default {
   },
   [TICK_MOMENT](state, ms) {
     Vue.set(state, 'momentTick', ms);
+  },
+  [SET_PROFILE](state, profile) {
+    Vue.set(state, 'profile', profile || {});
+  },
+  [SET_QUESTIONS_LOADING](state, payload) {
+    Vue.set(state, 'areQuestionsLoading', !!payload);
+  },
+  [SET_ANSWERS](state, answers) {
+    Vue.set(state.profile, 'answers', answers);
   },
 };

@@ -1,7 +1,9 @@
 <template>
   <div>
     <navigation-bar />
-    <router-view class="container" />
+    <router-view
+      id="main-container"
+      class="container" />
   </div>
 </template>
 
@@ -18,8 +20,8 @@ export default {
 </script>
 
 <style>
-  .container {
-    margin-top: 20px;
+  #main-container {
+    margin-top: 70px;
   }
 </style>
 

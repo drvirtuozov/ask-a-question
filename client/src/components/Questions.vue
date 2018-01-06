@@ -2,13 +2,13 @@
   <div class="col-xl-6">
     <span v-if="isLoading">Loading...</span>
     <div v-else-if="questionCount">
-      <h3 v-if="questionCount == 1">There's a question especially for you:</h3>
-      <h3 v-else>There are {{ questionCount }} questions especially for you:</h3>
+      <h4 v-if="questionCount == 1">There's a question especially for you:</h4>
+      <h4 v-else>There are {{ questionCount }} questions especially for you:</h4>
       <hr>
     </div>
     <h3
       v-else
-      class="text-muted">You haven't received a single question yet</h3>
+      class="text-muted text-center">You haven't received a single question yet</h3>
     <question
       v-for="question in questions"
       :key="question.id"
@@ -21,19 +21,16 @@
 </template>
 
 <script>
-import { GET_QUESTIONS } from '../store/types';
 import Question from './Question.vue';
 
 
 export default {
   name: 'Questions',
   components: { Question },
-  data() {
-    return {
-      isLoading: true,
-    };
-  },
   computed: {
+    isLoading() {
+      return this.$store.state.areQuestionsLoading;
+    },
     isAuthenticated() {
       return this.$store.state.isAuthenticated;
     },
@@ -47,15 +44,6 @@ export default {
   watch: {
     isAuthenticated() {
       this.$router.push('/');
-    },
-  },
-  created() {
-    this.getQuestions();
-  },
-  methods: {
-    async getQuestions() {
-      await this.$store.dispatch(GET_QUESTIONS);
-      this.isLoading = false;
     },
   },
 };

@@ -11,13 +11,13 @@ Vue.use(Vuex);
 const store = new Vuex.Store({
   strict: true,
   state: {
-    user: {
-      id: 0,
-      username: '',
+    user: {},
+    profile: {
+      answers: [],
     },
     isAuthenticated: false,
     questions: [],
-    answers: [],
+    areQuestionsLoading: false,
     momentTick: Date.now(),
   },
   getters,
@@ -27,6 +27,6 @@ const store = new Vuex.Store({
 
 setInterval(() => {
   store.commit(TICK_MOMENT, Date.now());
-}, 1000);
+}, 1000 * 60);
 
 export default store;

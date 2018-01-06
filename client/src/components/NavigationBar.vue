@@ -1,8 +1,9 @@
 <template>
   <b-navbar
     toggleable="md"
-    type="dark"
-    variant="info">
+    type="light"
+    variant="light"
+    fixed="top">
     <b-navbar-toggle target="nav_collapse" />
     <router-link to="/">
       <b-navbar-brand>Ask a Question</b-navbar-brand>
@@ -13,9 +14,6 @@
       <b-navbar-nav
         class="ml-auto"
         v-if="isAuthenticated">
-        <router-link to="/questions">
-          <h3 v-if="questionCount"><b-badge variant="light">{{ questionCount }}</b-badge></h3>
-        </router-link>
         <b-nav-item-dropdown right>
           <template slot="button-content">{{ username }}</template>
           <b-dropdown-item @click="goToProfile">Profile</b-dropdown-item>
@@ -29,6 +27,11 @@
         <log-in navbar />
       </b-navbar-nav>
     </b-collapse>
+    <router-link
+      to="/questions"
+      v-if="questionCount">
+      <b-badge>{{ questionCount }}</b-badge>
+    </router-link>
   </b-navbar>
 </template>
 
