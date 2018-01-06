@@ -2,12 +2,13 @@ import jwtDecode from 'jwt-decode';
 import {
   LOGIN, LOGOUT, GET_QUESTIONS, DELETE_QUESTION, RESTORE_QUESTION, DESTROY_QUESTION,
   SET_USER, SET_QUESTIONS, REPLY_QUESTION, GET_PROFILE, SET_PROFILE, SET_QUESTIONS_LOADING,
-  GET_ANSWERS, SET_ANSWERS,
+  GET_ANSWERS, SET_ANSWERS, GET_COMMENTS, CREATE_COMMENT,
 } from './types';
 import token from '../api/token';
 import user from '../api/user';
 import question from '../api/question';
 import answer from '../api/answer';
+import comment from '../api/comment';
 
 
 export default {
@@ -28,6 +29,7 @@ export default {
     const questions = await user.getQuestions();
     ctx.commit(SET_QUESTIONS_LOADING, false);
     ctx.commit(SET_QUESTIONS, questions);
+    return questions;
   },
   async [DELETE_QUESTION](ctx, id) {
     await question.Delete(id);
@@ -44,9 +46,19 @@ export default {
   async [GET_PROFILE](ctx, username) {
     const profile = await user.get(username);
     ctx.commit(SET_PROFILE, profile);
+    return profile;
   },
   async [GET_ANSWERS](ctx, userId) {
     const answers = await user.getAnswers(userId);
     ctx.commit(SET_ANSWERS, answers);
+    return answers;
+  },
+  async [GET_COMMENTS](ctx, answerId) {
+    const comments = await answer.getComments(answerId);
+    return comments;
+  },
+  async [CREATE_COMMENT](ctx, payload) {
+    const c = await comment.create(payload.answerId, payload.text);
+    return c;
   },
 };

@@ -1,5 +1,5 @@
 <template>
-  <div class="card container">
+  <b-card class="ask">
     <form @submit.prevent="ask">
       <b-form-group label="Ask me whatever you want:">
         <b-form-input
@@ -8,15 +8,15 @@
           required
           placeholder="Enter a question..." />
       </b-form-group>
-      <b-form-group>
-        <b-button variant="primary">Ask</b-button>
-        <b-form-checkbox
-          class="mb-2 mr-sm-2 mb-sm-0"
-          v-model="isAnon"
-          v-if="isAuthenticated">Anonymously</b-form-checkbox>
-      </b-form-group>
+      <b-button
+        variant="primary"
+        :disabled="!question">Ask</b-button>
+      <b-form-checkbox
+        class="mb-2 mr-sm-2 mb-sm-0"
+        v-model="isAnon"
+        v-if="isAuthenticated">Anonymously</b-form-checkbox>
     </form>
-  </div>
+  </b-card>
 </template>
 
 <script>
@@ -38,4 +38,10 @@ export default {
   },
 };
 </script>
+
+<style>
+  .ask {
+    margin-bottom: 20px;
+  }
+</style>
 

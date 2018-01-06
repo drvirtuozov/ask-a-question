@@ -1,12 +1,15 @@
 <template>
   <div class="col-xl-6">
     <b-card
+      class="profile-header"
       title="Vlad Barkalov"
       :sub-title="username | styleUname">
       <p class="card-text">i ball was rawt</p>
     </b-card>
-    <ask v-if="!isMyProfile" />
-    <answers :is-my-profile="isMyProfile" />
+    <div class="container">
+      <ask v-if="!isMyProfile" />
+      <answers :is-my-profile="isMyProfile" />
+    </div>
   </div>
 </template>
 
@@ -47,4 +50,10 @@ export default {
   },
 };
 </script>
+
+<style>
+  .profile-header {
+    margin-bottom: 20px;
+  }
+</style>
 
