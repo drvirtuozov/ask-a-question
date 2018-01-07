@@ -1,8 +1,9 @@
 import jwtDecode from 'jwt-decode';
 import {
-  LOGIN, LOGOUT, GET_QUESTIONS, DELETE_QUESTION, RESTORE_QUESTION, DESTROY_QUESTION,
-  SET_USER, SET_QUESTIONS, REPLY_QUESTION, GET_PROFILE, SET_PROFILE, SET_QUESTIONS_LOADING,
-  GET_ANSWERS, SET_ANSWERS, GET_COMMENTS, CREATE_COMMENT, LIKE_ANSWER, UNLIKE_ANSWER,
+  LOGIN, LOGOUT, GET_SET_QUESTIONS, DELETE_QUESTION, RESTORE_QUESTION, DESTROY_QUESTION,
+  SET_USER, SET_QUESTIONS, REPLY_QUESTION, GET_PROFILE, SET_QUESTIONS_LOADING,
+  GET_ANSWERS, GET_COMMENTS, CREATE_COMMENT, LIKE_ANSWER, UNLIKE_ANSWER,
+  CREATE_QUESTION,
 } from './types';
 import token from '../api/token';
 import user from '../api/user';
@@ -18,14 +19,14 @@ export default {
     const usr = jwtDecode(tkn);
     localStorage.setItem('token', tkn);
     ctx.commit(SET_USER, usr);
-    ctx.dispatch(GET_QUESTIONS);
+    ctx.dispatch(GET_SET_QUESTIONS);
   },
   async [LOGOUT](ctx) {
     localStorage.removeItem('token');
     ctx.commit(SET_USER);
     ctx.commit(SET_QUESTIONS);
   },
-  async [GET_QUESTIONS](ctx) {
+  async [GET_SET_QUESTIONS](ctx) {
     ctx.commit(SET_QUESTIONS_LOADING, true);
     const questions = await user.getQuestions();
     ctx.commit(SET_QUESTIONS_LOADING, false);
@@ -46,12 +47,10 @@ export default {
   },
   async [GET_PROFILE](ctx, username) {
     const profile = await user.get(username);
-    ctx.commit(SET_PROFILE, profile);
     return profile;
   },
   async [GET_ANSWERS](ctx, userId) {
     const answers = await user.getAnswers(userId);
-    ctx.commit(SET_ANSWERS, answers);
     return answers;
   },
   async [GET_COMMENTS](ctx, answerId) {
@@ -69,5 +68,9 @@ export default {
   async [UNLIKE_ANSWER](ctx, answerId) {
     const l = await likes.Delete(answerId);
     return l;
+  },
+  async [CREATE_QUESTION](ctx, payload) {
+    const q = await question.create(payload.userId, payload.text, payload.anon);
+    return q;
   },
 };

@@ -10,7 +10,7 @@ import SignUp from './components/SignUp.vue';
 import Questions from './components/Questions.vue';
 import Profile from './components/Profile.vue';
 import store from './store';
-import { SET_USER, GET_QUESTIONS } from './store/types';
+import { SET_USER, GET_SET_QUESTIONS } from './store/types';
 
 
 Vue.use(VueRouter);
@@ -18,7 +18,7 @@ Vue.use(BootstrapVue);
 
 if (localStorage.getItem('token')) {
   store.commit(SET_USER, jwtDecode(localStorage.getItem('token')));
-  store.dispatch(GET_QUESTIONS);
+  store.dispatch(GET_SET_QUESTIONS);
 }
 
 const vue = new Vue({

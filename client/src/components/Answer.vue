@@ -18,7 +18,10 @@
     <b-button
       @click="like"
       :variant="isLiked ? 'outline-primary' : 'outline-secondary'"
-      :disabled="!isAuthenticated">Like {{ computedLikeCount ? computedLikeCount : '' }}</b-button>
+      :disabled="!isAuthenticated">
+      <i
+        class="fa fa-heart"
+        aria-hidden="true" /> Like {{ computedLikeCount ? computedLikeCount : '' }}</b-button>
     <a
       @click.prevent="openComments"
       href="#"
@@ -39,7 +42,9 @@
             required
             placeholder="Leave a comment..." />
         </b-form-group>
-        <b-button :disabled="!comment">Comment</b-button>
+        <b-button
+          :disabled="!comment"
+          type="submit">Comment</b-button>
       </form>
       <h5
         v-else
@@ -101,7 +106,11 @@ export default {
       return this.$store.state.isAuthenticated;
     },
     computedLikeCount() {
-      return this.likes.length || this.likeCount;
+      if (this.likes) {
+        return this.likes.length === 0 ? this.likeCount : this.likes.length;
+      }
+
+      return 0;
     },
     computedCommentCount() {
       return this.comments.length || this.commentCount;
@@ -110,7 +119,7 @@ export default {
       return this.$store.getters.getUser;
     },
     isLiked() {
-      return !!this.likes.filter(like => like.user_id === this.user.id).length;
+      return this.likes && !!this.likes.filter(like => like.user_id === this.user.id).length;
     },
   },
   watch: {
@@ -125,10 +134,10 @@ export default {
     async like() {
       if (this.isLiked) {
         const likes = await this.$store.dispatch(UNLIKE_ANSWER, this.id);
-        this.likes = likes || [];
+        this.likes = likes;
       } else {
         const likes = await this.$store.dispatch(LIKE_ANSWER, this.id);
-        this.likes = likes || [];
+        this.likes = likes;
       }
     },
     async openComments() {

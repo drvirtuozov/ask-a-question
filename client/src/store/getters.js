@@ -11,4 +11,7 @@ export default {
   getProfile(state) {
     return state.profile;
   },
+  getAnswers(state) {
+    return state.answers;
+  },
 };

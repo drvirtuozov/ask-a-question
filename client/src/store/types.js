@@ -1,6 +1,6 @@
 export const SET_USER = 'SET_USER';
 export const SET_QUESTIONS = 'SET_QUESTIONS';
-export const GET_QUESTIONS = 'GET_QUESTIONS';
+export const GET_SET_QUESTIONS = 'GET_SET_QUESTIONS';
 export const DELETE_QUESTION = 'DELETE_QUESTION';
 export const RESTORE_QUESTION = 'RESTORE_QUESTION';
 export const LOGIN = 'LOGIN';
@@ -17,3 +17,4 @@ export const GET_COMMENTS = 'GET_COMMENTS';
 export const CREATE_COMMENT = 'CREATE_COMMENT';
 export const LIKE_ANSWER = 'LIKE_ANSWER';
 export const UNLIKE_ANSWER = 'UNLIKE_ANSWER';
+export const CREATE_QUESTION = 'CREATE_QUESTION';

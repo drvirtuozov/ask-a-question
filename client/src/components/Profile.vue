@@ -2,8 +2,8 @@
   <div class="col-xl-6">
     <b-card
       class="profile-header"
-      title="Vlad Barkalov"
-      :sub-title="username | styleUname">
+      title="Vlad"
+      :sub-title="profile.username | styleUname">
       <p class="card-text">i ball was rawt</p>
     </b-card>
     <div class="container">
@@ -16,7 +16,8 @@
 <script>
 import Ask from './Ask.vue';
 import Answers from './Answers.vue';
-import { GET_PROFILE, GET_ANSWERS } from '../store/types';
+import { GET_ANSWERS, SET_ANSWERS, GET_PROFILE, SET_PROFILE } from '../store/types';
+import store from '../store';
 
 
 export default {
@@ -25,15 +26,7 @@ export default {
   filters: {
     styleUname: value => `@${value}`,
   },
-  data() {
-    return {
-      isLoading: true,
-    };
-  },
   computed: {
-    username() {
-      return this.$route.params.username;
-    },
     user() {
       return this.$store.getters.getUser;
     },
@@ -41,12 +34,23 @@ export default {
       return this.$store.getters.getProfile;
     },
     isMyProfile() {
-      return this.username === this.user.username;
+      return this.profile.username === this.user.username;
     },
   },
-  async created() {
-    await this.$store.dispatch(GET_PROFILE, this.username);
-    this.$store.dispatch(GET_ANSWERS, this.profile.id);
+  async beforeRouteEnter(to, from, next) {
+    const profile = await store.dispatch(GET_PROFILE, to.params.username);
+    const answers = await store.dispatch(GET_ANSWERS, profile.id);
+    next((vm) => {
+      vm.$store.commit(SET_PROFILE, profile);
+      vm.$store.commit(SET_ANSWERS, answers);
+    });
+  },
+  async beforeRouteUpdate(to, from, next) {
+    const profile = await this.$store.dispatch(GET_PROFILE, to.params.username);
+    const answers = await this.$store.dispatch(GET_ANSWERS, profile.id);
+    this.$store.commit(SET_PROFILE, profile);
+    this.$store.commit(SET_ANSWERS, answers);
+    next();
   },
 };
 </script>

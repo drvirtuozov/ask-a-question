@@ -5,12 +5,12 @@
       class="text-muted text-center">
       {{ isMyProfile
         ? 'You haven\'t'
-        : `${profile.username} hasn't`
+        : `${username} hasn't`
       }} answered a single question yet
     </h3>
 
     <answer
-      v-for="answer in profile.answers"
+      v-for="answer in answers"
       :key="answer.id"
       :id="answer.id"
       :text="answer.text"
@@ -35,11 +35,14 @@ export default {
     },
   },
   computed: {
-    profile() {
-      return this.$store.getters.getProfile;
+    username() {
+      return this.$store.getters.getProfile.username;
+    },
+    answers() {
+      return this.$store.getters.getAnswers;
     },
     hasProfileAnswers() {
-      return this.profile.answers && this.profile.answers.length;
+      return this.answers && this.answers.length;
     },
   },
 };

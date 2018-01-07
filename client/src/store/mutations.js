@@ -43,6 +43,6 @@ export default {
     Vue.set(state, 'areQuestionsLoading', !!payload);
   },
   [SET_ANSWERS](state, answers) {
-    Vue.set(state.profile, 'answers', answers);
+    Vue.set(state, 'answers', answers || []);
   },
 };

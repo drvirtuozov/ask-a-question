@@ -11,7 +11,17 @@ async function restore(id) {
   return res.data;
 }
 
+async function create(userId, text, anon) {
+  const res = await postapi('question.create', {
+    user_id: userId,
+    text,
+    anon,
+  });
+  return res.data;
+}
+
 export default {
   Delete,
   restore,
+  create,
 };

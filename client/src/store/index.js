@@ -12,11 +12,10 @@ const store = new Vuex.Store({
   strict: true,
   state: {
     user: {},
-    profile: {
-      answers: [],
-    },
+    profile: {},
     isAuthenticated: false,
     questions: [],
+    answers: [],
     areQuestionsLoading: false,
     momentTick: Date.now(),
   },
