@@ -18,11 +18,11 @@
     <b-button
       @click="like"
       :variant="isLiked ? 'outline-primary' : 'outline-secondary'"
-      :disabled="!isAuthenticated">Like {{ likesCount ? likesCount : '' }}</b-button>
+      :disabled="!isAuthenticated">Like {{ computedLikeCount ? computedLikeCount : '' }}</b-button>
     <a
       @click.prevent="openComments"
       href="#"
-      class="card-link pull-right">Comments ({{ commentsCount }})</a>
+      class="card-link pull-right">Comments ({{ computedCommentCount }})</a>
     <div v-if="areCommentsOpen">
       <hr>
       <div v-if="comments.length">
@@ -51,7 +51,7 @@
 <script>
 import moment from 'moment';
 import Comments from './Comments.vue';
-import { GET_COMMENTS, CREATE_COMMENT } from '../store/types';
+import { GET_COMMENTS, CREATE_COMMENT, LIKE_ANSWER, UNLIKE_ANSWER } from '../store/types';
 
 
 export default {
@@ -86,13 +86,11 @@ export default {
   data() {
     return {
       moment: this.getMoment(),
-      isLiked: false,
       areCommentsOpen: false,
       areCommentsLoading: true,
+      likes: [],
       comments: [],
       comment: '',
-      likesCount: this.likeCount,
-      commentsCount: this.commentCount,
     };
   },
   computed: {
@@ -101,6 +99,18 @@ export default {
     },
     isAuthenticated() {
       return this.$store.state.isAuthenticated;
+    },
+    computedLikeCount() {
+      return this.likes.length || this.likeCount;
+    },
+    computedCommentCount() {
+      return this.comments.length || this.commentCount;
+    },
+    user() {
+      return this.$store.getters.getUser;
+    },
+    isLiked() {
+      return !!this.likes.filter(like => like.user_id === this.user.id).length;
     },
   },
   watch: {
@@ -112,13 +122,13 @@ export default {
     getMoment() {
       return moment.unix(this.timestamp);
     },
-    like() {
+    async like() {
       if (this.isLiked) {
-        this.isLiked = false;
-        this.likesCount -= 1;
+        const likes = await this.$store.dispatch(UNLIKE_ANSWER, this.id);
+        this.likes = likes || [];
       } else {
-        this.isLiked = true;
-        this.likesCount += 1;
+        const likes = await this.$store.dispatch(LIKE_ANSWER, this.id);
+        this.likes = likes || [];
       }
     },
     async openComments() {
@@ -140,7 +150,6 @@ export default {
       });
       this.comments.push(comment);
       this.comment = '';
-      this.commentsCount += 1;
     },
   },
 };

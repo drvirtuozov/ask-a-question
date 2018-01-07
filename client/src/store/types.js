@@ -15,3 +15,5 @@ export const GET_ANSWERS = 'GET_ANSWERS';
 export const SET_ANSWERS = 'SET_ANSWERS';
 export const GET_COMMENTS = 'GET_COMMENTS';
 export const CREATE_COMMENT = 'CREATE_COMMENT';
+export const LIKE_ANSWER = 'LIKE_ANSWER';
+export const UNLIKE_ANSWER = 'UNLIKE_ANSWER';

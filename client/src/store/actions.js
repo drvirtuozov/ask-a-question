@@ -2,13 +2,14 @@ import jwtDecode from 'jwt-decode';
 import {
   LOGIN, LOGOUT, GET_QUESTIONS, DELETE_QUESTION, RESTORE_QUESTION, DESTROY_QUESTION,
   SET_USER, SET_QUESTIONS, REPLY_QUESTION, GET_PROFILE, SET_PROFILE, SET_QUESTIONS_LOADING,
-  GET_ANSWERS, SET_ANSWERS, GET_COMMENTS, CREATE_COMMENT,
+  GET_ANSWERS, SET_ANSWERS, GET_COMMENTS, CREATE_COMMENT, LIKE_ANSWER, UNLIKE_ANSWER,
 } from './types';
 import token from '../api/token';
 import user from '../api/user';
 import question from '../api/question';
 import answer from '../api/answer';
 import comment from '../api/comment';
+import likes from '../api/likes';
 
 
 export default {
@@ -60,5 +61,13 @@ export default {
   async [CREATE_COMMENT](ctx, payload) {
     const c = await comment.create(payload.answerId, payload.text);
     return c;
+  },
+  async [LIKE_ANSWER](ctx, answerId) {
+    const l = await likes.create(answerId);
+    return l;
+  },
+  async [UNLIKE_ANSWER](ctx, answerId) {
+    const l = await likes.Delete(answerId);
+    return l;
   },
 };
