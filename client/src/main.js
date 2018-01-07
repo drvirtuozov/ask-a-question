@@ -9,6 +9,7 @@ import LogIn from './components/LogIn.vue';
 import SignUp from './components/SignUp.vue';
 import Questions from './components/Questions.vue';
 import Profile from './components/Profile.vue';
+import NotFound from './components/NotFound.vue';
 import store from './store';
 import { SET_USER, GET_SET_QUESTIONS } from './store/types';
 
@@ -77,6 +78,11 @@ const vue = new Vue({
       {
         path: '/:username',
         component: Profile,
+      },
+      {
+        path: '*',
+        name: '404',
+        component: NotFound,
       },
     ],
   }),

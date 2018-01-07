@@ -38,7 +38,15 @@ export default {
     },
   },
   async beforeRouteEnter(to, from, next) {
-    const profile = await store.dispatch(GET_PROFILE, to.params.username);
+    let profile;
+
+    try {
+      profile = await store.dispatch(GET_PROFILE, to.params.username);
+    } catch (e) {
+      next({ name: '404', params: { 0: to.params.username } });
+      return;
+    }
+
     const answers = await store.dispatch(GET_ANSWERS, profile.id);
     next((vm) => {
       vm.$store.commit(SET_PROFILE, profile);
