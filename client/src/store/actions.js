@@ -1,9 +1,9 @@
 import jwtDecode from 'jwt-decode';
 import {
-  LOGIN, LOGOUT, GET_SET_QUESTIONS, DELETE_QUESTION, RESTORE_QUESTION, DESTROY_QUESTION,
-  SET_USER, SET_QUESTIONS, REPLY_QUESTION, GET_PROFILE, SET_QUESTIONS_LOADING,
+  CREATE_SET_TOKEN, REMOVE_UNSET_TOKEN, GET_SET_QUESTIONS, DELETE_QUESTION, RESTORE_QUESTION,
+  DESTROY_QUESTION, SET_USER, SET_QUESTIONS, REPLY_QUESTION, GET_PROFILE, SET_QUESTIONS_LOADING,
   GET_ANSWERS, GET_COMMENTS, CREATE_COMMENT, LIKE_ANSWER, UNLIKE_ANSWER,
-  CREATE_QUESTION,
+  CREATE_QUESTION, CREATE_SET_USER,
 } from './types';
 import token from '../api/token';
 import user from '../api/user';
@@ -14,14 +14,22 @@ import likes from '../api/likes';
 
 
 export default {
-  async [LOGIN](ctx, { username, password }) {
+  async [CREATE_SET_USER](ctx, {
+    firstName, username, email, password,
+  }) {
+    const tkn = await user.create(firstName, username, email, password);
+    const usr = jwtDecode(tkn);
+    localStorage.setItem('token', tkn);
+    ctx.commit(SET_USER, usr);
+  },
+  async [CREATE_SET_TOKEN](ctx, { username, password }) {
     const tkn = await token.create(username, password);
     const usr = jwtDecode(tkn);
     localStorage.setItem('token', tkn);
     ctx.commit(SET_USER, usr);
     ctx.dispatch(GET_SET_QUESTIONS);
   },
-  async [LOGOUT](ctx) {
+  async [REMOVE_UNSET_TOKEN](ctx) {
     localStorage.removeItem('token');
     ctx.commit(SET_USER);
     ctx.commit(SET_QUESTIONS);

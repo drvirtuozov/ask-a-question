@@ -16,8 +16,19 @@ async function getAnswers(userId) {
   return res.data;
 }
 
+async function create(firstName = '', username = '', email = '', password = '') {
+  const res = await postapi('user.create', {
+    first_name: firstName,
+    username,
+    password,
+    email,
+  });
+  return res.data;
+}
+
 export default {
   get,
   getQuestions,
   getAnswers,
+  create,
 };

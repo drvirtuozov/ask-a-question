@@ -5,52 +5,57 @@
     <b-form-input
       size="sm"
       class="mr-sm-2"
-      :class="form.usernameClassname"
       type="text"
       placeholder="Username"
       required
-      v-model="form.username" />
+      v-model="username"
+      :state="usernameState" />
     <b-form-input
       size="sm"
       class="mr-sm-2"
-      :class="form.passwordClassname"
       type="password"
       placeholder="Password"
       required
-      v-model="form.password" />
+      v-model="password"
+      :state="passwordState" />
     <b-button
       size="sm"
       class="my-2 my-sm-0"
       type="submit"
-      :disabled="form.isLoading">Log In</b-button>
+      :disabled="isLoading">Log In</b-button>
   </b-nav-form>
 
   <div
     v-else
     class="col-xl-3">
     <h2>Sign In</h2>
+    <hr>
     <b-form @submit.prevent="login">
-      <b-form-group label="Username:">
+      <b-form-group
+        label="Username:"
+        :invalid-feedback="usernameInvalidFeedback"
+        :state="usernameState">
         <b-form-input
           type="text"
-          v-model="form.username"
+          v-model="username"
           required
-          :class="form.usernameClassname"
-          placeholder="Enter username..." />
-        <div class="invalid-feedback">{{ form.errors.username }}</div>
+          placeholder="Type username..."
+          :state="usernameState" />
       </b-form-group>
-      <b-form-group label="Password:">
+      <b-form-group
+        label="Password:"
+        :invalid-feedback="passwordInvalidFeedback"
+        :state="passwordState">
         <b-form-input
           type="password"
-          v-model="form.password"
+          v-model="password"
           required
-          :class="form.passwordClassname"
-          placeholder="Enter password..." />
-        <div class="invalid-feedback">{{ form.errors.password }}</div>
+          placeholder="Type password..."
+          :state="passwordState" />
       </b-form-group>
       <b-button
         type="submit"
-        :disabled="form.isLoading">Log In</b-button>
+        :disabled="isLoading">Log In</b-button>
     </b-form>
     <hr>
     <p class="text-center">
@@ -62,7 +67,7 @@
 </template>
 
 <script>
-import { LOGIN } from '../store/types';
+import { CREATE_SET_TOKEN } from '../store/types';
 
 export default {
   name: 'LogIn',
@@ -74,7 +79,13 @@ export default {
   },
   data() {
     return {
-      form: this.getDefaultFormState(),
+      username: '',
+      password: '',
+      usernameState: null,
+      usernameInvalidFeedback: '',
+      passwordState: null,
+      passwordInvalidFeedback: '',
+      isLoading: false,
     };
   },
   computed: {
@@ -84,44 +95,30 @@ export default {
   },
   watch: {
     isAuthenticated() {
-      this.form = this.getDefaultFormState();
       this.$router.push('/');
     },
   },
   methods: {
-    getDefaultFormState() {
-      return {
-        username: '',
-        password: '',
-        usernameClassname: '',
-        passwordClassname: '',
-        isLoading: false,
-        errors: {
-          username: '',
-          password: '',
-        },
-      };
-    },
     async login() {
-      this.form.isLoading = true;
+      this.isLoading = true;
 
       try {
-        await this.$store.dispatch(LOGIN, {
-          username: this.form.username,
-          password: this.form.password,
+        await this.$store.dispatch(CREATE_SET_TOKEN, {
+          username: this.username,
+          password: this.password,
         });
       } catch (e) {
         if (e.description.includes('password')) {
-          this.form.passwordClassname = 'is-invalid';
-          this.form.usernameClassname = 'is-valid';
-          this.form.errors.password = e.description;
+          this.passwordState = false;
+          this.usernameState = true;
+          this.passwordInvalidFeedback = e.description;
         } else {
-          this.form.usernameClassname = 'is-invalid';
-          this.form.errors.username = e.description;
+          this.usernameState = false;
+          this.usernameInvalidFeedback = e.description;
         }
       }
 
-      this.form.isLoading = false;
+      this.isLoading = false;
     },
   },
 };

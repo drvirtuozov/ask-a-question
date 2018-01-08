@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import { LOGOUT } from '../store/types';
+import { REMOVE_UNSET_TOKEN } from '../store/types';
 import LogIn from './LogIn.vue';
 
 
@@ -56,7 +56,7 @@ export default {
   },
   methods: {
     logout() {
-      this.$store.dispatch(LOGOUT);
+      this.$store.dispatch(REMOVE_UNSET_TOKEN);
     },
     goToProfile() {
       this.$router.push(`/${this.username}`);
