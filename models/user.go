@@ -12,8 +12,7 @@ import (
 type User struct {
 	ID        *int       `json:"id"`
 	Username  *string    `json:"username"`
-	FirstName *string    `json:"first_name,omitempty"`
-	LastName  *string    `json:"last_name,omitempty"`
+	FirstName string     `json:"first_name,omitempty"`
 	Email     string     `json:"-"`
 	Password  string     `json:"-"`
 	Questions []Question `json:"-"`
@@ -51,8 +50,8 @@ func (u *User) Sign() (token *Token, err error) {
 
 // GetByUsername fetchs a user and sets it into the instance
 func (u *User) GetByUsername() error {
-	err := db.Conn.QueryRow(`select id, first_name, last_name, password from users where username = $1`, u.Username).
-		Scan(&u.ID, &u.FirstName, &u.LastName, &u.Password)
+	err := db.Conn.QueryRow(`select id, first_name, password from users where username = $1`, u.Username).
+		Scan(&u.ID, &u.FirstName, &u.Password)
 
 	if err != nil {
 		return err
@@ -67,8 +66,8 @@ func (u *User) Create() (token *Token, err error) {
 		return token, err
 	}
 
-	err = db.Conn.QueryRow("insert into users (username, password, first_name, last_name, email) values ($1, $2, $3, $4, $5) returning id",
-		u.Username, u.Password, u.FirstName, u.LastName, u.Email).Scan(&u.ID)
+	err = db.Conn.QueryRow("insert into users (username, password, first_name, email) values ($1, $2, $3, $4) returning id",
+		u.Username, u.Password, u.FirstName, u.Email).Scan(&u.ID)
 
 	if err != nil {
 		return token, err

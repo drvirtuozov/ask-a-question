@@ -24,6 +24,10 @@ func (q *Question) Create() error {
 		return err
 	}
 
+	if q.From.ID == nil {
+		q.From = nil
+	}
+
 	q.Timestamp = createdAt.Unix()
 	return nil
 }

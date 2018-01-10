@@ -46,8 +46,7 @@ func UserCreate(ctx echo.Context) error {
 	user := models.User{
 		Username:  &params.Username,
 		Password:  params.Password,
-		FirstName: &params.FirstName,
-		LastName:  &params.LastName,
+		FirstName: params.FirstName,
 		Email:     params.Email,
 	}
 

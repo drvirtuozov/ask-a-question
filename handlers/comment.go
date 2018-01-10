@@ -20,13 +20,18 @@ func CommentCreate(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, NewErrResponse(err))
 	}
 
+	ctxUser := ctx.Get("user").(*jwt.Token).Claims.(jwt.MapClaims)
+	userID := int(ctxUser["id"].(float64))
+	username := ctxUser["username"].(string)
 	comment := models.Comment{
 		Text:     params.Text,
 		AnswerID: params.AnswerID,
-		User:     models.User{},
+		User: models.User{
+			ID:       &userID,
+			Username: &username,
+		},
 	}
 
-	userID := int(ctx.Get("user").(*jwt.Token).Claims.(jwt.MapClaims)["id"].(float64))
 	comment.User.ID = &userID
 
 	if err := comment.Create(); err != nil {

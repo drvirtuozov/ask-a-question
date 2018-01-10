@@ -2,7 +2,7 @@
   <div class="col-xl-6">
     <b-card
       class="profile-header"
-      title="Vlad"
+      :title="profile.first_name"
       :sub-title="profile.username | styleUname">
       <p class="card-text">i ball was rawt</p>
     </b-card>
