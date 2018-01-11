@@ -3,6 +3,8 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/drvirtuozov/ask-a-question/socket"
+
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/drvirtuozov/ask-a-question/models"
 	"github.com/labstack/echo"
@@ -36,6 +38,11 @@ func QuestionCreate(ctx echo.Context) error {
 		return err
 	}
 
+	socket.Hub.PersonalBroadcast <- socket.Event{
+		Type:    socket.QUESTION_CREATED,
+		Payload: question,
+		RoomID:  params.UserID,
+	}
 	return ctx.JSON(http.StatusOK, NewOKResponse(question))
 }
 

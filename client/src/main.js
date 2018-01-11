@@ -12,6 +12,7 @@ import Profile from './components/Profile.vue';
 import NotFound from './components/NotFound.vue';
 import store from './store';
 import { SET_USER, GET_SET_QUESTIONS } from './store/types';
+import './socket';
 
 
 Vue.use(VueRouter);

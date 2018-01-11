@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 
 	"github.com/drvirtuozov/ask-a-question/handlers"
+	"github.com/drvirtuozov/ask-a-question/socket"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"gopkg.in/go-playground/validator.v9"
@@ -52,6 +53,8 @@ func main() {
 	e.Validator = &customValidator{validator: validator.New()}
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
+	e.Any("/ws", socket.Handle)
+	go socket.Hub.Run()
 	auth := middleware.JWT([]byte("secret"))
 	api := e.Group("/api/")
 	user := api.Group("user.")

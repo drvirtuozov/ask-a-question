@@ -47,6 +47,7 @@ module.exports = {
     overlay: true,
     proxy: {
       '/api': 'http://localhost:3000',
+      '/ws': 'http://localhost:3000',
     },
   },
   performance: {
