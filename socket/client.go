@@ -23,14 +23,18 @@ func (c *client) readPump() {
 
 		if err != nil {
 			Hub.Unregister <- c
+			break
 		}
 
 		switch e.Type {
 		case SET_TOKEN:
-			token, err := jwt.Parse(e.Payload.(string), nil)
+			token, err := jwt.Parse(e.Payload.(string), func(*jwt.Token) (interface{}, error) {
+				return []byte("secret"), nil
+			})
 
 			if err != nil {
 				Hub.Unregister <- c
+				break
 			}
 
 			c.user = token
@@ -50,6 +54,7 @@ func (c *client) writePump() {
 
 		if err != nil {
 			Hub.Unregister <- c
+			break
 		}
 	}
 }

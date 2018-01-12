@@ -1,8 +1,6 @@
 package socket
 
 import (
-	"fmt"
-
 	"github.com/dgrijalva/jwt-go"
 )
 
@@ -35,6 +33,7 @@ func (h *hub) Run() {
 			if _, ok := h.clients[c]; ok {
 				delete(h.clients, c)
 				close(c.send)
+				c.conn.Close()
 
 				if r := h.rooms[c.roomID]; len(r) == 1 {
 					delete(h.rooms, c.roomID)
@@ -51,7 +50,6 @@ func (h *hub) Run() {
 				r <- e
 			}
 		case e := <-h.PersonalBroadcast:
-			fmt.Println("send 2")
 			for c := range h.clients {
 				if int(c.user.(*jwt.Token).Claims.(jwt.MapClaims)["id"].(float64)) == e.RoomID {
 					c.send <- e

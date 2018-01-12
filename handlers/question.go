@@ -66,6 +66,11 @@ func QuestionDelete(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, NewErrResponse(err))
 	}
 
+	socket.Hub.PersonalBroadcast <- socket.Event{
+		Type:    socket.QUESTION_DELETED,
+		Payload: question,
+		RoomID:  question.UserID,
+	}
 	return ctx.JSON(http.StatusOK, NewOKResponse(nil))
 }
 
@@ -89,5 +94,10 @@ func QuestionRestore(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, NewErrResponse(err))
 	}
 
+	socket.Hub.PersonalBroadcast <- socket.Event{
+		Type:    socket.QUESTION_RESTORED,
+		Payload: question,
+		RoomID:  question.UserID,
+	}
 	return ctx.JSON(http.StatusOK, NewOKResponse(nil))
 }
