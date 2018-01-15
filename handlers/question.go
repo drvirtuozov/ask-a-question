@@ -19,16 +19,18 @@ func QuestionCreate(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, NewErrResponse(err))
 	}
 
+	var fromID *int
+
 	if user := ctx.Get("user"); user != nil {
 		id := int(user.(*jwt.Token).Claims.(jwt.MapClaims)["id"].(float64))
-		params.FromID = &id
+		fromID = &id
 	}
 
 	question := models.Question{
 		UserID: params.UserID,
 		Text:   params.Text,
 		From: &models.User{
-			ID: params.FromID,
+			ID: fromID,
 		},
 	}
 

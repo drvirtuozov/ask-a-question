@@ -43,7 +43,6 @@ type TokenCreateParams struct {
 type QuestionCreateParams struct {
 	UserID int    `json:"user_id" form:"user_id" query:"user_id" validate:"required"`
 	Text   string `json:"text" form:"text" query:"text" validate:"required"`
-	FromID *int
 }
 
 type QuestionDeleteParams struct {

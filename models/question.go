@@ -18,18 +18,49 @@ type Question struct {
 
 func (q *Question) Create() error {
 	var createdAt time.Time
-	err := db.Conn.QueryRow(`
-		insert into questions (text, user_id, from_id) values ($1, $2, $3) returning id, text, user_id, from_id, created_at`,
-		q.Text, q.UserID, q.From.ID).Scan(&q.ID, &q.Text, &q.UserID, &q.From.ID, &createdAt)
+	tx, err := db.Conn.Begin()
 
 	if err != nil {
 		return err
 	}
 
-	if q.From.ID == nil {
+	{
+		stmt, err := tx.Prepare(`
+			insert into questions (text, user_id, from_id) values ($1, $2, $3) returning id, created_at`)
+
+		if err != nil {
+			return err
+		}
+
+		defer stmt.Close()
+		err = stmt.QueryRow(q.Text, q.UserID, q.From.ID).Scan(&q.ID, &createdAt)
+
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	if q.From.ID != nil {
+		stmt, err := tx.Prepare(`
+			select username from users where id = $1`)
+
+		if err != nil {
+			return err
+		}
+
+		defer stmt.Close()
+		err = stmt.QueryRow(q.From.ID).Scan(&q.From.Username)
+
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	} else {
 		q.From = nil
 	}
 
+	tx.Commit()
 	q.Timestamp = createdAt.Unix()
 	go q.OnCreate()
 	return nil

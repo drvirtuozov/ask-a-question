@@ -28,16 +28,14 @@ func (c *client) readPump() {
 
 		switch e.Type {
 		case SET_TOKEN:
-			token, err := jwt.Parse(e.Payload.(string), func(*jwt.Token) (interface{}, error) {
-				return []byte("secret"), nil
-			})
-
-			if err != nil {
-				Hub.Unregister <- c
-				break
+			if s, ok := e.Payload.(string); ok {
+				token, _ := jwt.Parse(s, func(*jwt.Token) (interface{}, error) {
+					return []byte("secret"), nil
+				})
+				c.user = token
+			} else {
+				c.user = nil
 			}
-
-			c.user = token
 		case JOIN_ROOM:
 			id := int(e.Payload.(float64))
 			c.joinRoom(id)

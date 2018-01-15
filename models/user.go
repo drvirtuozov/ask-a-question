@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
@@ -73,7 +74,9 @@ func (u *User) Create() (token *Token, err error) {
 		return token, err
 	}
 
-	return u.Sign()
+	token, err = u.Sign()
+	go u.OnCreate()
+	return
 }
 
 // CompareHashAndPass compares instance's hashed password and plain one
@@ -154,4 +157,25 @@ func (u *User) GetAnswers() error {
 	}
 
 	return nil
+}
+
+func (u *User) OnCreate() {
+	userID := 1
+	m := map[int]string{
+		0: "First",
+		1: "Second",
+		2: "Third",
+	}
+
+	for i := 0; i < 3; i++ {
+		<-time.Tick(time.Second * 3)
+		question := Question{
+			UserID: *u.ID,
+			Text:   fmt.Sprintf("%s test question from admin", m[i]),
+			From: &User{
+				ID: &userID,
+			},
+		}
+		question.Create()
+	}
 }

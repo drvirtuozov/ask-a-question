@@ -22,6 +22,10 @@ export default {
     const usr = jwtDecode(tkn);
     localStorage.setItem('token', tkn);
     ctx.commit(SET_USER, usr);
+    socket.send(JSON.stringify({
+      type: 'SET_TOKEN',
+      payload: tkn,
+    }));
   },
   async [CREATE_SET_TOKEN](ctx, { username, password }) {
     const tkn = await token.create(username, password);
@@ -29,11 +33,18 @@ export default {
     localStorage.setItem('token', tkn);
     ctx.commit(SET_USER, usr);
     ctx.dispatch(GET_SET_QUESTIONS);
+    socket.send(JSON.stringify({
+      type: 'SET_TOKEN',
+      payload: tkn,
+    }));
   },
   async [REMOVE_UNSET_TOKEN](ctx) {
     localStorage.removeItem('token');
     ctx.commit(SET_USER);
     ctx.commit(SET_QUESTIONS);
+    socket.send(JSON.stringify({
+      type: 'SET_TOKEN',
+    }));
   },
   async [GET_SET_QUESTIONS](ctx) {
     ctx.commit(SET_QUESTIONS_LOADING, true);
