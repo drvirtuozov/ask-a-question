@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/drvirtuozov/ask-a-question/db"
+	"github.com/drvirtuozov/ask-a-question/socket"
 )
 
 type Question struct {
@@ -17,7 +18,8 @@ type Question struct {
 
 func (q *Question) Create() error {
 	var createdAt time.Time
-	err := db.Conn.QueryRow("insert into questions (text, user_id, from_id) values ($1, $2, $3) returning id, text, user_id, from_id, created_at",
+	err := db.Conn.QueryRow(`
+		insert into questions (text, user_id, from_id) values ($1, $2, $3) returning id, text, user_id, from_id, created_at`,
 		q.Text, q.UserID, q.From.ID).Scan(&q.ID, &q.Text, &q.UserID, &q.From.ID, &createdAt)
 
 	if err != nil {
@@ -29,11 +31,13 @@ func (q *Question) Create() error {
 	}
 
 	q.Timestamp = createdAt.Unix()
+	go q.OnCreate()
 	return nil
 }
 
 func (q *Question) Delete() error {
-	res, err := db.Conn.Exec("update questions set deleted_at = current_timestamp where id = $1 and user_id = $2 and deleted_at is null",
+	res, err := db.Conn.Exec(`
+		update questions set deleted_at = current_timestamp where id = $1 and user_id = $2 and deleted_at is null`,
 		q.ID, q.UserID)
 
 	if err != nil {
@@ -50,11 +54,13 @@ func (q *Question) Delete() error {
 		return errors.New("Question not found")
 	}
 
+	go q.OnDelete()
 	return nil
 }
 
 func (q *Question) Restore() error {
-	res, err := db.Conn.Exec("update questions set deleted_at = null where id = $1 and user_id = $2 and deleted_at is not null",
+	res, err := db.Conn.Exec(`
+		update questions set deleted_at = null where id = $1 and user_id = $2 and deleted_at is not null`,
 		q.ID, q.UserID)
 
 	if err != nil {
@@ -71,5 +77,30 @@ func (q *Question) Restore() error {
 		return errors.New("Question not found")
 	}
 
+	go q.OnRestore()
 	return nil
+}
+
+func (q *Question) OnCreate() {
+	socket.Hub.PersonalBroadcast <- socket.Event{
+		Type:    socket.QUESTION_CREATED,
+		Payload: q,
+		RoomID:  q.UserID,
+	}
+}
+
+func (q *Question) OnDelete() {
+	socket.Hub.PersonalBroadcast <- socket.Event{
+		Type:    socket.QUESTION_DELETED,
+		Payload: q.ID,
+		RoomID:  q.UserID,
+	}
+}
+
+func (q *Question) OnRestore() {
+	socket.Hub.PersonalBroadcast <- socket.Event{
+		Type:    socket.QUESTION_RESTORED,
+		Payload: q.ID,
+		RoomID:  q.UserID,
+	}
 }

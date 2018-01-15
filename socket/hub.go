@@ -51,7 +51,7 @@ func (h *hub) Run() {
 			}
 		case e := <-h.PersonalBroadcast:
 			for c := range h.clients {
-				if int(c.user.(*jwt.Token).Claims.(jwt.MapClaims)["id"].(float64)) == e.RoomID {
+				if c.user != nil && int(c.user.(*jwt.Token).Claims.(jwt.MapClaims)["id"].(float64)) == e.RoomID {
 					c.send <- e
 				}
 			}

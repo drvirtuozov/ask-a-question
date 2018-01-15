@@ -38,6 +38,9 @@ func (c *client) readPump() {
 			}
 
 			c.user = token
+		case JOIN_ROOM:
+			id := int(e.Payload.(float64))
+			c.joinRoom(id)
 		}
 	}
 }

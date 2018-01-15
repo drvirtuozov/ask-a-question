@@ -16,7 +16,7 @@
 <script>
 import Ask from './Ask.vue';
 import Answers from './Answers.vue';
-import { GET_ANSWERS, SET_ANSWERS, GET_PROFILE, SET_PROFILE } from '../store/types';
+import { GET_ANSWERS, SET_ANSWERS, GET_PROFILE, SET_PROFILE, JOIN_ROOM } from '../store/types';
 import store from '../store';
 
 
@@ -51,6 +51,7 @@ export default {
     next((vm) => {
       vm.$store.commit(SET_PROFILE, profile);
       vm.$store.commit(SET_ANSWERS, answers);
+      vm.$store.dispatch(JOIN_ROOM, profile.id);
     });
   },
   async beforeRouteUpdate(to, from, next) {

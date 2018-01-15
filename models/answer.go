@@ -3,6 +3,8 @@ package models
 import (
 	"time"
 
+	"github.com/drvirtuozov/ask-a-question/socket"
+
 	"github.com/drvirtuozov/ask-a-question/db"
 )
 
@@ -20,6 +22,7 @@ type Answer struct {
 
 func (a *Answer) Create() error {
 	var createdAt time.Time
+	var qCreatedAt time.Time
 
 	tx, err := db.Conn.Begin()
 
@@ -29,7 +32,7 @@ func (a *Answer) Create() error {
 
 	{
 		stmt, err := tx.Prepare(`
-			insert into answers (text, user_id, question_id) select $1, user_id, id from questions 
+			insert into answers (text, user_id, question_id) select $1, user_id, id from questions
 			where id = $2 and answer_id is null and user_id = $3 and deleted_at is null returning 
 			id, text, user_id, question_id, created_at
 		`)
@@ -64,8 +67,34 @@ func (a *Answer) Create() error {
 		}
 	}
 
+	{
+		from := User{}
+		stmt, err := tx.Prepare(`
+			select q.text, q.from_id, u.username as from_username, q.created_at from questions as q 
+			left join users as u on u.id = q.from_id where q.id = $1`)
+
+		if err != nil {
+			return err
+		}
+
+		defer stmt.Close()
+		err = stmt.QueryRow(a.Question.ID).
+			Scan(&a.Question.Text, &from.ID, &from.Username, &qCreatedAt)
+
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+
+		if from.ID != nil {
+			a.Question.From = &from
+		}
+	}
+
 	tx.Commit()
 	a.Timestamp = createdAt.Unix()
+	a.Question.Timestamp = qCreatedAt.Unix()
+	go a.OnCreated()
 	return nil
 }
 
@@ -148,4 +177,17 @@ func (a *Answer) GetLikes() error {
 	}
 
 	return nil
+}
+
+func (a *Answer) OnCreated() {
+	socket.Hub.PersonalBroadcast <- socket.Event{
+		Type:    socket.QUESTION_DESTROYED,
+		Payload: a.Question.ID,
+		RoomID:  a.UserID,
+	}
+	socket.Hub.Broadcast <- socket.Event{
+		Type:    socket.ANSWER_CREATED,
+		Payload: a,
+		RoomID:  a.UserID,
+	}
 }

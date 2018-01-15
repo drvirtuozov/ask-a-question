@@ -19,3 +19,4 @@ export const LIKE_ANSWER = 'LIKE_ANSWER';
 export const UNLIKE_ANSWER = 'UNLIKE_ANSWER';
 export const CREATE_QUESTION = 'CREATE_QUESTION';
 export const CREATE_SET_USER = 'CREATE_SET_USER';
+export const JOIN_ROOM = 'JOIN_ROOM';

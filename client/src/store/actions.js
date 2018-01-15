@@ -3,7 +3,7 @@ import {
   CREATE_SET_TOKEN, REMOVE_UNSET_TOKEN, GET_SET_QUESTIONS, DELETE_QUESTION, RESTORE_QUESTION,
   DESTROY_QUESTION, SET_USER, SET_QUESTIONS, REPLY_QUESTION, GET_PROFILE, SET_QUESTIONS_LOADING,
   GET_ANSWERS, GET_COMMENTS, CREATE_COMMENT, LIKE_ANSWER, UNLIKE_ANSWER,
-  CREATE_QUESTION, CREATE_SET_USER,
+  CREATE_QUESTION, CREATE_SET_USER, JOIN_ROOM,
 } from './types';
 import token from '../api/token';
 import user from '../api/user';
@@ -11,6 +11,7 @@ import question from '../api/question';
 import answer from '../api/answer';
 import comment from '../api/comment';
 import likes from '../api/likes';
+import socket from '../socket';
 
 
 export default {
@@ -80,5 +81,11 @@ export default {
   async [CREATE_QUESTION](ctx, payload) {
     const q = await question.create(payload.userId, payload.text, payload.anon);
     return q;
+  },
+  [JOIN_ROOM](ctx, roomId) {
+    socket.send(JSON.stringify({
+      type: JOIN_ROOM,
+      payload: roomId,
+    }));
   },
 };
