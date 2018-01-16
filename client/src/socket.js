@@ -1,4 +1,7 @@
-import { SET_QUESTIONS, DELETE_QUESTION, RESTORE_QUESTION, DESTROY_QUESTION, SET_ANSWERS } from './store/types';
+import {
+  SET_QUESTIONS, DELETE_QUESTION, RESTORE_QUESTION, DESTROY_QUESTION, SET_ANSWERS,
+  SET_COMMENTS,
+} from './store/types';
 import store from './store';
 
 
@@ -24,11 +27,12 @@ ws.onmessage = (e) => {
   const event = JSON.parse(e.data);
   let questions;
   let answers;
+  let comments;
   let id;
 
   switch (event.type) {
     case 'QUESTION_CREATED':
-      questions = store.getters.getQuestions.slice(0);
+      questions = store.getters.getQuestions;
       questions.unshift(event.payload);
       store.commit(SET_QUESTIONS, questions);
       break;
@@ -48,6 +52,14 @@ ws.onmessage = (e) => {
       answers = store.getters.getAnswers.slice(0);
       answers.unshift(event.payload);
       store.commit(SET_ANSWERS, answers);
+      break;
+    case 'COMMENT_CREATED':
+      comments = store.getters.getCommentsByAnswerId(event.payload.answer_id);
+      comments.push(event.payload);
+      store.commit(SET_COMMENTS, {
+        answerId: event.payload.answer_id,
+        comments,
+      });
       break;
     default:
       console.error('Unimplemented socket event:', event.type);

@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import {
   DELETE_QUESTION, RESTORE_QUESTION, SET_USER, SET_QUESTIONS, DESTROY_QUESTION, TICK_MOMENT,
-  SET_PROFILE, SET_QUESTIONS_LOADING, SET_ANSWERS,
+  SET_PROFILE, SET_QUESTIONS_LOADING, SET_ANSWERS, SET_COMMENTS,
 } from './types';
 
 function alterQuestion(state, id, key = '', value) {
@@ -44,5 +44,8 @@ export default {
   },
   [SET_ANSWERS](state, answers) {
     Vue.set(state, 'answers', answers || []);
+  },
+  [SET_COMMENTS](state, payload) {
+    Vue.set(state.comments, payload.answerId, payload.comments || []);
   },
 };

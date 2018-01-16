@@ -2,7 +2,7 @@ import jwtDecode from 'jwt-decode';
 import {
   CREATE_SET_TOKEN, REMOVE_UNSET_TOKEN, GET_SET_QUESTIONS, DELETE_QUESTION, RESTORE_QUESTION,
   DESTROY_QUESTION, SET_USER, SET_QUESTIONS, REPLY_QUESTION, GET_PROFILE, SET_QUESTIONS_LOADING,
-  GET_ANSWERS, GET_COMMENTS, CREATE_COMMENT, LIKE_ANSWER, UNLIKE_ANSWER,
+  GET_ANSWERS, GET_SET_COMMENTS, SET_COMMENTS, CREATE_COMMENT, LIKE_ANSWER, UNLIKE_ANSWER,
   CREATE_QUESTION, CREATE_SET_USER, JOIN_ROOM,
 } from './types';
 import token from '../api/token';
@@ -65,33 +65,31 @@ export default {
     await answer.create(payload.id, payload.text);
     ctx.commit(DESTROY_QUESTION, payload.id);
   },
-  async [GET_PROFILE](ctx, username) {
-    const profile = await user.get(username);
-    return profile;
+  [GET_PROFILE](ctx, username) {
+    return user.get(username);
   },
-  async [GET_ANSWERS](ctx, userId) {
-    const answers = await user.getAnswers(userId);
-    return answers;
+  [GET_ANSWERS](ctx, userId) {
+    return user.getAnswers(userId);
   },
-  async [GET_COMMENTS](ctx, answerId) {
+  async [GET_SET_COMMENTS](ctx, answerId) {
     const comments = await answer.getComments(answerId);
+    ctx.commit(SET_COMMENTS, {
+      answerId,
+      comments,
+    });
     return comments;
   },
-  async [CREATE_COMMENT](ctx, payload) {
-    const c = await comment.create(payload.answerId, payload.text);
-    return c;
+  [CREATE_COMMENT](ctx, { answerId, text }) {
+    return comment.create(answerId, text);
   },
-  async [LIKE_ANSWER](ctx, answerId) {
-    const l = await likes.create(answerId);
-    return l;
+  [LIKE_ANSWER](ctx, answerId) {
+    return likes.create(answerId);
   },
-  async [UNLIKE_ANSWER](ctx, answerId) {
-    const l = await likes.Delete(answerId);
-    return l;
+  [UNLIKE_ANSWER](ctx, answerId) {
+    return likes.Delete(answerId);
   },
-  async [CREATE_QUESTION](ctx, payload) {
-    const q = await question.create(payload.userId, payload.text, payload.anon);
-    return q;
+  [CREATE_QUESTION](ctx, payload) {
+    return question.create(payload.userId, payload.text, payload.anon);
   },
   [JOIN_ROOM](ctx, roomId) {
     socket.send(JSON.stringify({

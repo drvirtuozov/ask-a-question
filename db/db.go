@@ -56,11 +56,13 @@ create table if not exists comments (
 	text text not null,
 	answer_id integer not null,
 	user_id integer not null,
+	from_id integer not null,
 	created_at timestamp default current_timestamp,
 	updated_at timestamp,
 	deleted_at timestamp,
 	foreign key (answer_id) references answers (id),
-	foreign key (user_id) references users (id)
+	foreign key (user_id) references users (id),
+	foreign key (from_id) references users (id)
 );
 
 create table if not exists likes (

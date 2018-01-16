@@ -3,7 +3,7 @@
     <b-list-group-item
       v-for="comment in comments"
       :key="comment.id">
-      <router-link :to="comment.user.username">{{ comment.user.username }}</router-link>
+      <router-link :to="comment.from.username">{{ comment.from.username }}</router-link>
       {{ comment.text }}
     </b-list-group-item>
   </b-list-group>

@@ -137,8 +137,8 @@ func (a *Answer) Get() error {
 
 func (a *Answer) GetComments() error {
 	rows, err := db.Conn.Query(`
-		select c.id, c.text, c.user_id, u.username as user_username, c.answer_id, c.created_at from 
-		comments as c join users as u on u.id = c.user_id where c.answer_id = $1 and c.deleted_at is null
+		select c.id, c.text, c.from_id, u.username as user_username, c.answer_id, c.created_at from 
+		comments as c join users as u on u.id = c.from_id where c.answer_id = $1 and c.deleted_at is null
 	`, a.ID)
 
 	if err != nil {
@@ -148,7 +148,7 @@ func (a *Answer) GetComments() error {
 	for rows.Next() {
 		var c Comment
 		var createdAt time.Time
-		err := rows.Scan(&c.ID, &c.Text, &c.User.ID, &c.User.Username, &c.AnswerID, &createdAt)
+		err := rows.Scan(&c.ID, &c.Text, &c.From.ID, &c.From.Username, &c.AnswerID, &createdAt)
 
 		if err != nil {
 			return err

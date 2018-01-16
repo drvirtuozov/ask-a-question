@@ -16,6 +16,7 @@ const store = new Vuex.Store({
     isAuthenticated: false,
     questions: [],
     answers: [],
+    comments: [],
     areQuestionsLoading: false,
     momentTick: Date.now(),
   },

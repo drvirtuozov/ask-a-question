@@ -56,7 +56,7 @@
 <script>
 import moment from 'moment';
 import Comments from './Comments.vue';
-import { GET_COMMENTS, CREATE_COMMENT, LIKE_ANSWER, UNLIKE_ANSWER } from '../store/types';
+import { GET_SET_COMMENTS, CREATE_COMMENT, LIKE_ANSWER, UNLIKE_ANSWER } from '../store/types';
 
 
 export default {
@@ -94,7 +94,6 @@ export default {
       areCommentsOpen: false,
       areCommentsLoading: true,
       likes: [],
-      comments: [],
       comment: '',
     };
   },
@@ -120,6 +119,9 @@ export default {
     },
     isLiked() {
       return this.likes && !!this.likes.filter(like => like.user_id === this.user.id).length;
+    },
+    comments() {
+      return this.$store.getters.getCommentsByAnswerId(this.id);
     },
   },
   watch: {
@@ -148,16 +150,14 @@ export default {
       this.areCommentsOpen = !this.areCommentsOpen;
     },
     async getComments() {
-      const comments = await this.$store.dispatch(GET_COMMENTS, this.id);
-      this.comments = comments || [];
+      await this.$store.dispatch(GET_SET_COMMENTS, this.id);
       this.areCommentsLoading = false;
     },
     async leaveComment() {
-      const comment = await this.$store.dispatch(CREATE_COMMENT, {
+      await this.$store.dispatch(CREATE_COMMENT, {
         answerId: this.id,
         text: this.comment,
       });
-      this.comments.push(comment);
       this.comment = '';
     },
   },

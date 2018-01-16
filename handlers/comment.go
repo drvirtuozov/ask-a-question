@@ -26,13 +26,11 @@ func CommentCreate(ctx echo.Context) error {
 	comment := models.Comment{
 		Text:     params.Text,
 		AnswerID: params.AnswerID,
-		User: models.User{
+		From: models.User{
 			ID:       &userID,
 			Username: &username,
 		},
 	}
-
-	comment.User.ID = &userID
 
 	if err := comment.Create(); err != nil {
 		return err
