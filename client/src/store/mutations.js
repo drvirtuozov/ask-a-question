@@ -1,8 +1,9 @@
 import Vue from 'vue';
 import {
   DELETE_QUESTION, RESTORE_QUESTION, SET_USER, SET_QUESTIONS, DESTROY_QUESTION, TICK_MOMENT,
-  SET_PROFILE, SET_QUESTIONS_LOADING, SET_ANSWERS, SET_COMMENTS,
+  SET_PROFILE, SET_QUESTIONS_LOADING, SET_ANSWERS, SET_COMMENTS, INC_ANSWER_COMMENT_COUNT,
 } from './types';
+import store from '.';
 
 function alterQuestion(state, id, key = '', value) {
   const questions = state.questions.map((q) => {
@@ -44,6 +45,10 @@ export default {
   },
   [SET_ANSWERS](state, answers) {
     Vue.set(state, 'answers', answers || []);
+  },
+  [INC_ANSWER_COMMENT_COUNT](state, answerId) {
+    const answer = store.getters.getAnswerById(answerId);
+    answer.comment_count += 1;
   },
   [SET_COMMENTS](state, payload) {
     Vue.set(state.comments, payload.answerId, payload.comments || []);

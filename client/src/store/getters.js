@@ -14,6 +14,9 @@ export default {
   getAnswers(state) {
     return state.answers.slice(0);
   },
+  getAnswerById(state) {
+    return id => state.answers.filter(a => a.id === id)[0];
+  },
   getCommentsByAnswerId(state) {
     return answerId => (state.comments[answerId] || []).slice(0);
   },
