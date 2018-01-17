@@ -22,3 +22,4 @@ export const UNLIKE_ANSWER = 'UNLIKE_ANSWER';
 export const CREATE_QUESTION = 'CREATE_QUESTION';
 export const CREATE_SET_USER = 'CREATE_SET_USER';
 export const JOIN_ROOM = 'JOIN_ROOM';
+export const SET_ALERT = 'SET_ALERT';

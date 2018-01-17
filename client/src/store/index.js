@@ -11,6 +11,7 @@ Vue.use(Vuex);
 const store = new Vuex.Store({
   strict: true,
   state: {
+    alert: null,
     user: {},
     profile: {},
     isAuthenticated: false,

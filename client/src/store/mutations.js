@@ -2,6 +2,7 @@ import Vue from 'vue';
 import {
   DELETE_QUESTION, RESTORE_QUESTION, SET_USER, SET_QUESTIONS, DESTROY_QUESTION, TICK_MOMENT,
   SET_PROFILE, SET_QUESTIONS_LOADING, SET_ANSWERS, SET_COMMENTS, INC_ANSWER_COMMENT_COUNT,
+  SET_ALERT,
 } from './types';
 import store from '.';
 
@@ -52,5 +53,8 @@ export default {
   },
   [SET_COMMENTS](state, payload) {
     Vue.set(state.comments, payload.answerId, payload.comments || []);
+  },
+  [SET_ALERT](state, payload) {
+    Vue.set(state, 'alert', payload);
   },
 };
