@@ -1,5 +1,7 @@
-node_modules
 .idea
 .vscode
-client/dist/bundle.js
+node_modules
+dist
 vendor
+ask-a-question
+start.sh

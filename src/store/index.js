@@ -9,7 +9,7 @@ import { TICK_MOMENT } from './types';
 Vue.use(Vuex);
 
 const store = new Vuex.Store({
-  strict: true,
+  strict: process.env.NODE_ENV === 'development',
   state: {
     alert: null,
     user: {},

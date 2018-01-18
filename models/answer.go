@@ -3,9 +3,8 @@ package models
 import (
 	"time"
 
-	"github.com/drvirtuozov/ask-a-question/socket"
-
 	"github.com/drvirtuozov/ask-a-question/db"
+	"github.com/drvirtuozov/ask-a-question/socket"
 )
 
 type Answer struct {
@@ -23,7 +22,6 @@ type Answer struct {
 func (a *Answer) Create() error {
 	var createdAt time.Time
 	var qCreatedAt time.Time
-
 	tx, err := db.Conn.Begin()
 
 	if err != nil {

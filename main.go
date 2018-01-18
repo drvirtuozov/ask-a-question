@@ -1,9 +1,10 @@
 package main
 
 import (
-	"bytes"
-	"io/ioutil"
+	"log"
+	"os"
 
+	"github.com/drvirtuozov/ask-a-question/db"
 	"github.com/drvirtuozov/ask-a-question/handlers"
 	"github.com/drvirtuozov/ask-a-question/socket"
 	"github.com/labstack/echo"
@@ -11,48 +12,26 @@ import (
 	"gopkg.in/go-playground/validator.v9"
 )
 
-func NewOptionalJWTMiddleware(skipper func(echo.Context) bool) echo.MiddlewareFunc {
-	cfg := middleware.DefaultJWTConfig
-	cfg.SigningKey = []byte("secret")
-	cfg.Skipper = skipper
-	return middleware.JWTWithConfig(cfg)
+var port string
+
+func init() {
+	port = os.Getenv("PORT")
+
+	if port == "" {
+		log.Fatal("$PORT must be set")
+	}
+
+	db.Init()
+	db.Migrate()
 }
-
-var optionalAuth = NewOptionalJWTMiddleware(func(ctx echo.Context) bool {
-	var bodyBytes []byte
-	var params struct {
-		Anon bool `json:"anon" form:"anon" query:"anon"`
-	}
-
-	if ctx.Request().Body != nil {
-		bodyBytes, _ = ioutil.ReadAll(ctx.Request().Body)
-	}
-
-	ctx.Request().Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
-
-	if err := ctx.Bind(&params); err != nil {
-		panic(err)
-	}
-
-	ctx.Request().Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
-
-	if err := ctx.Validate(params); err != nil {
-		ctx.JSON(400, handlers.NewErrResponse(err))
-		return false
-	}
-
-	if params.Anon {
-		return true
-	}
-
-	return false
-})
 
 func main() {
 	e := echo.New()
 	e.Validator = &customValidator{validator: validator.New()}
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
+	e.Static("/dist", "dist")
+	e.File("*", "index.html")
 	e.Any("/ws", socket.Handle)
 	go socket.Hub.Run()
 	auth := middleware.JWT([]byte("secret"))
@@ -84,5 +63,5 @@ func main() {
 	likes.Use(auth)
 	likes.Any("create", handlers.LikesCreate)
 	likes.Any("delete", handlers.LikesDelete)
-	e.Logger.Fatal(e.Start(":3000"))
+	e.Logger.Fatal(e.Start(":" + port))
 }
