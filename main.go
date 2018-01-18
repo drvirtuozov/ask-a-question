@@ -30,8 +30,8 @@ func main() {
 	e.Validator = &customValidator{validator: validator.New()}
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
-	e.Static("/dist", "dist")
 	e.File("*", "index.html")
+	e.Static("/dist", "dist")
 	e.Any("/ws", socket.Handle)
 	go socket.Hub.Run()
 	auth := middleware.JWT([]byte("secret"))

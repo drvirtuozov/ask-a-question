@@ -5,7 +5,7 @@ import {
 import store from './store';
 
 
-const ws = new WebSocket('ws://localhost:3000/ws');
+const ws = new WebSocket(`ws://localhost:${process.env.PORT}/ws`);
 
 ws.onopen = () => {
   console.log('Connected to websocket server');
