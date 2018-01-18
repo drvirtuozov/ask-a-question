@@ -1,1 +1,7 @@
-client/dist/bundle.js
+.idea
+.vscode
+node_modules
+dist
+vendor
+ask-a-question
+start.sh

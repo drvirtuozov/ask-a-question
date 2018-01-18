@@ -1,34 +1,67 @@
 package main
 
 import (
-	"fmt"
-	"github.com/auth0/go-jwt-middleware"
-	"github.com/dgrijalva/jwt-go"
-	"github.com/graphql-go/handler"
-	"github.com/mnmtanish/go-graphiql"
-	"net/http"
+	"log"
+	"os"
+
+	"github.com/drvirtuozov/ask-a-question/db"
+	"github.com/drvirtuozov/ask-a-question/handlers"
+	"github.com/drvirtuozov/ask-a-question/socket"
+	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
+	"gopkg.in/go-playground/validator.v9"
 )
 
+var port string
+
+func init() {
+	port = os.Getenv("PORT")
+
+	if port == "" {
+		log.Fatal("$PORT must be set")
+	}
+
+	db.Init()
+	db.Migrate()
+}
+
 func main() {
-	jwtMiddleware := jwtmiddleware.New(jwtmiddleware.Options{
-		ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
-			return []byte("secret"), nil
-		},
-		SigningMethod:       jwt.SigningMethodHS256,
-		CredentialsOptional: true,
-	})
-
-	graphqlHandler := handler.New(&handler.Config{
-		Schema: GraphQLSchema,
-		Pretty: true,
-	})
-
-	graphqlContextHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		graphqlHandler.ContextHandler(r.Context(), w, r)
-	})
-
-	http.Handle("/api", jwtMiddleware.Handler(graphqlContextHandler))
-	http.HandleFunc("/graphql", graphiql.ServeGraphiQL)
-	fmt.Println("Server is listening to localhost:3001")
-	http.ListenAndServe(":3001", nil)
+	e := echo.New()
+	e.Validator = &customValidator{validator: validator.New()}
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+	e.Static("/dist", "dist")
+	e.File("*", "index.html")
+	e.Any("/ws", socket.Handle)
+	go socket.Hub.Run()
+	auth := middleware.JWT([]byte("secret"))
+	api := e.Group("/api/")
+	user := api.Group("user.")
+	user.Any("get", handlers.UserGet)
+	user.Any("create", handlers.UserCreate)
+	user.Any("getAnswers", handlers.UserGetAnswers)
+	user.Use(auth)
+	user.Any("getQuestions", handlers.UserGetQuestions)
+	token := api.Group("token.")
+	token.Any("create", handlers.TokenCreate)
+	question := api.Group("question.")
+	question.Use(optionalAuth)
+	question.Any("create", handlers.QuestionCreate)
+	question.Use(auth)
+	question.Any("delete", handlers.QuestionDelete)
+	question.Any("restore", handlers.QuestionRestore)
+	answer := api.Group("answer.")
+	answer.Any("get", handlers.AnswerGet)
+	answer.Any("getComments", handlers.AnswerGetComments)
+	answer.Use(auth)
+	answer.Any("create", handlers.AnswerCreate)
+	comment := api.Group("comment.")
+	comment.Use(auth)
+	comment.Any("create", handlers.CommentCreate)
+	likes := api.Group("likes.")
+	likes.Any("get", handlers.LikesGet)
+	likes.Use(auth)
+	likes.Any("create", handlers.LikesCreate)
+	likes.Any("delete", handlers.LikesDelete)
+	e.Logger.Fatal(e.Start(":" + port))
 }
