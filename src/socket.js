@@ -4,8 +4,8 @@ import {
 } from './store/types';
 import store from './store';
 
-
-const ws = new WebSocket(`ws://localhost:${process.env.PORT}/ws`);
+const wsProtocol = process.env.NODE_ENV === 'production' ? 'wss' : 'ws';
+const ws = new WebSocket(`${wsProtocol}://${location.host}/ws`);
 
 ws.onopen = () => {
   console.log('Connected to websocket server');
