@@ -39,6 +39,10 @@ func (c *client) readPump() {
 		case JOIN_ROOM:
 			id := int(e.Payload.(float64))
 			c.joinRoom(id)
+		case PING:
+			c.send <- Event{
+				Type: PONG,
+			}
 		}
 	}
 }

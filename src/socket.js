@@ -4,8 +4,10 @@ import {
 } from './store/types';
 import store from './store';
 
+
 const wsProtocol = process.env.NODE_ENV === 'production' ? 'wss' : 'ws';
-const ws = new WebSocket(`${wsProtocol}://${location.host}/ws`);
+const ws = new WebSocket(`${wsProtocol}://${window.location.host}/ws`);
+let pinger;
 
 ws.onopen = () => {
   console.log('Connected to websocket server');
@@ -16,10 +18,17 @@ ws.onopen = () => {
       payload: localStorage.getItem('token'),
     }));
   }
+
+  pinger = setInterval(() => { // required for heroku to prevent idling
+    ws.send(JSON.stringify({
+      type: 'PING',
+    }));
+  }, 10000);
 };
 
 ws.onclose = () => {
   console.log('Disconnected from websocket server');
+  clearInterval(pinger);
 };
 
 ws.onmessage = (e) => {
@@ -70,6 +79,7 @@ ws.onmessage = (e) => {
 
       break;
     }
+    case 'PONG': break;
     default:
       console.error('Unimplemented socket event:', event.type);
   }

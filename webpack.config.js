@@ -1,6 +1,7 @@
 const path = require('path');
 const webpack = require('webpack');
 
+
 module.exports = {
   entry: './src/main.js',
   output: {
@@ -47,7 +48,10 @@ module.exports = {
     overlay: true,
     proxy: {
       '/api': 'http://localhost:3000',
-      '/ws': 'http://localhost:3000',
+      '/ws': {
+        target: 'ws://localhost:3000',
+        ws: true,
+      },
     },
   },
   performance: {
